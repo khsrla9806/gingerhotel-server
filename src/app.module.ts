@@ -1,29 +1,49 @@
+/* eslint-disable */
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from 'src/config';
-import { UserSchema } from './models/UserSchema';
-import AppResolverModule from './graphql/resolver.module';
-import { TypeGraphQLModule } from 'typegraphql-nestjs';
-import { ApolloDriver } from '@nestjs/apollo';
+import { GraphQLModule } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
+import { User } from './users/entities/user.entity';
+import { Hotel } from './hotels/entities/hotel.entity';
+import { HotelModule } from './hotels/hotels.module';
+import { Window } from './windows/entities/window.entity';
+import { WindowModule } from './windows/windows.module';
+import { Letter } from './letters/entities/letter.entity';
+import { LetterModule } from './letters/letters.module';
 
 @Module({
   imports: [
-    TypeGraphQLModule.forRoot({
-      driver: ApolloDriver,
+
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test"
     }),
-    AppResolverModule,
-    // db setting
-    // SequelizeModule.forRoot({
-    //   dialect: 'mysql',
-    //   host: config.db_host,
-    //   port: 3306,
-    //   username: config.db_user_name,
-    //   password: config.db_password,
-    //   database: config.db_name,
-    //   models: [UserSchema],
-    // }),
-  ],
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: "localhost",
+      port: 5432,
+      username: "postgres",
+      password: "1234",
+      database: "nuber-eats",
+      synchronize: true,
+      logging: true,
+      entities: [User, Hotel, Window, Letter],
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+    driver: ApolloDriver,
+    autoSchemaFile: true,
+  }), 
+  LetterModule,
+  UsersModule,
+  CommonModule,
+  HotelModule,
+  WindowModule,
+],
   controllers: [],
   providers: [],
 })
+
 export class AppModule {}
