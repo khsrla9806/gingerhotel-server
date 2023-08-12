@@ -1,14 +1,14 @@
 /* eslint-disable */
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { usersService } from "./users.service";
+import { UserService } from "./users.service";
 import { User } from "./entities/user.entity";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account-dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 
 @Resolver(of => User)
-export class UsersResolver {
+export class UserResolver {
     constructor(
-      private readonly usersService: usersService
+      private readonly usersService: UserService
     ) {}
 
     @Query(returns => Boolean)
