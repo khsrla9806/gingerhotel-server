@@ -13,21 +13,29 @@ import { Window } from './windows/entities/window.entity';
 import { WindowModule } from './windows/windows.module';
 import { Letter } from './letters/entities/letter.entity';
 import { LetterModule } from './letters/letters.module';
+import * as Joi from 'joi';
 
 @Module({
   imports: [
 
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test"
+      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test",
+      validationSchema: Joi.object({
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.string().required(),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_NAME: Joi.string().required()
+      })
     }),
     TypeOrmModule.forRoot({
       type: "postgres",
-      host: "localhost",
-      port: 5432,
-      username: "postgres",
-      password: "1234",
-      database: "nuber-eats",
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       synchronize: true,
       logging: true,
       entities: [User, Hotel, Window, Letter],
