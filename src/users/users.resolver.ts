@@ -11,35 +11,9 @@ export class UserResolver {
       private readonly usersService: UserService
     ) {}
 
-    @Query(returns => Boolean)
-    hi() {
-        return true;
     }
 
-    @Mutation(returns => CreateAccountOutput)
-    async createAccount(@Args('input') createAccountInput:CreateAccountInput): Promise<CreateAccountOutput> {
-      try {
-        
-        const {ok , error} = await this.usersService.createAccount(createAccountInput);
-        if (error) {
-          return {
-            ok,
-            error,
-          };
-        }
-        return {
-          ok: true,
-        }
-      } catch (error) {
-        return {
-          ok: false,
-          error
-        };
-      }
     }
 
-    @Mutation(returns => LoginOutput)
-    async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-      return;
     }
 }
