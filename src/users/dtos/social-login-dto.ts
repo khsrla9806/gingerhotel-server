@@ -11,7 +11,7 @@ export class SocialOutput extends CoreOutput {
     hotelId?: number;
 
     @Field(type => Number)
-    memberId?: number;
+    userId?: number;
 }
 
 @InputType()
