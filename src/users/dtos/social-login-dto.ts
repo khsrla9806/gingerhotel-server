@@ -8,9 +8,6 @@ export class SocialOutput extends CoreOutput {
     accessToken?: string;
 
     @Field(type => Number)
-    hotelId?: number;
-
-    @Field(type => Number)
     userId?: number;
 }
 
