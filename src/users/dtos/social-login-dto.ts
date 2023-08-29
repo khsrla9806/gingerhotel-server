@@ -6,9 +6,6 @@ export class SocialOutput extends CoreOutput {
     
     @Field(type => String)
     accessToken?: string;
-
-    @Field(type => Number)
-    userId?: number;
 }
 
 @InputType()
