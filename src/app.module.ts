@@ -4,7 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { User } from './users/entities/user.entity';
 import { Hotel } from './hotels/entities/hotel.entity';
@@ -47,7 +47,7 @@ import * as Joi from 'joi';
     autoSchemaFile: true,
   }), 
   LetterModule,
-  UsersModule,
+  UserModule,
   CommonModule,
   HotelModule,
   WindowModule,
