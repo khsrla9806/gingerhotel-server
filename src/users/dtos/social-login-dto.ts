@@ -38,8 +38,8 @@ export class KakaoSocialInput {
     @Field(type => String)
     pay_account_id: string;
 
-    @Field(type => String)
-    email: string;
+    @Field(type => String, { nullable: true })
+    email?: string;
 }
 
 @InputType()
@@ -60,8 +60,8 @@ export class GoogleSocialInput {
     @Field(type => String)
     hd: string;
 
-    @Field(type => String)
-    email: string;
+    @Field(type => String, { nullable: true })
+    email?: string;
 
     @Field(type => Boolean)
     email_verified: boolean;
@@ -94,8 +94,8 @@ export class GoogleSocialInput {
 @InputType()
 export class NaverSocialInput {
 
-    @Field(type => String)
-    email: string;
+    @Field(type => String, { nullable: true })
+    email?: string;
 
     @Field(type => String)
     nickname: string;
@@ -146,8 +146,8 @@ export class AppleSocialInput {
     @Field(type => String)
     at_hash: string;
 
-    @Field(type => String)
-    email: string;
+    @Field(type => String, { nullable: true })
+    email?: string;
 
     @Field(type => String)
     email_verified: string;

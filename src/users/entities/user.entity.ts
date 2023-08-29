@@ -15,7 +15,7 @@ export class User extends CoreEntity {
     @Column({ nullable: true })
     @Field(type => String)
     @IsEmail()
-    email: string;
+    email?: string;
     
     @Column({ unique: true, nullable: false })
     @Field(type => String)
@@ -27,10 +27,10 @@ export class User extends CoreEntity {
 
     @Column({ nullable: true })
     @Field(type => Number)
-    age: number; // (미정) 연령대
+    age?: number; // (미정) 연령대
 
     @Column({ nullable: true })
     @Field(type => Gender)
-    gender: Gender;
+    gender?: Gender;
 
 }
