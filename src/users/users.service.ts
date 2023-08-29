@@ -1,15 +1,17 @@
-/* eslint-disable */
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Vendor } from "./entities/vendor.type";
 import { Gender } from "./entities/gender.type";
+import { JwtService } from "@nestjs/jwt";
+
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(User) private readonly userRepository: Repository<User>
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        private readonly jwtService: JwtService
     ) {}
 
     /**
@@ -25,13 +27,14 @@ export class UserService {
 
             if (existingUser) {
                 this.checkVendor(existingUser, vendor);
+                const accessTokenPayload = { id: existingUser.id };
 
                 return {
                     ok: true,
-                    accessToken: "TODO: JWT 토큰 정보"
+                    accessToken: this.jwtService.sign(accessTokenPayload)
                 };
             }
-
+            
             const user = await this.userRepository.save(this.userRepository.create({ 
                 email: email,
                 socialId: socialId,
@@ -39,13 +42,15 @@ export class UserService {
                 age: 20, // TODO: 나이도 입력 받아서 넣어야 함
                 gender: Gender.MAN // TODO: 성별도 입력 받아서 넣어야 함
             }));
+            const accessTokenPayload = { id: user.id };
 
             return {
                 ok: true,
-                accessToken: "TODO: JWT 토큰 정보"
+                accessToken: this.jwtService.sign(accessTokenPayload)
             };
 
         } catch (error) {
+            console.log(error);
             return {
                 ok: false,
                 error: error.message
