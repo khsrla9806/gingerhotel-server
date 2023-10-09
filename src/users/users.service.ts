@@ -1,9 +1,9 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { User } from "./entities/user.entity";
+import { User } from "../entities/user.entity";
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Vendor } from "./entities/vendor.type";
-import { Gender } from "./entities/gender.type";
+import { Vendor } from "../entities/domain/vendor.type";
+import { Gender } from "../entities/domain/gender.type";
 import { JwtService } from "@nestjs/jwt";
 
 
@@ -36,11 +36,13 @@ export class UserService {
             }
             
             const user = await this.userRepository.save(this.userRepository.create({ 
-                email: email,
                 socialId: socialId,
                 vendor: vendor,
-                age: 20, // TODO: 나이도 입력 받아서 넣어야 함
-                gender: Gender.MAN // TODO: 성별도 입력 받아서 넣어야 함
+                email: email,
+                birthYear: 1998, // TODO: 나이도 입력 받아서 넣어야 함
+                gender: Gender.MAN, // TODO: 성별도 입력 받아서 넣어야 함
+                code: 'kj3kji2'
+
             }));
             const accessTokenPayload = { id: user.id };
 

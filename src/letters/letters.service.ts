@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Letter } from './entities/letter.entity';
+import { Letter } from '../entities/letter.entity';
 import { Repository } from 'typeorm';
 import { CreateLetterInput } from './dtos/create-letter.dto';
 

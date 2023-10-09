@@ -1,25 +1,25 @@
 /* eslint-disable */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 
 
-import { CreateWindowInput, CreateWindowOutput } from './dtos/create-window.dto';
-import { Window } from './entities/window.entity';
+import { CreateHotelWindowInput, CreateHotelWindowOutput } from './dtos/create.hotel.window.dto';
+import { HotelWindow } from '../entities/hotel-window.entity';
 
 @Injectable()
-export class WindowService {
+export class HotelWindowService {
   constructor(
-    @InjectRepository(Window)
-    private readonly windows: Repository<Window>,
+    @InjectRepository(HotelWindow)
+    private readonly windows: Repository<HotelWindow>,
 
   ) {}
 
   async createHotel(
     owner: User,
-    createWindowInput: CreateWindowInput,
-  ): Promise<CreateWindowOutput> {
+    createWindowInput: CreateHotelWindowInput,
+  ): Promise<CreateHotelWindowOutput> {
     try {
       const newHotel = this.windows.create(createWindowInput);
       //newHotel.owner = owner;

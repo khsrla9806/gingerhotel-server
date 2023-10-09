@@ -1,10 +1,10 @@
 /* eslint-disable */
 import { Field, InputType, ObjectType, PickType } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dtos/output.dto';
-import { Window } from '../entities/window.entity';
+import { HotelWindow } from '../../entities/hotel-window.entity';
 
 @InputType()
-export class CreateWindowInput extends PickType(Window, [
+export class CreateHotelWindowInput extends PickType(HotelWindow, [
   'date',
   'isOpen',
   'hasCookie',
@@ -15,4 +15,4 @@ export class CreateWindowInput extends PickType(Window, [
 }
 
 @ObjectType()
-export class CreateWindowOutput extends CoreOutput {}
+export class CreateHotelWindowOutput extends CoreOutput {}

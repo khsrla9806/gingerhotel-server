@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Resolver } from "@nestjs/graphql";
-import { Letter } from "./entities/letter.entity";
+import { Letter } from "../entities/letter.entity";
 import { LetterService } from "./letters.service";
 
 @Resolver(of => Letter)

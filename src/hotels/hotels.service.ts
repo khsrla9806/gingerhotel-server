@@ -1,11 +1,11 @@
 /* eslint-disable */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 
 
-import { Hotel } from './entities/hotel.entity';
+import { Hotel } from '../entities/hotel.entity';
 import { CreateHotelInput, CreateHotelOutput } from './dtos/create-hotel.dto';
 
 @Injectable()

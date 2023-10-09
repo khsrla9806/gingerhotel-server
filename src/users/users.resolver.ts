@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UserService } from "./users.service";
-import { User } from "./entities/user.entity";
+import { User } from "../entities/user.entity";
 import { AppleSocialInput, GoogleSocialInput, KakaoSocialInput, NaverSocialInput, SocialOutput } from "./dtos/social-login-dto";
-import { Vendor } from "./entities/vendor.type";
+import { Vendor } from "../entities/domain/vendor.type";
 import { UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "./decorator/jwt.auth.guard";
 import { LoginUserInfo } from "./decorator/current.user.decorator";
