@@ -1,5 +1,3 @@
-/* eslint-disable */
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreEntity } from 'src/entities/core.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';

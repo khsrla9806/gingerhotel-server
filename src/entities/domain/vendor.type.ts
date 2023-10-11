@@ -1,4 +1,3 @@
-import { registerEnumType } from "@nestjs/graphql";
 
 export enum Vendor {
     KAKAO = "kakao",
@@ -6,7 +5,3 @@ export enum Vendor {
     GOOGLE = "google",
     APPLE = "apple"
 }
-
-registerEnumType(Vendor, {
-    name: "Vendor"
-});

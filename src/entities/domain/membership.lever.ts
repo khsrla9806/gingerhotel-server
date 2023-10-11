@@ -1,4 +1,3 @@
-import { registerEnumType } from "@nestjs/graphql";
 
 export enum MembershipLever {
   FREE,
@@ -6,7 +5,3 @@ export enum MembershipLever {
   DELUXE,
   SUITE
 }
-
-registerEnumType(MembershipLever, {
-    name: "MembershipLevel"
-});

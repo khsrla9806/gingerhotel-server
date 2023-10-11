@@ -1,20 +1,14 @@
-/* eslint-disable */
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { User } from './entities/user.entity';
 import { Hotel } from './entities/hotel.entity';
-import { HotelModule } from './hotels/hotels.module';
 import { Letter } from './entities/letter.entity';
-import { LetterModule } from './letters/letters.module';
 import * as Joi from 'joi';
 import { Membership } from './entities/membership.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { HotelWindowModule } from './hotel_windows/hotel.windows.module';
 import { HotelWindow } from './entities/hotel-window.entity';
 import { Reply } from './entities/reply.entity';
 import { NotificationHistory } from './entities/notification-history.entity';
@@ -63,15 +57,8 @@ import { Feek } from './entities/feek.entity';
       ],
       namingStrategy: new SnakeNamingStrategy()
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-    driver: ApolloDriver,
-    autoSchemaFile: true,
-  }), 
-  LetterModule,
-  UserModule,
-  CommonModule,
-  HotelModule,
-  HotelWindowModule
+    UserModule,
+    CommonModule
 ],
   controllers: [],
   providers: [],

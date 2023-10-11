@@ -2,7 +2,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { UserResolver } from './users.resolver';
 import { UserService } from './users.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -21,6 +20,6 @@ import { PassportModule } from '@nestjs/passport';
             }),
           }),
     ],
-    providers: [UserResolver, UserService, JwtStrategy],
+    providers: [UserService, JwtStrategy],
 })
 export class UserModule {}
