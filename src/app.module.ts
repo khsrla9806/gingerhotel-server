@@ -7,7 +7,6 @@ import { User } from './entities/user.entity';
 import { Hotel } from './entities/hotel.entity';
 import { Letter } from './entities/letter.entity';
 import * as Joi from 'joi';
-import { Membership } from './entities/membership.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { HotelWindow } from './entities/hotel-window.entity';
 import { Reply } from './entities/reply.entity';
@@ -46,8 +45,7 @@ import { Feek } from './entities/feek.entity';
         User, 
         Hotel, 
         HotelWindow, 
-        Letter, 
-        Membership, 
+        Letter,
         Reply, 
         NotificationHistory,
         PaymentHistory,

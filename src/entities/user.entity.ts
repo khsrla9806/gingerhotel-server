@@ -1,16 +1,11 @@
 import { CoreEntity } from "src/entities/core.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Vendor } from "./domain/vendor.type";
 import { Gender } from "./domain/gender.type";
-import { Membership } from "./membership.entity";
 
 @Entity()
 export class User extends CoreEntity {
 
-    @JoinColumn()
-    @OneToOne(() => Membership, { nullable: false })
-    membership: Membership;
     
     @Column({ unique: true, nullable: false })
     socialId: string;
