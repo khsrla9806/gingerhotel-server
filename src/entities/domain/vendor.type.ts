@@ -1,7 +1,7 @@
 
 export enum Vendor {
-    KAKAO = "kakao",
-    NAVER = "naver",
-    GOOGLE = "google",
-    APPLE = "apple"
+    KAKAO = "KAKAO",
+    NAVER = "NAVER",
+    GOOGLE = "GOOGLE",
+    APPLE = "APPLE"
 }
