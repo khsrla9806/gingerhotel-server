@@ -1,11 +1,21 @@
 import { CoreEntity } from "src/entities/core.entity";
+import { Column, Entity } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Vendor } from "./domain/vendor.type";
 import { Gender } from "./domain/gender.type";
+import { MembershipType } from "./domain/membership.type";
+import { Membership, MembershipInfo } from "./domain/membership.info";
 
 @Entity()
 export class User extends CoreEntity {
 
+    @Column({
+        type: 'enum',
+        enum: MembershipType,
+        default: MembershipType.FREE,
+        nullable: false
+    })
+    membership: MembershipType;
     
     @Column({ unique: true, nullable: false })
     socialId: string;
@@ -34,5 +44,9 @@ export class User extends CoreEntity {
 
     @Column({ default: 0 })
     keyCount: number;
+
+    public getMembershipInfo(): MembershipInfo {
+        return Membership.getInfoByMembershipType(this.membership);
+    }
 
 }
