@@ -55,7 +55,7 @@ export class AuthService {
         membership: MembershipType.FREE,
         socialId: socialId,
         vendor: vendor,
-        email: email === undefined ? null : email,
+        email: email,
         isActive: true,
         hasHotel: false, // 호텔 생성 페이지에서 호텔 생성 후 true로 변경
         code: code,
@@ -75,7 +75,8 @@ export class AuthService {
       }
 
     } catch (error) {
-      console.log(error);
+      this.log.error('error: ', error);
+      
       return {
         success: false,
         error: error.message
