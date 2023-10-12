@@ -8,9 +8,9 @@ export class UserBlockHistory extends CoreEntity {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  fromUser: User;
+  private fromUser: User;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  toUser: User;
+  private toUser: User;
 }

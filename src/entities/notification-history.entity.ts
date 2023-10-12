@@ -7,17 +7,17 @@ export class NotificationHistory extends CoreEntity {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  user: User;
+  private user: User;
   
   @Column()
-  type: string;
+  private type: string;
 
   @Column()
-  typeId: number;
+  private typeId: number;
 
   @Column()
-  message: string;
+  private message: string;
 
   @Column({ default: false })
-  isChecked: boolean;
+  private isChecked: boolean;
 }

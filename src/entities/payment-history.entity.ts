@@ -7,27 +7,27 @@ import { LocalDateTimeTransformer } from "src/common/utils/local-date-time.trans
 export class PaymentHistory {
   
   @PrimaryGeneratedColumn()
-  id: number;
+  private id: number;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  user: User;
+  private user: User;
 
   @Column()
-  paymenyType: string;
+  private paymenyType: string;
 
   @Column()
-  paymentContent: string;
+  private paymentContent: string;
 
   @Column()
-  paymentAmount: number;
+  private paymentAmount: number;
 
   @Column()
-  paymentStatus: string;
+  private paymentStatus: string;
 
   @Column({
     type: 'timestamptz',
     transformer: new LocalDateTimeTransformer()
   })
-  paymentDate: LocalDateTime;
+  private paymentDate: LocalDateTime;
 }

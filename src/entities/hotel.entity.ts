@@ -7,18 +7,18 @@ export class Hotel extends CoreEntity {
 
   @JoinColumn()
   @OneToOne(type => User, { nullable: false })
-  user: User;
+  private user: User;
 
   @Column()
-  nickname: string;
+  private nickname: string;
 
   @Column()
-  description: string;
+  private description: string;
 
   @Column()
-  headColor: string;
+  private headColor: string;
 
   @Column()
-  bodyColor: string;
+  private bodyColor: string;
 
 }

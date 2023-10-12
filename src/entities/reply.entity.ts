@@ -9,22 +9,22 @@ export class Reply extends CoreEntity {
 
   @ManyToOne(() => HotelWindow, { nullable: false })
   @JoinColumn()
-  hotelWindow: HotelWindow;
+  private hotelWindow: HotelWindow;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  sender: User;
+  private sender: User;
 
   @ManyToOne(() => Letter, { nullable: false })
   @JoinColumn()
-  letter: Letter;
+  private letter: Letter;
 
   @Column()
-  content: string;
+  private content: string;
 
   @Column({ default: false })
-  isDeleted: boolean;
+  private isDeleted: boolean;
 
   @Column({ nullable: true, length: 1000 })
-  imageUrl: string;
+  private imageUrl: string;
 }
