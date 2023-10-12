@@ -8,21 +8,21 @@ export class Letter extends CoreEntity {
 
   @ManyToOne(() => HotelWindow, { nullable: false })
   @JoinColumn()
-  private hotelWindow: HotelWindow;
+  hotelWindow: HotelWindow;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  private sender: User;
+  sender: User;
 
   @Column()
-  private senderNickname: string;
+  senderNickname: string;
 
   @Column()
-  private content: string;
+  content: string;
 
   @Column({ default: false })
-  private isDeleted: boolean;
+  isDeleted: boolean;
 
   @Column({ nullable: true, length: 1000 })
-  private imageUrl: string;
+  imageUrl: string;
 }

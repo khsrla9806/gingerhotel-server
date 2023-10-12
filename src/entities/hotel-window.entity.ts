@@ -10,17 +10,17 @@ export class HotelWindow extends CoreEntity {
 
   @JoinColumn()
   @ManyToOne(() => Hotel, { nullable: false })
-  private hotel: Hotel;
+  hotel: Hotel;
 
   @Column({
     type: 'date',
     transformer: new LocalDateTransformer()
   })
-  private date: LocalDate;
+  date: LocalDate;
 
   @Column({ default: false })
-  private isOpen: boolean;
+  isOpen: boolean;
 
   @Column({ default: false })
-  private hasCookie: boolean;
+  hasCookie: boolean;
 }

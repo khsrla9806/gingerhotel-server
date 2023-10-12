@@ -8,18 +8,18 @@ export class Feek extends CoreEntity {
   
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  private requestor: User;
+  requestor: User;
 
   @ManyToOne(() => Letter, { nullable: false })
   @JoinColumn()
-  private letter: Letter;
+  letter: Letter;
 
   @Column()
-  private requestorName: string;
+  requestorName: string;
 
   @Column()
-  private feekStatus: string;
+  feekStatus: string;
 
   @Column({ nullable: true })
-  private comment: string;
+  comment: string;
 }

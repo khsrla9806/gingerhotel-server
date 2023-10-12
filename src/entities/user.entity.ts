@@ -15,37 +15,37 @@ export class User extends CoreEntity {
         default: MembershipType.FREE,
         nullable: false
     })
-    private membership: MembershipType;
+    membership: MembershipType;
     
     @Column({ unique: true, nullable: false })
-    private socialId: string;
+    socialId: string;
 
     @Column({ nullable: false })
-    private vendor: Vendor;
+    vendor: Vendor;
 
     @Column({ nullable: true })
     @IsEmail()
-    private email?: string;
+    email?: string;
 
     @Column({ nullable: true })
-    private birthYear?: number;
+    birthYear?: number;
 
     @Column({ nullable: true })
-    private gender?: Gender;
+    gender?: Gender;
 
     @Column({ default: true })
-    private isActive: boolean;
+    isActive: boolean;
 
     @Column({ nullable: false, unique: true, length: 7 })
-    private code: string;
+    code: string;
 
     @Column({ default: 0 })
-    private feekCount: number;
+    feekCount: number;
 
     @Column({ default: 0 })
-    private keyCount: number;
+    keyCount: number;
 
-    public getMembershipInfo(): MembershipInfo {
+    getMembershipInfo(): MembershipInfo {
         return Membership.getInfoByMembershipType(this.membership);
     }
 

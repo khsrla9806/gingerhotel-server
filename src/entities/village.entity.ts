@@ -7,12 +7,12 @@ import { User } from "./user.entity";
 export class Village extends CoreEntity {
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  private fromUser: User;
+  fromUser: User;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  private toUser: User;
+  toUser: User;
 
   @Column({ default: false })
-  private isBookmark: boolean;
+  isBookmark: boolean;
 }
