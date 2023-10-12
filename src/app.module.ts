@@ -3,18 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
-import { User } from './entities/user.entity';
-import { Hotel } from './entities/hotel.entity';
-import { Letter } from './entities/letter.entity';
 import * as Joi from 'joi';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { HotelWindow } from './entities/hotel-window.entity';
-import { Reply } from './entities/reply.entity';
-import { NotificationHistory } from './entities/notification-history.entity';
-import { PaymentHistory } from './entities/payment-history.entity';
-import { UserBlockHistory } from './entities/user-block-history.entity';
-import { Village } from './entities/village.entity';
-import { Feek } from './entities/feek.entity';
 
 @Module({
   imports: [
@@ -41,18 +31,7 @@ import { Feek } from './entities/feek.entity';
       database: process.env.DB_NAME,
       synchronize: true,
       logging: true,
-      entities: [
-        User, 
-        Hotel, 
-        HotelWindow, 
-        Letter,
-        Reply, 
-        NotificationHistory,
-        PaymentHistory,
-        UserBlockHistory,
-        Village,
-        Feek
-      ],
+      entities: ['dist/**/*.entity.js'],
       namingStrategy: new SnakeNamingStrategy()
     }),
     UserModule,
