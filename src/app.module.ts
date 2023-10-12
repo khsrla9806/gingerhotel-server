@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import * as Joi from 'joi';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
@@ -35,7 +34,6 @@ import { AuthModule } from './auth/auth.module';
       entities: ['dist/**/*.entity.js'],
       namingStrategy: new SnakeNamingStrategy()
     }),
-    UserModule,
     CommonModule,
     AuthModule
 ],
