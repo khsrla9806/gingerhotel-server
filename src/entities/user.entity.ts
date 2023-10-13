@@ -5,6 +5,8 @@ import { Vendor } from "./domain/vendor.type";
 import { Gender } from "./domain/gender.type";
 import { MembershipType } from "./domain/membership.type";
 import { Membership, MembershipInfo } from "./domain/membership.info";
+import { LocalDate } from "@js-joda/core";
+import { LocalDateTransformer } from "src/common/utils/local-date-time.transformer";
 
 @Unique(['socialId', 'vendor'])
 @Entity()
@@ -25,11 +27,14 @@ export class User extends CoreEntity {
     vendor: Vendor;
 
     @Column({ nullable: true })
-    @IsEmail()
     email?: string;
 
-    @Column({ nullable: true })
-    birthYear?: number;
+    @Column({
+        type: 'date',
+        transformer: new LocalDateTransformer(),
+        nullable: true
+      })
+    birthDate?: LocalDate;
 
     @Column({ nullable: true })
     gender?: Gender;

@@ -4,12 +4,20 @@ import { ValueTransformer } from "typeorm";
 export class LocalDateTransformer implements ValueTransformer {
   // Entity에서 DB로 저장할 때
   to(entityValue: LocalDate): Date {
-    return convert(entityValue).toDate();
+    if (entityValue) {
+      return convert(entityValue).toDate();
+    }
+
+    return null;
   }
 
   // DB에서 Entity로 가져올 때
   from(databaseValue: Date): LocalDate {
-    return LocalDate.from(nativeJs(databaseValue));
+    if (databaseValue) {
+      return LocalDate.parse(databaseValue.toString());
+    }
+
+    return null;
   }
 }
 
