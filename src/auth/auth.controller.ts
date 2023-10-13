@@ -11,6 +11,7 @@ import { Response } from 'express';
 import { CreateHotelRequest } from './dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from './pipes/create-hotel.validation.pipe';
+import { CreateHotelAPI } from 'src/common/swagger/decorator/create-hotel.decorator';
 
 @Controller('auth')
 @ApiTags('Auth API')
@@ -45,6 +46,7 @@ export class AuthController {
   }
 
   @Post('/hotel')
+  @CreateHotelAPI()
   @UseGuards(AuthGuard())
   createHotel(@LoginUser() user: User, @Body(CreateHotelValidationPipe) dto: CreateHotelRequest): Promise<CommonResponse> {
     return this.authService.createHotel(user, dto);
