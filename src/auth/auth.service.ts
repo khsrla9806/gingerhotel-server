@@ -1,19 +1,23 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { SocialLoginResponse } from './dto/social-login.dto';
 import { User } from 'src/entities/user.entity';
 import { MembershipType } from 'src/entities/domain/membership.type';
 import { Response } from 'express';
+import { CreateHotelRequest, CreateHotelResponse } from './dto/create-hotel.dto';
+import { Hotel } from 'src/entities/hotel.entity';
 
 @Injectable()
 export class AuthService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Hotel) private readonly hotelRepository: Repository<Hotel>,
     private readonly jwtService: JwtService,
+    private readonly dataSource: DataSource
   ) { }
 
   private log = new Logger('AuthService');
@@ -119,6 +123,68 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  async createHotel(user: User, dto: CreateHotelRequest): Promise<CreateHotelResponse> {
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction(); // Transaction 시작
+
+    try {
+      if (user.hasHotel) {
+        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${user.id}`);
+      }
+      user.hasHotel = true;
+
+      if (dto.birthDate) {
+        user.birthDate = dto.birthDate;
+      }
+
+      if (dto.gender) {
+        user.gender = dto.gender;
+      }
+
+      if (dto.code) {
+        const recommendedUser = await this.userRepository.findOne({ where: { code: dto.code } });
+
+        if (!recommendedUser) {
+          throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`);
+        }
+        if (user.id === recommendedUser.id) {
+          throw new BadRequestException('자기 자신은 추천할 수 없습니다.');
+        }
+        recommendedUser.keyCount++;
+        await queryRunner.manager.save(recommendedUser);
+      }
+
+      const savedUser = await queryRunner.manager.save(user);
+      const hotel = await queryRunner.manager.save(this.hotelRepository.create({
+        nickname: dto.nickname,
+        description: dto.description,
+        headColor: dto.headColor,
+        bodyColor: dto.bodyColor,
+        user: savedUser
+      }));
+
+      await queryRunner.commitTransaction(); // Transaction Commit (DB 반영)
+
+      return {
+        success: true,
+        hotelId: hotel.id
+      }
+
+    } catch (exception) {
+      this.log.error('exception', exception);
+      await queryRunner.rollbackTransaction(); // 하나라도 실패 시 Transaction Rollback (원자성 보장)
+
+      return {
+        success: false,
+        error: exception.message
+      }
+    } finally {
+      await queryRunner.release(); // Transaction 반납 (다른 사용자들이 사용할 수 있도록)
+    }
   }
 
 }

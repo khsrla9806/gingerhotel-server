@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt-strategy';
+import { Hotel } from 'src/entities/hotel.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { JwtStrategy } from './jwt-strategy';
         }
       })
     }),
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User, Hotel])
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
