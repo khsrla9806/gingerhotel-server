@@ -1,60 +1,147 @@
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { CommonResponse } from "src/common/dto/output.dto";
 
 export class SocialLoginResponse extends CommonResponse {
-  accessToken?: string;
+    @ApiPropertyOptional({ description: '로그인한 사용자의 토큰 정보' })
+    accessToken?: string;
 }
 
 export class KakaoSocialRequest {
+    @ApiProperty({ description: '[필수 O] kakao 로그인 사용자의 식별값', required: true })
     id: string;
-    name: string;
-    birthday: string;
-    gender: string;
-    phone_number: string;
-    phone_carrier: string;
-    ci: string;
-    pay_account_id: string;
+
+    @ApiPropertyOptional()
+    name?: string;
+
+    @ApiPropertyOptional()
+    birthday?: string;
+
+    @ApiPropertyOptional()
+    gender?: string;
+
+    @ApiPropertyOptional()
+    phone_number?: string;
+
+    @ApiPropertyOptional()
+    phone_carrier?: string;
+
+    @ApiPropertyOptional()
+    ci?: string;
+
+    @ApiPropertyOptional()
+    pay_account_id?: string;
+
+    @ApiProperty({ description: '[필수 X] kakao 로그인 사용자의 이메일', required: false })
     email?: string;
 }
 
 export class GoogleSocialRequest {
-    iss: string;
-    nbf: number;
-    aud: string;
+    
+    @ApiPropertyOptional()
+    iss?: string;
+    
+    @ApiPropertyOptional()
+    nbf?: number;
+    
+    @ApiPropertyOptional()
+    aud?: string;
+    
+    @ApiProperty({ description: '[필수 O] google 로그인 사용자의 식별값', required: true })
     sub: string;
-    hd: string;
+    
+    @ApiPropertyOptional()
+    hd?: string;
+    
+    @ApiProperty({ description: '[필수 X] google 로그인 사용자의 이메일', required: false })
     email?: string;
-    email_verified: boolean;
-    azp: string;
-    name: string;
-    picture: string;
-    given_name: string;
-    family_name: string;
-    iat: number;
-    exp: number;
-    jti: string;
+    
+    @ApiPropertyOptional()
+    email_verified?: boolean;
+    
+    @ApiPropertyOptional()
+    azp?: string;
+    
+    @ApiPropertyOptional()
+    name?: string;
+    
+    @ApiPropertyOptional()
+    picture?: string;
+    
+    @ApiPropertyOptional()
+    given_name?: string;
+    
+    @ApiPropertyOptional()
+    family_name?: string;
+    
+    @ApiPropertyOptional()
+    iat?: number;
+    
+    @ApiPropertyOptional()
+    exp?: number;
+    
+    @ApiPropertyOptional()
+    jti?: string;
 }
 
 export class NaverSocialRequest {
+    
+    @ApiProperty({ description: '[필수 X] naver 로그인 사용자의 이메일', required: false })
     email?: string;
-    nickname: string;
-    profile_image: string;
-    age: string;
-    gender: string;
+    
+    @ApiPropertyOptional()
+    nickname?: string;
+    
+    @ApiPropertyOptional()
+    profile_image?: string;
+    
+    @ApiPropertyOptional()
+    age?: string;
+    
+    @ApiPropertyOptional()
+    gender?: string;
+    
+    @ApiProperty({ description: '[필수 O] naver 로그인 사용자의 식별값', required: true })
     id: string;
-    name: string;
-    birthday: string;
-    birthyear: string;
-    mobile: string;
+    
+    @ApiPropertyOptional()
+    name?: string;
+    
+    @ApiPropertyOptional()
+    birthday?: string;
+    
+    @ApiPropertyOptional()
+    birthyear?: string;
+    
+    @ApiPropertyOptional()
+    mobile?: string;
 }
 
 export class AppleSocialRequest {
-    iss: string;
-    aud: string;
-    exp: number;
-    iat: number;
+    
+    @ApiPropertyOptional()
+    iss?: string;
+    
+    @ApiPropertyOptional()
+    aud?: string;
+    
+    @ApiPropertyOptional()
+    exp?: number;
+    
+    @ApiPropertyOptional()
+    iat?: number;
+    
+    @ApiProperty({ description: '[필수 O] apple 로그인 사용자의 식별값', required: true })
     sub: string;
-    at_hash: string;
+    
+    @ApiPropertyOptional()
+    at_hash?: string;
+    
+    @ApiProperty({ description: '[필수 X] apple 로그인 사용자의 이메일', required: false })
     email?: string;
-    email_verified: string;
-    is_private_email: string;
+    
+    @ApiPropertyOptional()
+    email_verified?: string;
+    
+    @ApiPropertyOptional()
+    is_private_email?: string;
 }

@@ -3,10 +3,13 @@ import { AppleSocialRequest, GoogleSocialRequest, KakaoSocialRequest, NaverSocia
 import { AuthService } from './auth.service';
 import { Vendor } from 'src/entities/domain/vendor.type';
 import { AuthGuard } from '@nestjs/passport';
-import { LoginUser } from './decorator/login-user.decorator';
 import { User } from 'src/entities/user.entity';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SocialLoginAPI } from 'src/common/swagger/decorator/social-api.decorator';
+import { LoginUser } from './decorator/login-user.decorator';
 
 @Controller('auth')
+@ApiTags('Auth API')
 export class AuthController {
 
   constructor(
@@ -14,23 +17,19 @@ export class AuthController {
   ) {}
 
   @Post('/kakao')
-  kakaoSocialLogin(@Body() dto: KakaoSocialRequest): Promise<SocialLoginResponse> {
-    return this.authService.socialLogin(dto.email, dto.id, Vendor.KAKAO);
+  @SocialLoginAPI(Vendor.KAKAO, KakaoSocialRequest)
   }
 
   @Post('/google')
-  googleSocialLogin(@Body() dto: GoogleSocialRequest): Promise<SocialLoginResponse> {
-    return this.authService.socialLogin(dto.email, dto.sub, Vendor.GOOGLE);
+  @SocialLoginAPI(Vendor.GOOGLE, GoogleSocialRequest)
   }
 
   @Post('/naver')
-  naverSocialLogin(@Body() dto: NaverSocialRequest): Promise<SocialLoginResponse> {
-    return this.authService.socialLogin(dto.email, dto.id, Vendor.NAVER);
+  @SocialLoginAPI(Vendor.NAVER, NaverSocialRequest)
   }
 
   @Post('/apple')
-  appleSocialLogin(@Body() dto: AppleSocialRequest): Promise<SocialLoginResponse> {
-    return this.authService.socialLogin(dto.email, dto.sub, Vendor.APPLE);
+  @SocialLoginAPI(Vendor.APPLE, AppleSocialRequest)
   }
 
   /**
@@ -38,6 +37,8 @@ export class AuthController {
    */
   @Get('/user')
   @UseGuards(AuthGuard())
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({ description: '테스트하기 위해 만든 API (삭제 예정)', deprecated: true })
   getUserInfomationForTest(@LoginUser() user: User) {
     console.log(user);
   }
