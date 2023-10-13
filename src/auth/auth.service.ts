@@ -32,7 +32,7 @@ export class AuthService {
           }
         }
 
-        const tokenPayload = { id: existingUser.id };
+        const tokenPayload = { userId: existingUser.id };
 
         if (!existingUser.hasHotel) {
           // TODO: 나중에 로직 변경 (이건 호텔 생성 페이지로 리다이렉트를 해야할지? 의논 후 결정)
@@ -67,7 +67,7 @@ export class AuthService {
         this.log.error(`사용자 code null : ${user.id}`);
       }
 
-      const tokenPayload = { id: user.id };
+      const tokenPayload = { userId: user.id };
 
       return {
         success: true,
