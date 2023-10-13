@@ -8,6 +8,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SocialLoginAPI } from 'src/common/swagger/decorator/social-api.decorator';
 import { LoginUser } from './decorator/login-user.decorator';
 import { Response } from 'express';
+import { CreateHotelRequest } from './dto/create-hotel.dto';
+import { CommonResponse } from 'src/common/dto/output.dto';
+import { CreateHotelValidationPipe } from './pipes/create-hotel.validation.pipe';
 
 @Controller('auth')
 @ApiTags('Auth API')
@@ -40,6 +43,11 @@ export class AuthController {
   async appleSocialLogin(@Body() dto: AppleSocialRequest, @Res() response: Response) {
     response.json(await this.authService.socialLogin(dto.email, dto.sub, Vendor.APPLE, response));
   }
+
+  @Post('/hotel')
+  @UseGuards(AuthGuard())
+  createHotel(@LoginUser() user: User, @Body(CreateHotelValidationPipe) dto: CreateHotelRequest): Promise<CommonResponse> {
+    return this.authService.createHotel(user, dto);
   }
 
   /**
