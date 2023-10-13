@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { SocialLoginResponse } from './dto/social-login.dto';
 import { User } from 'src/entities/user.entity';
 import { MembershipType } from 'src/entities/domain/membership.type';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
 
   private log = new Logger('AuthService');
 
-  async socialLogin(email: string, socialId: string, vendor: Vendor): Promise<SocialLoginResponse> {
+  async socialLogin(email: string, socialId: string, vendor: Vendor, response: Response): Promise<SocialLoginResponse> {
 
     try {
 
@@ -36,11 +37,13 @@ export class AuthService {
 
         if (!existingUser.hasHotel) {
           // TODO: 나중에 로직 변경 (이건 호텔 생성 페이지로 리다이렉트를 해야할지? 의논 후 결정)
-          return {
+          const body = {
             success: false,
             error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingUser.id}`,
             accessToken: this.jwtService.sign(tokenPayload)
-          }
+          };
+
+          response.status(HttpStatus.OK).json(body).send();
         }
 
         return {
