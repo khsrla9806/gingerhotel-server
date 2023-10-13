@@ -31,7 +31,7 @@ export class KakaoSocialRequest {
     @ApiPropertyOptional()
     pay_account_id?: string;
 
-    @ApiProperty({ description: '[필수 X] kakao 로그인 사용자의 이메일', required: false })
+    @ApiPropertyOptional({ description: '[필수 X] kakao 로그인 사용자의 이메일' })
     email?: string;
 }
 

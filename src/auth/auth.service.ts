@@ -29,7 +29,7 @@ export class AuthService {
         if (!existingUser.isActive) {
           return {
             success: false,
-            error: '비활성화된 사용자 정보입니다.'
+            error: '탈퇴한 사용자 정보입니다.'
           }
         }
 
@@ -37,14 +37,17 @@ export class AuthService {
 
         if (!existingUser.hasHotel) {
           // TODO: 나중에 로직 변경 (이건 호텔 생성 페이지로 리다이렉트를 해야할지? 의논 후 결정)
-          const body = {
+
+          response.status(HttpStatus.OK);
+
+          return {
             success: false,
             error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingUser.id}`,
             accessToken: this.jwtService.sign(tokenPayload)
           };
-
-          response.status(HttpStatus.OK).json(body).send();
         }
+
+        response.status(HttpStatus.CREATED);
 
         return {
           success: true,
@@ -79,7 +82,9 @@ export class AuthService {
 
     } catch (error) {
       this.log.error('error: ', error);
-      
+
+      response.status(HttpStatus.BAD_REQUEST);
+
       return {
         success: false,
         error: error.message
