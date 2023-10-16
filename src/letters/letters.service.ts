@@ -25,6 +25,9 @@ export class LettersService {
     private readonly dataSource: DataSource
   ) {}
 
+  /**
+   * 편지 생성 메서드
+   */
   async createLetter(
     hotelId: number, loginUser: User, image: Express.Multer.File, dto: CreateLetterRequest): Promise<CommonResponse> {
 
@@ -161,5 +164,59 @@ export class LettersService {
   async saveImage(image: Express.Multer.File): Promise<string> {
 
     return '저장된 image URL';
+  }
+
+  /**
+   * 편지 삭제 메서드
+   */
+  async deleteLetter(letterId: number, loginUser: User): Promise<CommonResponse> {
+    
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+
+      // 1. 존재하는 편지인지 확인
+      const letter = await this.letterRepository
+        .createQueryBuilder('letter')
+        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
+        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
+        .innerJoinAndSelect('hotel.user', 'user')
+        .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
+        .getOne();
+
+      if (!letter) {
+        throw new BadRequestException(`존재하지 않는 편지 정보입니다. : ${letterId}`);
+      }
+
+      // 2. 편지 받은 사람과 삭제 요청한 사람과 동일한지 확인
+      if (letter.hotelWindow.hotel.user.id !== loginUser.id) {
+        throw new BadRequestException('자신이 받은 편지만 삭제할 수 있습니다.');
+      }
+
+      // 3. 해당 편지와 관련된 답장들을 모두 삭제 처리
+      await queryRunner.query(`UPDATE reply SET is_deleted = true WHERE letter_id = ${letterId}`);
+      
+      // 4. 해당 편지도 삭제
+      await queryRunner.query(`UPDATE letter SET is_deleted = true WHERE id = ${letterId}`);
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+
+    } catch (e) {
+
+      await queryRunner.rollbackTransaction();
+
+      return {
+        success: false,
+        error: e.message
+      }
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { LettersService } from './letters.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -27,6 +27,15 @@ export class LettersController {
     @Body() dto: CreateLetterRequest
   ) {
     return await this.letterService.createLetter(hotelId, loginUser, image, dto);
+  }
+
+  @Delete('/:letterId')
+  @UseGuards(AuthGuard())
+  async deleteLetter(
+    @Param('letterId', ParseIntPipe) letterId: number,
+    @LoginUser() loginUser: User
+  ) {
+    return await this.letterService.deleteLetter(letterId, loginUser);
   }
 
 }
