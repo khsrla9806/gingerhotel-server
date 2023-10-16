@@ -27,6 +27,6 @@ import { Hotel } from 'src/entities/hotel.entity';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy, JwtModule]
+  exports: [JwtStrategy, JwtModule, PassportModule]
 })
 export class AuthModule {}
