@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
 import { CreateLetterAPI } from 'src/common/swagger/decorator/create-letter.decorator';
+import { DeleteLetterAPI } from 'src/common/swagger/decorator/delete-letter.decorator';
 
 @Controller('letters')
 @ApiTags('Letters API')
@@ -31,6 +32,7 @@ export class LettersController {
 
   @Delete('/:letterId')
   @UseGuards(AuthGuard())
+  @DeleteLetterAPI()
   async deleteLetter(
     @Param('letterId', ParseIntPipe) letterId: number,
     @LoginUser() loginUser: User

@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { RepliesService } from './replies.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateReplyAPI } from 'src/common/swagger/decorator/create-reply.decorator';
+import { DeleteReplyAPI } from 'src/common/swagger/decorator/delete-reply.decorator';
 
 @Controller('replies')
 @ApiTags('Replies API')
@@ -31,6 +32,7 @@ export class RepliesController {
 
   @Delete('/:replyId')
   @UseGuards(AuthGuard())
+  @DeleteReplyAPI()
   async deleteReply(
     @Param('replyId', ParseIntPipe) replyId: number,
     @LoginUser() loginUser: User
