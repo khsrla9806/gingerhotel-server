@@ -115,12 +115,12 @@ export class LettersService {
   async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
     const letterCount = await this.letterRepository
       .createQueryBuilder('letter')
-      .where('letter.hotelWindow.id = :hotelWindowId', { hotelWindowId: hotelWindow.id })
+      .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
 
     const replyCount = await this.replyRepository
       .createQueryBuilder('reply')
-      .where('reply.hotelWindow.id = :hotelWindowId', { hotelWindowId: hotelWindow.id })
+      .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
 
     return letterCount + replyCount;
