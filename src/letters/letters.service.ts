@@ -8,6 +8,7 @@ import { Hotel } from 'src/entities/hotel.entity';
 import { LocalDate } from '@js-joda/core';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';
+import { Reply } from 'src/entities/reply.entity';
 
 @Injectable()
 export class LettersService {
@@ -19,6 +20,8 @@ export class LettersService {
     private readonly hotelWindowRepository: Repository<HotelWindow>,
     @InjectRepository(Letter)
     private readonly letterRepository: Repository<Letter>,
+    @InjectRepository(Reply)
+    private readonly replyRepository: Repository<Reply>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -68,10 +71,7 @@ export class LettersService {
       }
 
       // 6. 받는 사람이 수신 편지 개수 제한이 있는지 확인
-      const recievedLetterCount = await this.letterRepository
-          .createQueryBuilder('letter')
-          .where('letter.hotelWindow.id = :hotelWindowId', { hotelWindowId: hotelWindow.id })
-          .getCount();
+      const recievedLetterCount = await this.getRecievedLetterCount(hotelWindow);
 
       if (hotel.user.getMembershipInfo().hasLetterLimit) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
@@ -110,6 +110,20 @@ export class LettersService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
+    const letterCount = await this.letterRepository
+      .createQueryBuilder('letter')
+      .where('letter.hotelWindow.id = :hotelWindowId', { hotelWindowId: hotelWindow.id })
+      .getCount();
+
+    const replyCount = await this.replyRepository
+      .createQueryBuilder('reply')
+      .where('reply.hotelWindow.id = :hotelWindowId', { hotelWindowId: hotelWindow.id })
+      .getCount();
+
+    return letterCount + replyCount;
   }
 
   /**

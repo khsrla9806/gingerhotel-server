@@ -20,13 +20,13 @@ export class LettersController {
   @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
   @CreateLetterAPI()
-  createLetter(
+  async createLetter(
     @Param('hotelId', ParseIntPipe) hotelId: number,
     @LoginUser() loginUser: User,
     @UploadedFile() image: Express.Multer.File,
     @Body() dto: CreateLetterRequest
   ) {
-    return this.letterService.createLetter(hotelId, loginUser, image, dto);
+    return await this.letterService.createLetter(hotelId, loginUser, image, dto);
   }
 
 }
