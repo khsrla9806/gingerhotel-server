@@ -6,6 +6,7 @@ import { CreateReplyRequest } from './dto/create-reply.dto';
 import { User } from 'src/entities/user.entity';
 import { RepliesService } from './replies.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateReplyAPI } from 'src/common/swagger/decorator/create-reply.decorator';
 
 @Controller('replies')
 @ApiTags('Replies API')
@@ -18,6 +19,7 @@ export class RepliesController {
   @Post('/letter/:letterId')
   @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
+  @CreateReplyAPI()
   async createReply(
     @Param('letterId', ParseIntPipe) letterId: number,
     @LoginUser() loginUser: User,
