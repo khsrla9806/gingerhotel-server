@@ -6,6 +6,7 @@ import * as Joi from 'joi';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AuthModule } from './auth/auth.module';
 import { LettersModule } from './letters/letters.module';
+import { RepliesModule } from './replies/replies.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { LettersModule } from './letters/letters.module';
     }),
     CommonModule,
     AuthModule,
-    LettersModule
+    LettersModule,
+    RepliesModule
 ],
   controllers: [],
   providers: [],
