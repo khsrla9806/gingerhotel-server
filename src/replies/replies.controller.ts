@@ -1,4 +1,4 @@
-import { Body, Controller, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginUser } from 'src/auth/decorator/login-user.decorator';
@@ -27,5 +27,14 @@ export class RepliesController {
     @Body() dto: CreateReplyRequest
   ) {
     return await this.repliesService.createReply(letterId, loginUser, image, dto);
+  }
+
+  @Delete('/:replyId')
+  @UseGuards(AuthGuard())
+  async deleteReply(
+    @Param('replyId', ParseIntPipe) replyId: number,
+    @LoginUser() loginUser: User
+  ) {
+    return await this.repliesService.deleteReply(replyId, loginUser);
   }
 }

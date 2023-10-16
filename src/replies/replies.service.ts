@@ -25,6 +25,9 @@ export class RepliesService {
     private readonly dataSource: DataSource
   ) {}
 
+  /**
+   * 답장 생성 메서드
+   */
   async createReply(
     letterId: number, loginUser: User, image: Express.Multer.File, dto: CreateReplyRequest): Promise<CommonResponse> {
 
@@ -197,5 +200,44 @@ export class RepliesService {
   async saveImage(image: Express.Multer.File): Promise<string> {
 
     return '저장된 image URL';
+  }
+
+  /**
+   * 답장 삭제 메서드
+   */
+  async deleteReply(replyId: number, loginUser: User): Promise<CommonResponse> {
+    try {
+      // 1. 존재하는 답장인지 확인
+      const reply = await this.replyRepository
+      .createQueryBuilder('reply')
+      .innerJoinAndSelect('reply.hotelWindow', 'hotelWindow')
+      .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
+      .innerJoinAndSelect('hotel.user', 'user')
+      .where('reply.id = :replyId and reply.isDeleted = false', { replyId: replyId })
+      .getOne();
+
+      if (!reply) {
+        throw new BadRequestException(`존재하지 않는 답장 정보입니다. : ${replyId}`);
+      }
+
+      // 2. 삭제하려는 사람이 받은 편지가 맞는지 확인
+      if (reply.hotelWindow.hotel.user.id !== loginUser.id) {
+        throw new BadRequestException('내가 받은 답장만 삭제할 수 있습니다.');
+      }
+
+      // 3. 답장 삭제
+      reply.isDeleted = true;
+      await this.replyRepository.save(reply);
+
+      return {
+        success: true
+      }
+
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
+      }
+    }
   }
 }
