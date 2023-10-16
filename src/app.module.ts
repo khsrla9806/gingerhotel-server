@@ -7,6 +7,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AuthModule } from './auth/auth.module';
 import { LettersModule } from './letters/letters.module';
 import { RepliesModule } from './replies/replies.module';
+import { HotelModule } from './hotel/hotel.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { RepliesModule } from './replies/replies.module';
     CommonModule,
     AuthModule,
     LettersModule,
-    RepliesModule
+    RepliesModule,
+    HotelModule
 ],
   controllers: [],
   providers: [],

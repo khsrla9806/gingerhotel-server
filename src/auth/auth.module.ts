@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt-strategy';
 import { Hotel } from 'src/entities/hotel.entity';
+import { UserInterceptor } from './interceptor/user.interceptor';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { Hotel } from 'src/entities/hotel.entity';
     TypeOrmModule.forFeature([User, Hotel])
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy, JwtModule, PassportModule]
+  providers: [AuthService, JwtStrategy, UserInterceptor],
+  exports: [JwtStrategy, JwtModule, PassportModule, UserInterceptor]
 })
 export class AuthModule {}
