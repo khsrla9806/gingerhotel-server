@@ -132,7 +132,7 @@ export class RepliesService {
    * @param loginUser: 현재 로그인한 사용자 객체
    * @returns 답장 수신자의 호텔 객체를 반환
    */
-  async getRecipientsHotel(letter: Letter, loginUser: User): Promise<Hotel> {
+  private async getRecipientsHotel(letter: Letter, loginUser: User): Promise<Hotel> {
 
     let recipientsId = letter.sender.id;
 
@@ -151,7 +151,7 @@ export class RepliesService {
    * @param hotelWindow: 편지/답장 수신자의 호텔 창문 객체
    * @returns 해당 호텔 창문 날짜에 받은 모든 편지 수를 반환
    */
-  async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
+  private async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
     const letterCount = await this.letterRepository
       .createQueryBuilder('letter')
       .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
@@ -169,7 +169,7 @@ export class RepliesService {
    * FREE 멤버쉽의 사용자의 경우 최대 수신 가능한 편지수를 넘은 경우를 확인하는 메서드
    * @param recievedLetterCount: 현재까지 받은 편지수
    */
-  checkMaximumReceivedLetterCount(recievedLetterCount: number) {
+  private checkMaximumReceivedLetterCount(recievedLetterCount: number) {
     const maximumReceivedLetterCount = 20; // 편지 수신 제한 개수 20개로 고정
 
     if (recievedLetterCount >= maximumReceivedLetterCount) {
@@ -183,7 +183,7 @@ export class RepliesService {
    * @param hotelWindow: 호텔 창문 객체
    * @returns: 창문이 열리는 조건에 만족한 경우 true / 아닌 경우 false 반환
    */
-  checkHotelWindowOpenCondition(recievedLetterCount: number, hotelWindow: HotelWindow): boolean {
+  private checkHotelWindowOpenCondition(recievedLetterCount: number, hotelWindow: HotelWindow): boolean {
     const hotelWindowOpenConditionCount = 5; // 창문이 열리는 COUNT 5로 고정
 
     if (!hotelWindow.isOpen && recievedLetterCount >= hotelWindowOpenConditionCount) {
@@ -197,7 +197,7 @@ export class RepliesService {
   }
 
   // TODO: 이미지 저장 메서드 (Storage 연결되면 이 부분에 이미지를 저장하는 로직 추가)
-  async saveImage(image: Express.Multer.File): Promise<string> {
+  private async saveImage(image: Express.Multer.File): Promise<string> {
 
     return '저장된 image URL';
   }
