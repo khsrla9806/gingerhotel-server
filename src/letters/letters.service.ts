@@ -120,7 +120,7 @@ export class LettersService {
     const maximumReceivedLetterCount = 20; // 편지 수신 제한 개수 20개로 고정
 
     if (recievedLetterCount >= maximumReceivedLetterCount) {
-      throw new BadRequestException(`하루에 받을 수 있는 개수 ${maximumReceivedLetterCount}을 넘어섰습니다.`);
+      throw new BadRequestException(`수신자가 하루에 받을 수 있는 개수를 넘어섰습니다. : ${recievedLetterCount}`);
     }
   }
 

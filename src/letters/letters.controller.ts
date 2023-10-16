@@ -6,6 +6,7 @@ import { LoginUser } from 'src/auth/decorator/login-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
+import { CreateLetterAPI } from 'src/common/swagger/decorator/create-letter.decorator';
 
 @Controller('letters')
 @ApiTags('Letters API')
@@ -18,6 +19,7 @@ export class LettersController {
   @Post('/hotel/:hotelId')
   @UseGuards(AuthGuard())
   @UseInterceptors(FileInterceptor('image'))
+  @CreateLetterAPI()
   createLetter(
     @Param('hotelId', ParseIntPipe) hotelId: number,
     @LoginUser() loginUser: User,
