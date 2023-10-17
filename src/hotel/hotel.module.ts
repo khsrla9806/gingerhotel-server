@@ -8,11 +8,12 @@ import { Hotel } from 'src/entities/hotel.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
+import { Village } from 'src/entities/village.entity';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([User, Hotel, Letter, Reply, HotelWindow])
+    TypeOrmModule.forFeature([User, Hotel, Letter, Reply, HotelWindow, Village])
   ],
   controllers: [HotelController],
   providers: [HotelService]

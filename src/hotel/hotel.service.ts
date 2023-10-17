@@ -8,6 +8,7 @@ import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { LocalDate } from '@js-joda/core';
+import { Village } from 'src/entities/village.entity';
 
 @Injectable()
 export class HotelService {
@@ -19,7 +20,9 @@ export class HotelService {
     @InjectRepository(Reply)
     private readonly replyRepository: Repository<Reply>,
     @InjectRepository(HotelWindow)
-    private readonly hotelWindowRepository: Repository<HotelWindow>
+    private readonly hotelWindowRepository: Repository<HotelWindow>,
+    @InjectRepository(Village)
+    private readonly villageRepository: Repository<Village>
   ) {}
 
   /**
@@ -28,14 +31,11 @@ export class HotelService {
   async getHotel(hotelId: number, loginUser: User): Promise<HotelDetailResponse> {
     try {
       // 1. 존재하는 호텔 식별자인지 확인
-      const hotel = await this.hotelRepository.findOne({
-        where: {
-          id: hotelId
-        },
-        relations: {
-          user: true
-        }
-      });
+      const hotel = await this.hotelRepository
+        .createQueryBuilder('hotel')
+        .innerJoinAndSelect('hotel.user', 'user')
+        .where('hotel.id = :hotelId', { hotelId: hotelId })
+        .getOne();
 
       if (!hotel) {
         throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
@@ -53,10 +53,16 @@ export class HotelService {
         if (hotel.user.id === loginUser.id) {
           isOwner = true;
         }
+
+        const village: Village = await this.villageRepository
+        .createQueryBuilder('village')
+        .where('village.fromUser.id = :fromUserId and village.toUser.id = :toUserId', { fromUserId: loginUser.id, toUserId: hotel.user.id })
+        .getOne();
+      
+        if (village) {
+          isFriend = true;
+        }
       }
-
-      // TODO: isFriend는 친구 추가 기능 구현 후에 진행
-
 
       return {
         success: true,
