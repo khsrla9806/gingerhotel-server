@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseG
 import { ApiTags } from '@nestjs/swagger';
 import { LettersService } from './letters.service';
 import { AuthGuard } from '@nestjs/passport';
-import { LoginUser } from 'src/auth/decorator/login-user.decorator';
-import { User } from 'src/entities/user.entity';
+import { LoginMember } from 'src/auth/decorator/login-member.decorator';
+import { Member } from 'src/entities/member.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
 import { CreateLetterAPI, DeleteLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
@@ -22,11 +22,11 @@ export class LettersController {
   @CreateLetterAPI()
   async createLetter(
     @Param('hotelId', ParseIntPipe) hotelId: number,
-    @LoginUser() loginUser: User,
+    @LoginMember() loginMember: Member,
     @UploadedFile() image: Express.Multer.File,
     @Body() dto: CreateLetterRequest
   ) {
-    return await this.letterService.createLetter(hotelId, loginUser, image, dto);
+    return await this.letterService.createLetter(hotelId, loginMember, image, dto);
   }
 
   @Delete('/:letterId')
@@ -34,9 +34,9 @@ export class LettersController {
   @DeleteLetterAPI()
   async deleteLetter(
     @Param('letterId', ParseIntPipe) letterId: number,
-    @LoginUser() loginUser: User
+    @LoginMember() loginMember: Member
   ) {
-    return await this.letterService.deleteLetter(letterId, loginUser);
+    return await this.letterService.deleteLetter(letterId, loginMember);
   }
 
 }

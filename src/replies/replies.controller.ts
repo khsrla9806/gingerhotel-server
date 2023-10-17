@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { LoginUser } from 'src/auth/decorator/login-user.decorator';
+import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { CreateReplyRequest } from './dto/create-reply.dto';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { RepliesService } from './replies.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateReplyAPI, DeleteReplyAPI } from 'src/common/swagger/decorator/reply-api.decorator';
@@ -22,11 +22,11 @@ export class RepliesController {
   @CreateReplyAPI()
   async createReply(
     @Param('letterId', ParseIntPipe) letterId: number,
-    @LoginUser() loginUser: User,
+    @LoginMember() loginMember: Member,
     @UploadedFile() image: Express.Multer.File,
     @Body() dto: CreateReplyRequest
   ) {
-    return await this.repliesService.createReply(letterId, loginUser, image, dto);
+    return await this.repliesService.createReply(letterId, loginMember, image, dto);
   }
 
   @Delete('/:replyId')
@@ -34,8 +34,8 @@ export class RepliesController {
   @DeleteReplyAPI()
   async deleteReply(
     @Param('replyId', ParseIntPipe) replyId: number,
-    @LoginUser() loginUser: User
+    @LoginMember() loginMember: Member
   ) {
-    return await this.repliesService.deleteReply(replyId, loginUser);
+    return await this.repliesService.deleteReply(replyId, loginMember);
   }
 }

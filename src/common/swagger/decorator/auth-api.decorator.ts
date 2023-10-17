@@ -24,7 +24,7 @@ export function SocialLoginAPI(vendor: Vendor ,type: any) {
       schema: {
         example: {
           success: false,
-          error: '유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : user id',
+          error: '유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : member id',
           accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyLCJpYXQiOjE2OTcxNzU1MDEsImV4cCI6MTY5NzE3OTEwMX0.0F5uArQIKcrUDaYtXkcUsUBgHXyJDXN3GMOZ6-YHFwE'
         }
       }
@@ -35,7 +35,7 @@ export function SocialLoginAPI(vendor: Vendor ,type: any) {
 export function CreateHotelAPI() {
   return applyDecorators(
     ApiOperation({ summary: '호텔 생성', description: '사용자가 입력한 정보들로 호텔을 생성합니다.' }),
-    ApiBody({ description: '사용자가 입력한 호텔, 사용자 정보 (Required User Token)', type: CreateHotelRequest }),
+    ApiBody({ description: '사용자가 입력한 호텔, 사용자 정보 (Required Member Token)', type: CreateHotelRequest }),
     ApiCreatedResponse({
       description: '호텔 생성에 성공하면 hotelId를 반환한다.',
       schema: {

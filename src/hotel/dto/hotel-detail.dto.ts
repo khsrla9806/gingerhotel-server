@@ -3,7 +3,7 @@ import { CommonResponse } from "src/common/dto/output.dto";
 export class HotelDetailResponse extends CommonResponse {
   todayReceivedLetterCount?: number;
   hotel?: HotelInfo;
-  isLoginUser?: boolean;
+  isLoginMember?: boolean;
   isOwner?: boolean;
   isFriend?: boolean;
 }

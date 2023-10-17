@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { CreateLetterRequest } from './dto/create-letter.dto';
 import { DataSource, Repository } from 'typeorm';
 import { CommonResponse } from 'src/common/dto/output.dto';
@@ -29,7 +29,7 @@ export class LettersService {
    * 편지 생성 메서드
    */
   async createLetter(
-    hotelId: number, loginUser: User, image: Express.Multer.File, dto: CreateLetterRequest): Promise<CommonResponse> {
+    hotelId: number, loginMember: Member, image: Express.Multer.File, dto: CreateLetterRequest): Promise<CommonResponse> {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -42,17 +42,17 @@ export class LettersService {
           id: hotelId
         },
         relations: {
-          user: true
+          member: true
         }
       });
 
       // 2. 자신의 호텔인지 확인 (자기 호텔에는 편지를 쓰지 못함)
-      if (hotel.user.id === loginUser.id) {
+      if (hotel.member.id === loginMember.id) {
         throw new BadRequestException("자신의 호텔에는 편지를 쓸 수 없습니다.");
       }
 
-      // 3. 이미지 파일 존재 여부 확인 (user의 멤버쉽 체크)
-      if (image && !loginUser.getMembershipInfo().isPossibleAttachImage) {
+      // 3. 이미지 파일 존재 여부 확인 (member의 멤버쉽 체크)
+      if (image && !loginMember.getMembershipInfo().isPossibleAttachImage) {
         throw new BadRequestException("이미지 첨부를 할 수 없는 멤버쉽 정보입니다.");
       }
 
@@ -76,7 +76,7 @@ export class LettersService {
       // 6. 받는 사람이 수신 편지 개수 제한이 있는지 확인
       const recievedLetterCount = await this.getRecievedLetterCount(hotelWindow);
 
-      if (hotel.user.getMembershipInfo().hasLetterLimit) {
+      if (hotel.member.getMembershipInfo().hasLetterLimit) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
       }
 
@@ -85,7 +85,7 @@ export class LettersService {
 
       await queryRunner.manager.save(this.letterRepository.create({
         hotelWindow: hotelWindow,
-        sender: loginUser,
+        sender: loginMember,
         senderNickname: dto.senderNickname,
         content: dto.content,
         imageUrl: imageURL,
@@ -169,7 +169,7 @@ export class LettersService {
   /**
    * 편지 삭제 메서드
    */
-  async deleteLetter(letterId: number, loginUser: User): Promise<CommonResponse> {
+  async deleteLetter(letterId: number, loginMember: Member): Promise<CommonResponse> {
     
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -182,7 +182,7 @@ export class LettersService {
         .createQueryBuilder('letter')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
         .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.user', 'user')
+        .innerJoinAndSelect('hotel.member', 'member')
         .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
         .getOne();
 
@@ -191,7 +191,7 @@ export class LettersService {
       }
 
       // 2. 편지 받은 사람과 삭제 요청한 사람과 동일한지 확인
-      if (letter.hotelWindow.hotel.user.id !== loginUser.id) {
+      if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
         throw new BadRequestException('자신이 받은 편지만 삭제할 수 있습니다.');
       }
 

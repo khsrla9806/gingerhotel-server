@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
 import { DataSource, Repository } from 'typeorm';
 import { SocialLoginResponse } from './dto/social-login.dto';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { MembershipType } from 'src/entities/domain/membership.type';
 import { Response } from 'express';
 import { CreateHotelRequest, CreateHotelResponse } from './dto/create-hotel.dto';
@@ -14,7 +14,7 @@ import { Hotel } from 'src/entities/hotel.entity';
 export class AuthService {
 
   constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Member) private readonly memberRepository: Repository<Member>,
     @InjectRepository(Hotel) private readonly hotelRepository: Repository<Hotel>,
     private readonly jwtService: JwtService,
     private readonly dataSource: DataSource
@@ -26,27 +26,27 @@ export class AuthService {
 
     try {
 
-      const existingUser: User = await this.userRepository.findOne({ where: { socialId: socialId, vendor: vendor } });
+      const existingMember: Member = await this.memberRepository.findOne({ where: { socialId: socialId, vendor: vendor } });
 
-      if (existingUser) {
+      if (existingMember) {
         
-        if (!existingUser.isActive) {
+        if (!existingMember.isActive) {
           return {
             success: false,
             error: '탈퇴한 사용자 정보입니다.'
           }
         }
 
-        const tokenPayload = { userId: existingUser.id };
+        const tokenPayload = { memberId: existingMember.id };
 
-        if (!existingUser.hasHotel) {
+        if (!existingMember.hasHotel) {
           // TODO: 나중에 로직 변경 (이건 호텔 생성 페이지로 리다이렉트를 해야할지? 의논 후 결정)
 
           response.status(HttpStatus.OK);
 
           return {
             success: false,
-            error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingUser.id}`,
+            error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingMember.id}`,
             accessToken: this.jwtService.sign(tokenPayload)
           };
         }
@@ -59,9 +59,9 @@ export class AuthService {
         }
       }
 
-      const code: string = await this.generateUserCode(7);
+      const code: string = await this.generateMemberCode(7);
 
-      const user = await this.userRepository.save(this.userRepository.create({
+      const member = await this.memberRepository.save(this.memberRepository.create({
         membership: MembershipType.FREE,
         socialId: socialId,
         vendor: vendor,
@@ -74,10 +74,10 @@ export class AuthService {
       }));
 
       if (code === null) {
-        this.log.error(`사용자 code null : ${user.id}`);
+        this.log.error(`사용자 code null : ${member.id}`);
       }
 
-      const tokenPayload = { userId: user.id };
+      const tokenPayload = { memberId: member.id };
 
       return {
         success: true,
@@ -96,7 +96,7 @@ export class AuthService {
     }
   }
 
-  private async generateUserCode(length: number): Promise<string> {
+  private async generateMemberCode(length: number): Promise<string> {
     const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
     let isUnique: boolean = false;
     let uniqueCode: string = '';
@@ -108,9 +108,9 @@ export class AuthService {
         uniqueCode += characters.charAt(Math.floor(Math.random() * characters.length));
       }
 
-      const userCountHavingGeneratedCode: number = await this.userRepository.count({ where: { code: uniqueCode } });
+      const memberCountHavingGeneratedCode: number = await this.memberRepository.count({ where: { code: uniqueCode } });
 
-      if (userCountHavingGeneratedCode === 0) {
+      if (memberCountHavingGeneratedCode === 0) {
         return uniqueCode;
       }
 
@@ -125,46 +125,47 @@ export class AuthService {
     return null;
   }
 
-  async createHotel(user: User, dto: CreateHotelRequest): Promise<CreateHotelResponse> {
+  async createHotel(member: Member, dto: CreateHotelRequest): Promise<CreateHotelResponse> {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction(); // Transaction 시작
 
     try {
-      if (user.hasHotel) {
-        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${user.id}`);
+      console.log(member)
+      if (member.hasHotel) {
+        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${member.id}`);
       }
-      user.hasHotel = true;
+      member.hasHotel = true;
 
       if (dto.birthDate) {
-        user.birthDate = dto.birthDate;
+        member.birthDate = dto.birthDate;
       }
 
       if (dto.gender) {
-        user.gender = dto.gender;
+        member.gender = dto.gender;
       }
 
       if (dto.code) {
-        const recommendedUser = await this.userRepository.findOne({ where: { code: dto.code } });
+        const recommendedMember = await this.memberRepository.findOne({ where: { code: dto.code } });
 
-        if (!recommendedUser) {
+        if (!recommendedMember) {
           throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`);
         }
-        if (user.id === recommendedUser.id) {
+        if (member.id === recommendedMember.id) {
           throw new BadRequestException('자기 자신은 추천할 수 없습니다.');
         }
-        recommendedUser.keyCount++;
-        await queryRunner.manager.save(recommendedUser);
+        recommendedMember.keyCount++;
+        await queryRunner.manager.save(recommendedMember);
       }
 
-      const savedUser = await queryRunner.manager.save(user);
+      const savedMember = await queryRunner.manager.save(member);
       const hotel = await queryRunner.manager.save(this.hotelRepository.create({
         nickname: dto.nickname,
         description: dto.description,
         headColor: dto.headColor,
         bodyColor: dto.bodyColor,
-        user: savedUser
+        member: savedMember
       }));
 
       await queryRunner.commitTransaction(); // Transaction Commit (DB 반영)

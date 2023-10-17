@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "./user.entity";
+import { Member } from "./member.entity";
 import { LocalDateTime } from "@js-joda/core";
 import { LocalDateTimeTransformer } from "src/common/utils/local-date-time.transformer";
 
@@ -9,9 +9,9 @@ export class PaymentHistory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
-  user: User;
+  member: Member;
 
   @Column()
   paymenyType: string;

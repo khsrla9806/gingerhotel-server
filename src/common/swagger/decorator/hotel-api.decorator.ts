@@ -14,7 +14,7 @@ export function GetHotelAPI() {
             headColor: '#2E9AFE',
             bodyColor: '#2E9AFE'
           },
-          isLoginUser: true,
+          isLoginMember: true,
           isOwner: true,
           isFriend: false
         }

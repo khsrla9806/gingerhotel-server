@@ -3,15 +3,15 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { User } from "src/entities/user.entity";
+import { Member } from "src/entities/member.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(Member)
+    private readonly memberRepository: Repository<Member>,
     private readonly configService: ConfigService
   ) {
     super({
@@ -24,16 +24,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   /**
    * Bearer 토큰 검사 후에 실행되는 method
    * @param payload: jwt token의 payload
-   * @returns Request 객체에 담아줄 user를 반환 (AuthGuard 사용해야 적용)
+   * @returns Request 객체에 담아줄 member를 반환 (AuthGuard 사용해야 적용)
    */
   async validate(payload: any) {
-    const { userId } = payload;
-    const user: User = await this.userRepository.findOne({ where: { id: userId } });
+    const { memberId } = payload;
+    const member: Member = await this.memberRepository.findOne({ where: { id: memberId } });
 
-    if (!user) {
+    if (!member) {
       throw new UnauthorizedException('인증되지 않은 사용자입니다.');
     }
 
-    return user;
+    return member;
   }
 }

@@ -1,17 +1,17 @@
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from "typeorm";
 import { CoreEntity } from "./core.entity";
-import { User } from "./user.entity";
+import { Member } from "./member.entity";
 
-@Unique(['fromUser', 'toUser'])
+@Unique(['fromMember', 'toMember'])
 @Entity()
 export class Village extends CoreEntity {
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
-  fromUser: User;
+  fromMember: Member;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
-  toUser: User;
+  toMember: Member;
 
   @Column({ default: false })
   isBookmark: boolean;

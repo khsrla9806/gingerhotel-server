@@ -3,9 +3,9 @@ import { AppleSocialRequest, GoogleSocialRequest, KakaoSocialRequest, NaverSocia
 import { AuthService } from './auth.service';
 import { Vendor } from 'src/entities/domain/vendor.type';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LoginUser } from './decorator/login-user.decorator';
+import { LoginMember } from './decorator/login-member.decorator';
 import { Response } from 'express';
 import { CreateHotelRequest } from './dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
@@ -47,19 +47,19 @@ export class AuthController {
   @Post('/hotel')
   @CreateHotelAPI()
   @UseGuards(AuthGuard())
-  createHotel(@LoginUser() user: User, @Body(CreateHotelValidationPipe) dto: CreateHotelRequest): Promise<CommonResponse> {
-    return this.authService.createHotel(user, dto);
+  createHotel(@LoginMember() member: Member, @Body(CreateHotelValidationPipe) dto: CreateHotelRequest): Promise<CommonResponse> {
+    return this.authService.createHotel(member, dto);
   }
 
   /**
-   * LoginUser 데코레이터 테스트 핸들러 method (추후에 지울 예정)
+   * LoginMember 데코레이터 테스트 핸들러 method (추후에 지울 예정)
    */
-  @Get('/user')
+  @Get('/member')
   @UseGuards(AuthGuard())
   @ApiBearerAuth('accessToken')
   @ApiOperation({ description: '테스트하기 위해 만든 API (삭제 예정)', deprecated: true })
-  getUserInfomationForTest(@LoginUser() user: User) {
-    console.log(user);
+  getMemberInfomationForTest(@LoginMember() member: Member) {
+    console.log(member);
   }
 
 }

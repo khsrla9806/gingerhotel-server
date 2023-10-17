@@ -2,17 +2,17 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nes
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Observable } from "rxjs";
-import { User } from "src/entities/user.entity";
+import { Member } from "src/entities/member.entity";
 import { Repository } from "typeorm";
 
 /**
  * 로그인 사용자 / 비로그인 사용자 모두 사용가능한 Request에서 AuthGuard 대신 사용
  */
 @Injectable()
-export class UserInterceptor implements NestInterceptor {
+export class MemberInterceptor implements NestInterceptor {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(Member)
+    private readonly memberRepository: Repository<Member>,
     private readonly jwtService: JwtService
   ) {}
 
@@ -27,8 +27,8 @@ export class UserInterceptor implements NestInterceptor {
       try {
         const token = authorization.replace('Bearer ', '').replace('bearer ', '');
         const payload = this.jwtService.verify(token);
-        const loginUser = await this.userRepository.findOne({ where: { id: payload.userId } });
-        request.user = loginUser;
+        const loginMember = await this.memberRepository.findOne({ where: { id: payload.memberId } });
+        request.user = loginMember;
 
       } catch (e) {
         // 유효하지 않은 토큰은 에러에 걸림 = 로그인하지 않은 사용자로 판단하고 어떤 처리도 하지 않음

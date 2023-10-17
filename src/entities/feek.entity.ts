@@ -1,15 +1,15 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { CoreEntity } from "./core.entity";
-import { User } from "./user.entity";
+import { Member } from "./member.entity";
 import { Letter } from "./letter.entity";
 import { FeekStatus } from "./domain/feek-status.type";
 
 @Entity()
 export class Feek extends CoreEntity {
   
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
-  requestor: User;
+  requestor: Member;
 
   @ManyToOne(() => Letter, { nullable: false })
   @JoinColumn()

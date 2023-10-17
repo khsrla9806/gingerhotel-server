@@ -1,7 +1,7 @@
 import { CoreEntity } from 'src/entities/core.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';
-import { User } from 'src/entities/user.entity';
+import { Member } from './member.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity()
@@ -11,9 +11,9 @@ export class Reply extends CoreEntity {
   @JoinColumn()
   hotelWindow: HotelWindow;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
-  sender: User;
+  sender: Member;
 
   @ManyToOne(() => Letter, { nullable: false })
   @JoinColumn()

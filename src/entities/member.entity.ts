@@ -1,6 +1,5 @@
 import { CoreEntity } from "src/entities/core.entity";
 import { Column, Entity, Unique } from "typeorm";
-import { IsEmail } from "class-validator";
 import { Vendor } from "./domain/vendor.type";
 import { Gender } from "./domain/gender.type";
 import { MembershipType } from "./domain/membership.type";
@@ -10,7 +9,7 @@ import { LocalDateTransformer } from "src/common/utils/local-date-time.transform
 
 @Unique(['socialId', 'vendor'])
 @Entity()
-export class User extends CoreEntity {
+export class Member extends CoreEntity {
 
     @Column({
         type: 'enum',

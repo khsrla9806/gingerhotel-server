@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FeekStatus } from 'src/entities/domain/feek-status.type';
 import { Feek } from 'src/entities/feek.entity';
 import { Letter } from 'src/entities/letter.entity';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AcceptFeekRequest } from './dto/accept-feek.dto';
 
@@ -20,46 +20,46 @@ export class FeekService {
   /**
    * 엿보기 요청
    */
-  async requestFeek(letterId: number, loginUser: User) {
+  async requestFeek(letterId: number, loginMember: Member) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      if (!loginUser.getMembershipInfo().isPossiblePeek) {
-        throw new BadRequestException(`엿보기를 사용할 수 없는 멤버쉽 사용자입니다. : ${loginUser.membership}`);
+      if (!loginMember.getMembershipInfo().isPossiblePeek) {
+        throw new BadRequestException(`엿보기를 사용할 수 없는 멤버쉽 사용자입니다. : ${loginMember.membership}`);
       }
 
-      if (loginUser.feekCount <= 0) {
-        throw new BadRequestException(`사용할 수 있는 엿보기 개수가 없습니다. : ${loginUser.feekCount}개`)
+      if (loginMember.feekCount <= 0) {
+        throw new BadRequestException(`사용할 수 있는 엿보기 개수가 없습니다. : ${loginMember.feekCount}개`)
       }
 
       const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
         .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.user', 'user')
-        .where('letter.id = :letterId', { letterId: letterId })
+        .innerJoinAndSelect('hotel.member', 'member')
+        .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
         .getOne();
 
       if (!letter) {
         throw new BadRequestException('존재하지 않는 편지 정보입니다.');
       }
 
-      if (letter.hotelWindow.hotel.user.id !== loginUser.id) {
+      if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
         throw new BadRequestException('자신이 받은 편지만 엿보기 요청이 가능합니다.')
       }
 
       await queryRunner.manager.save(this.feekRepository.create({
-        requestor: loginUser,
+        requestor: loginMember,
         letter: letter,
         requestorName: letter.hotelWindow.hotel.nickname,
         feekStatus: FeekStatus.REQUEST,
         comment: null
       }));
 
-      loginUser.feekCount--;
-      await queryRunner.manager.save(loginUser);
+      loginMember.feekCount--;
+      await queryRunner.manager.save(loginMember);
 
       await queryRunner.commitTransaction();
 
@@ -82,7 +82,7 @@ export class FeekService {
   /**
    * 엿보기 요청 상세 조회
    */
-  async getFeekDetail(feekId: number, loginUser: User) {
+  async getFeekDetail(feekId: number, loginMember: Member) {
     try {
       const feek = await this.feekRepository
         .createQueryBuilder('feek')
@@ -100,7 +100,7 @@ export class FeekService {
         throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.')
       }
       
-      if (feek.letter.sender.id !== loginUser.id) {
+      if (feek.letter.sender.id !== loginMember.id) {
         throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.');
       }
       
@@ -124,7 +124,7 @@ export class FeekService {
   /**
    * 엿보기 응답 (수락)
    */
-  async acceptFeek(feekId: number, loginUser: User, dto: AcceptFeekRequest) {
+  async acceptFeek(feekId: number, loginMember: Member, dto: AcceptFeekRequest) {
     try {
       const feek = await this.feekRepository
         .createQueryBuilder('feek')
@@ -142,7 +142,7 @@ export class FeekService {
         throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.')
       }
       
-      if (feek.letter.sender.id !== loginUser.id) {
+      if (feek.letter.sender.id !== loginMember.id) {
         throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.');
       }
 
@@ -171,7 +171,7 @@ export class FeekService {
   /**
    * 엿보기 응답 (거절)
    */
-  async rejectFeek(feekId: number, loginUser: User) {
+  async rejectFeek(feekId: number, loginMember: Member) {
     try {
       const feek = await this.feekRepository
         .createQueryBuilder('feek')
@@ -189,7 +189,7 @@ export class FeekService {
         throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.')
       }
       
-      if (feek.letter.sender.id !== loginUser.id) {
+      if (feek.letter.sender.id !== loginMember.id) {
         throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.');
       }
 

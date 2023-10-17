@@ -1,8 +1,8 @@
 import { Controller, Get, Param, ParseIntPipe, UseGuards, UseInterceptors } from '@nestjs/common';
 import { HotelService } from './hotel.service';
-import { LoginUser } from 'src/auth/decorator/login-user.decorator';
-import { User } from 'src/entities/user.entity';
-import { UserInterceptor } from 'src/auth/interceptor/user.interceptor';
+import { LoginMember } from 'src/auth/decorator/login-member.decorator';
+import { Member } from 'src/entities/member.entity';
+import { MemberInterceptor } from 'src/auth/interceptor/member.interceptor';
 import { ApiTags } from '@nestjs/swagger';
 import { GetHotelAPI } from 'src/common/swagger/decorator/hotel-api.decorator';
 
@@ -14,12 +14,12 @@ export class HotelController {
   ) {}
 
   @Get('/:hotelId')
-  @UseInterceptors(UserInterceptor)
+  @UseInterceptors(MemberInterceptor)
   @GetHotelAPI()
   async getHotel(
     @Param('hotelId', ParseIntPipe) hotelId: number,
-    @LoginUser() user: User
+    @LoginMember() member: Member
   ) {
-    return await this.hotelService.getHotel(hotelId, user);
+    return await this.hotelService.getHotel(hotelId, member);
   }
 }

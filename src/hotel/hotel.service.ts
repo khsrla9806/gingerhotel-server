@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { Repository } from 'typeorm';
 import { HotelDetailResponse } from './dto/hotel-detail.dto';
 import { Letter } from 'src/entities/letter.entity';
@@ -28,12 +28,12 @@ export class HotelService {
   /**
    * 메인 호텔 페이지 정보 조회
    */
-  async getHotel(hotelId: number, loginUser: User): Promise<HotelDetailResponse> {
+  async getHotel(hotelId: number, loginMember: Member): Promise<HotelDetailResponse> {
     try {
       // 1. 존재하는 호텔 식별자인지 확인
       const hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
-        .innerJoinAndSelect('hotel.user', 'user')
+        .innerJoinAndSelect('hotel.member', 'member')
         .where('hotel.id = :hotelId', { hotelId: hotelId })
         .getOne();
 
@@ -43,20 +43,20 @@ export class HotelService {
 
       // 2. 응답 데이터에 필요한 값들 설정 (오늘 받은 편지 수, 로그인 여부, 호텔 주인 여부, 친구 여부)
       const todayReceivedLetterCount: number = await this.getTodayReceivedLetterCount(hotel);
-      let isLoginUser: boolean = false;
+      let isLoginMember: boolean = false;
       let isOwner: boolean = false;
       let isFriend: boolean = false;
 
-      if (loginUser) {
-        isLoginUser = true;
+      if (loginMember) {
+        isLoginMember = true;
 
-        if (hotel.user.id === loginUser.id) {
+        if (hotel.member.id === loginMember.id) {
           isOwner = true;
         }
 
         const village: Village = await this.villageRepository
         .createQueryBuilder('village')
-        .where('village.fromUser.id = :fromUserId and village.toUser.id = :toUserId', { fromUserId: loginUser.id, toUserId: hotel.user.id })
+        .where('village.fromMember.id = :fromMemberId and village.toMember.id = :toMemberId', { fromMemberId: loginMember.id, toMemberId: hotel.member.id })
         .getOne();
       
         if (village) {
@@ -71,7 +71,7 @@ export class HotelService {
           headColor: hotel.headColor,
           bodyColor: hotel.bodyColor
         },
-        isLoginUser: isLoginUser,
+        isLoginMember: isLoginMember,
         isOwner: isOwner,
         isFriend: isFriend
       }

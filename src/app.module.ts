@@ -64,6 +64,6 @@ export class AppModule {}
       database: "postgres",
       synchronize: true,
       logging: true,
-      entities: [User, Hotel, Window, Letter],
+      entities: [Member, Hotel, Window, Letter],
   }),
  * **/

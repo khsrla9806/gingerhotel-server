@@ -3,12 +3,12 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt-strategy';
 import { Hotel } from 'src/entities/hotel.entity';
-import { UserInterceptor } from './interceptor/user.interceptor';
+import { MemberInterceptor } from './interceptor/member.interceptor';
 
 @Module({
   imports: [
@@ -24,10 +24,10 @@ import { UserInterceptor } from './interceptor/user.interceptor';
         }
       })
     }),
-    TypeOrmModule.forFeature([User, Hotel])
+    TypeOrmModule.forFeature([Member, Hotel])
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, UserInterceptor],
-  exports: [JwtStrategy, JwtModule, PassportModule, UserInterceptor]
+  providers: [AuthService, JwtStrategy, MemberInterceptor],
+  exports: [JwtStrategy, JwtModule, PassportModule, MemberInterceptor]
 })
 export class AuthModule {}

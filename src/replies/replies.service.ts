@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from 'src/entities/user.entity';
+import { Member } from 'src/entities/member.entity';
 import { CreateReplyRequest } from './dto/create-reply.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { DataSource, Repository } from 'typeorm';
@@ -29,7 +29,7 @@ export class RepliesService {
    * 답장 생성 메서드
    */
   async createReply(
-    letterId: number, loginUser: User, image: Express.Multer.File, dto: CreateReplyRequest): Promise<CommonResponse> {
+    letterId: number, loginMember: Member, image: Express.Multer.File, dto: CreateReplyRequest): Promise<CommonResponse> {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -37,8 +37,8 @@ export class RepliesService {
 
     try {
       // 1. 요청한 사용자의 멤버쉽이 답장 기능을 사용할 수 있는지 확인
-      if (!loginUser.getMembershipInfo().isPossibleReply) {
-        throw new BadRequestException(`답장 기능을 사용할 수 없는 멤버쉽의 사용자입니다. : ${loginUser.membership}`);
+      if (!loginMember.getMembershipInfo().isPossibleReply) {
+        throw new BadRequestException(`답장 기능을 사용할 수 없는 멤버쉽의 사용자입니다. : ${loginMember.membership}`);
       }
 
       // 2. 존재하는 편지인지 확인
@@ -47,7 +47,7 @@ export class RepliesService {
         .innerJoinAndSelect('letter.sender', 'sender')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
         .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.user', 'user')
+        .innerJoinAndSelect('hotel.member', 'member')
         .where('letter.id = :letterId', { letterId: letterId })
         .getOne();
       
@@ -61,10 +61,10 @@ export class RepliesService {
       }
       
       // 4. 답장 수신자의 호텔 객체를 얻어옴
-      let recipientsHotel: Hotel = await this.getRecipientsHotel(letter, loginUser);
+      let recipientsHotel: Hotel = await this.getRecipientsHotel(letter, loginMember);
 
-      // 5. 이미지 파일 존재 여부 확인 (user의 멤버쉽 체크)
-      if (image && !loginUser.getMembershipInfo().isPossibleAttachImage) {
+      // 5. 이미지 파일 존재 여부 확인 (member의 멤버쉽 체크)
+      if (image && !loginMember.getMembershipInfo().isPossibleAttachImage) {
         throw new BadRequestException("이미지 첨부를 할 수 없는 멤버쉽 정보입니다.");
       }
 
@@ -87,7 +87,7 @@ export class RepliesService {
 
       // 7. 답장 수신자의 편지 개수 제한을 확인
       const recievedLetterCount = await this.getRecievedLetterCount(hotelWindow);
-      const recipient: User = await recipientsHotel.user;
+      const recipient: Member = await recipientsHotel.member;
       if (recipient.getMembershipInfo().hasLetterLimit) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
       }
@@ -97,7 +97,7 @@ export class RepliesService {
 
       await queryRunner.manager.save(this.replyRepository.create({
         hotelWindow: hotelWindow,
-        sender: loginUser,
+        sender: loginMember,
         letter: letter,
         content: dto.content,
         isDeleted: false,
@@ -129,21 +129,21 @@ export class RepliesService {
 
   /**
    * @param letter: 답장의 대상이 되는 편지 객체
-   * @param loginUser: 현재 로그인한 사용자 객체
+   * @param loginMember: 현재 로그인한 사용자 객체
    * @returns 답장 수신자의 호텔 객체를 반환
    */
-  private async getRecipientsHotel(letter: Letter, loginUser: User): Promise<Hotel> {
+  private async getRecipientsHotel(letter: Letter, loginMember: Member): Promise<Hotel> {
 
     let recipientsId = letter.sender.id;
 
-    if (letter.sender.id === loginUser.id) {
+    if (letter.sender.id === loginMember.id) {
       return letter.hotelWindow.hotel;
     }
 
     return await this.hotelRepository
       .createQueryBuilder('hotel')
-      .innerJoinAndSelect('hotel.user', 'user')
-      .where('hotel.user.id = :userId', { userId: recipientsId })
+      .innerJoinAndSelect('hotel.member', 'member')
+      .where('hotel.member.id = :memberId', { memberId: recipientsId })
       .getOne();
   }
 
@@ -205,14 +205,14 @@ export class RepliesService {
   /**
    * 답장 삭제 메서드
    */
-  async deleteReply(replyId: number, loginUser: User): Promise<CommonResponse> {
+  async deleteReply(replyId: number, loginMember: Member): Promise<CommonResponse> {
     try {
       // 1. 존재하는 답장인지 확인
       const reply = await this.replyRepository
       .createQueryBuilder('reply')
       .innerJoinAndSelect('reply.hotelWindow', 'hotelWindow')
       .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-      .innerJoinAndSelect('hotel.user', 'user')
+      .innerJoinAndSelect('hotel.member', 'member')
       .where('reply.id = :replyId and reply.isDeleted = false', { replyId: replyId })
       .getOne();
 
@@ -221,7 +221,7 @@ export class RepliesService {
       }
 
       // 2. 삭제하려는 사람이 받은 편지가 맞는지 확인
-      if (reply.hotelWindow.hotel.user.id !== loginUser.id) {
+      if (reply.hotelWindow.hotel.member.id !== loginMember.id) {
         throw new BadRequestException('내가 받은 답장만 삭제할 수 있습니다.');
       }
 

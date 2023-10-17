@@ -1,6 +1,6 @@
 import { CoreEntity } from 'src/entities/core.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
-import { User } from 'src/entities/user.entity';
+import { Member } from './member.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity()
@@ -10,9 +10,9 @@ export class Letter extends CoreEntity {
   @JoinColumn()
   hotelWindow: HotelWindow;
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
-  sender: User;
+  sender: Member;
 
   @Column()
   senderNickname: string;

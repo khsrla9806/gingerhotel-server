@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
 import { FeekService } from './feek.service';
 import { AuthGuard } from '@nestjs/passport';
-import { LoginUser } from 'src/auth/decorator/login-user.decorator';
-import { User } from 'src/entities/user.entity';
+import { LoginMember } from 'src/auth/decorator/login-member.decorator';
+import { Member } from 'src/entities/member.entity';
 import { AcceptFeekRequest } from './dto/accept-feek.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AcceptFeekAPI, GetFeekDetailAPI, RejectFeekAPI, RequestFeekAPI } from 'src/common/swagger/decorator/feek-api.decorator';
@@ -19,9 +19,9 @@ export class FeekController {
   @RequestFeekAPI()
   async requestFeek(
     @Param('letterId', ParseIntPipe) letterId: number,
-    @LoginUser() loginUser: User
+    @LoginMember() loginMember: Member
   ) {
-    return await this.feekService.requestFeek(letterId, loginUser);
+    return await this.feekService.requestFeek(letterId, loginMember);
   }
 
   @Get('/:feekId')
@@ -29,9 +29,9 @@ export class FeekController {
   @GetFeekDetailAPI()
   async getFeekDetail(
     @Param('feekId', ParseIntPipe) feekId: number,
-    @LoginUser() loginUser: User
+    @LoginMember() loginMember: Member
   ) {
-    return await this.feekService.getFeekDetail(feekId, loginUser);
+    return await this.feekService.getFeekDetail(feekId, loginMember);
   }
 
   @Post('/:feekId/accept')
@@ -39,10 +39,10 @@ export class FeekController {
   @AcceptFeekAPI()
   async acceptFeek(
     @Param('feekId', ParseIntPipe) feekId: number,
-    @LoginUser() loginUser: User,
+    @LoginMember() loginMember: Member,
     @Body() dto: AcceptFeekRequest
   ) {
-    return await this.feekService.acceptFeek(feekId, loginUser, dto);
+    return await this.feekService.acceptFeek(feekId, loginMember, dto);
   }
 
   @Post('/:feekId/reject')
@@ -50,8 +50,8 @@ export class FeekController {
   @RejectFeekAPI()
   async rejectFeek(
     @Param('feekId', ParseIntPipe) feekId: number,
-    @LoginUser() loginUser: User
+    @LoginMember() loginMember: Member
   ) {
-    return await this.feekService.rejectFeek(feekId, loginUser);
+    return await this.feekService.rejectFeek(feekId, loginMember);
   }
 }

@@ -1,13 +1,13 @@
 import { CoreEntity } from 'src/entities/core.entity';
-import { User } from 'src/entities/user.entity';
+import { Member } from './member.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity()
 export class Hotel extends CoreEntity {
 
   @JoinColumn()
-  @OneToOne(type => User, { nullable: false })
-  user: User;
+  @OneToOne(type => Member, { nullable: false })
+  member: Member;
 
   @Column()
   nickname: string;

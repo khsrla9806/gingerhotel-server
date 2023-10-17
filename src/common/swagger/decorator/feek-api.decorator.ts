@@ -57,7 +57,7 @@ export function GetFeekDetailAPI() {
 export function AcceptFeekAPI() {
   return applyDecorators(
     ApiOperation({ summary: '엿보기 요청 수락', description: '엿보기 요청에 대한 응답을 작성하고, 수락합니다.' }),
-    ApiBody({ description: '사용자가 엿보기 요청에 대한 답변을 작성합니다. (Required User Token)', type: AcceptFeekRequest }),
+    ApiBody({ description: '사용자가 엿보기 요청에 대한 답변을 작성합니다. (Required Member Token)', type: AcceptFeekRequest }),
     ApiCreatedResponse({
       description: '수락 성공 시',
       schema: {
