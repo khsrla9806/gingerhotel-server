@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { LettersModule } from './letters/letters.module';
 import { RepliesModule } from './replies/replies.module';
 import { HotelModule } from './hotel/hotel.module';
+import { VillageModule } from './village/village.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { HotelModule } from './hotel/hotel.module';
     AuthModule,
     LettersModule,
     RepliesModule,
-    HotelModule
+    HotelModule,
+    VillageModule
 ],
   controllers: [],
   providers: [],
