@@ -3,8 +3,11 @@ import { HotelService } from './hotel.service';
 import { LoginUser } from 'src/auth/decorator/login-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { UserInterceptor } from 'src/auth/interceptor/user.interceptor';
+import { ApiTags } from '@nestjs/swagger';
+import { GetHotelAPI } from 'src/common/swagger/decorator/get-hotel.decorator';
 
 @Controller('hotel')
+@ApiTags('Hotel API')
 export class HotelController {
   constructor(
     private readonly hotelService: HotelService
@@ -12,6 +15,7 @@ export class HotelController {
 
   @Get('/:hotelId')
   @UseInterceptors(UserInterceptor)
+  @GetHotelAPI()
   async getHotel(
     @Param('hotelId', ParseIntPipe) hotelId: number,
     @LoginUser() user: User
