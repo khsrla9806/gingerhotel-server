@@ -9,6 +9,7 @@ import { LettersModule } from './letters/letters.module';
 import { RepliesModule } from './replies/replies.module';
 import { HotelModule } from './hotel/hotel.module';
 import { VillageModule } from './village/village.module';
+import { FeekModule } from './feek/feek.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { VillageModule } from './village/village.module';
     LettersModule,
     RepliesModule,
     HotelModule,
-    VillageModule
+    VillageModule,
+    FeekModule
 ],
   controllers: [],
   providers: [],
