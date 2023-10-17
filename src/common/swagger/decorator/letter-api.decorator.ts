@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
 import { CreateLetterRequest } from "src/letters/dto/create-letter.dto";
 
 export function CreateLetterAPI() {
@@ -25,5 +25,29 @@ export function CreateLetterAPI() {
     }),
     ApiBearerAuth('Authorization'),
     ApiConsumes('multipart/form-data')
+  );
+}
+
+export function DeleteLetterAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '편지 삭제', description: '사용자가 편지를 삭제합니다.' }),
+    ApiOkResponse({
+      description: '편지 삭제 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '편지 삭제 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 편지 정보입니다. | 자신이 받은 편지만 삭제할 수 있습니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
   );
 }

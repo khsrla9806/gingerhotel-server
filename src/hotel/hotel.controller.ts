@@ -4,7 +4,7 @@ import { LoginUser } from 'src/auth/decorator/login-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { UserInterceptor } from 'src/auth/interceptor/user.interceptor';
 import { ApiTags } from '@nestjs/swagger';
-import { GetHotelAPI } from 'src/common/swagger/decorator/get-hotel.decorator';
+import { GetHotelAPI } from 'src/common/swagger/decorator/hotel-api.decorator';
 
 @Controller('hotel')
 @ApiTags('Hotel API')

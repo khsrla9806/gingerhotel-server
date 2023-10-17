@@ -6,8 +6,7 @@ import { LoginUser } from 'src/auth/decorator/login-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
-import { CreateLetterAPI } from 'src/common/swagger/decorator/create-letter.decorator';
-import { DeleteLetterAPI } from 'src/common/swagger/decorator/delete-letter.decorator';
+import { CreateLetterAPI, DeleteLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
 
 @Controller('letters')
 @ApiTags('Letters API')

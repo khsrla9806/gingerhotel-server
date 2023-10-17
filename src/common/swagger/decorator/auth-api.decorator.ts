@@ -1,5 +1,6 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { CreateHotelRequest } from "src/auth/dto/create-hotel.dto";
 import { Vendor } from "src/entities/domain/vendor.type";
 
 /**
@@ -28,5 +29,22 @@ export function SocialLoginAPI(vendor: Vendor ,type: any) {
         }
       }
     })
+  );
+}
+
+export function CreateHotelAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '호텔 생성', description: '사용자가 입력한 정보들로 호텔을 생성합니다.' }),
+    ApiBody({ description: '사용자가 입력한 호텔, 사용자 정보 (Required User Token)', type: CreateHotelRequest }),
+    ApiCreatedResponse({
+      description: '호텔 생성에 성공하면 hotelId를 반환한다.',
+      schema: {
+        example: {
+          success: true,
+          hotelId: 2
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
   );
 }

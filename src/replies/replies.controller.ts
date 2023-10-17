@@ -6,8 +6,7 @@ import { CreateReplyRequest } from './dto/create-reply.dto';
 import { User } from 'src/entities/user.entity';
 import { RepliesService } from './replies.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateReplyAPI } from 'src/common/swagger/decorator/create-reply.decorator';
-import { DeleteReplyAPI } from 'src/common/swagger/decorator/delete-reply.decorator';
+import { CreateReplyAPI, DeleteReplyAPI } from 'src/common/swagger/decorator/reply-api.decorator';
 
 @Controller('replies')
 @ApiTags('Replies API')

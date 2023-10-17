@@ -5,13 +5,12 @@ import { Vendor } from 'src/entities/domain/vendor.type';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/entities/user.entity';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { SocialLoginAPI } from 'src/common/swagger/decorator/social-api.decorator';
 import { LoginUser } from './decorator/login-user.decorator';
 import { Response } from 'express';
 import { CreateHotelRequest } from './dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from './pipes/create-hotel.validation.pipe';
-import { CreateHotelAPI } from 'src/common/swagger/decorator/create-hotel.decorator';
+import { CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
 
 @Controller('auth')
 @ApiTags('Auth API')
