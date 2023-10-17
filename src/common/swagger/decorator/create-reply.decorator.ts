@@ -4,7 +4,7 @@ import { CreateReplyRequest } from "src/replies/dto/create-reply.dto";
 
 export function CreateReplyAPI() {
   return applyDecorators(
-    ApiOperation({ summary: 'Create Reply API', description: '사용자가 입력한 답장 정보로 답장을 생성합니다.' }),
+    ApiOperation({ summary: '답장 쓰기', description: '사용자가 입력한 답장 정보로 답장을 생성합니다.' }),
     ApiBody({ description: '사용자가 입력한 답장 정보 + 이미지 파일(Optional) (Required User Token)', type: CreateReplyRequest }),
     ApiCreatedResponse({
       description: '답장 생성에 성공했을 때',
@@ -23,7 +23,7 @@ export function CreateReplyAPI() {
         }
       }
     }),
-    ApiBearerAuth('accessToken'),
+    ApiBearerAuth('Authorization'),
     ApiConsumes('multipart/form-data')
   );
 }

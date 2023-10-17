@@ -8,7 +8,7 @@ import { Vendor } from "src/entities/domain/vendor.type";
 export function SocialLoginAPI(vendor: Vendor ,type: any) {
   return applyDecorators(
     ApiBody({ description: `${vendor} 사용자 정보`, type: type }),
-    ApiOperation({ summary: `${vendor} Social Login`, description: `${vendor} 소셜 로그인을 수행한다.` }),
+    ApiOperation({ summary: `${vendor} 소셜 로그인`, description: `${vendor} 소셜 로그인을 수행한다.` }),
     ApiCreatedResponse({
       description: '로그인이 성공하면 토큰 정보를 반환한다.',
       schema: {

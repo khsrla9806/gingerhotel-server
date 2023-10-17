@@ -3,7 +3,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation } fro
 
 export function DeleteReplyAPI() {
   return applyDecorators(
-    ApiOperation({ summary: 'Delete Reply API', description: '사용자가 답장을 삭제합니다.' }),
+    ApiOperation({ summary: '답장 삭제', description: '사용자가 답장을 삭제합니다.' }),
     ApiOkResponse({
       description: '답장 삭제 성공',
       schema: {
@@ -21,6 +21,6 @@ export function DeleteReplyAPI() {
         }
       }
     }),
-    ApiBearerAuth('accessToken')
+    ApiBearerAuth('Authorization')
   );
 }

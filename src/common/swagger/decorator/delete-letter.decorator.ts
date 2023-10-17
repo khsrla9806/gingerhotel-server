@@ -3,7 +3,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation } fro
 
 export function DeleteLetterAPI() {
   return applyDecorators(
-    ApiOperation({ summary: 'Delete Letter API', description: '사용자가 편지를 삭제합니다.' }),
+    ApiOperation({ summary: '편지 삭제', description: '사용자가 편지를 삭제합니다.' }),
     ApiOkResponse({
       description: '편지 삭제 성공',
       schema: {
@@ -21,6 +21,6 @@ export function DeleteLetterAPI() {
         }
       }
     }),
-    ApiBearerAuth('accessToken')
+    ApiBearerAuth('Authorization')
   );
 }

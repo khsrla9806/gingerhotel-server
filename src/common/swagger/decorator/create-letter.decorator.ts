@@ -4,7 +4,7 @@ import { CreateLetterRequest } from "src/letters/dto/create-letter.dto";
 
 export function CreateLetterAPI() {
   return applyDecorators(
-    ApiOperation({ summary: 'Create Letter API', description: '사용자가 입력한 편지 정보로 편지를 생성합니다.' }),
+    ApiOperation({ summary: '편지 쓰기', description: '사용자가 입력한 편지 정보로 편지를 생성합니다.' }),
     ApiBody({ description: '사용자가 입력한 편지 정보 + 이미지 파일(Optional) (Required User Token)', type: CreateLetterRequest }),
     ApiCreatedResponse({
       description: '편지 생성에 성공했을 때',
@@ -23,7 +23,7 @@ export function CreateLetterAPI() {
         }
       }
     }),
-    ApiBearerAuth('accessToken'),
+    ApiBearerAuth('Authorization'),
     ApiConsumes('multipart/form-data')
   );
 }
