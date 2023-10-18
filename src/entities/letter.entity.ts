@@ -23,6 +23,9 @@ export class Letter extends CoreEntity {
   @Column({ default: false })
   isDeleted: boolean;
 
+  @Column({ default: false })
+  isBlocked: boolean;
+
   @Column({ nullable: true, length: 1000 })
   imageUrl: string;
 }

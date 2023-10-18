@@ -101,6 +101,7 @@ export class RepliesService {
         letter: letter,
         content: dto.content,
         isDeleted: false,
+        isBlocked: false,
         imageUrl: imageURL
       }));
 

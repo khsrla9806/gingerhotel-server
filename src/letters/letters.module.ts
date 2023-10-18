@@ -7,6 +7,7 @@ import { Hotel } from 'src/entities/hotel.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Module({
   imports: [

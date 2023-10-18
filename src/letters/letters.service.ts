@@ -9,6 +9,7 @@ import { LocalDate } from '@js-joda/core';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Injectable()
 export class LettersService {
@@ -89,7 +90,8 @@ export class LettersService {
         senderNickname: dto.senderNickname,
         content: dto.content,
         imageUrl: imageURL,
-        isDeleted: false
+        isDeleted: false,
+        isBlocked: false
       }));
 
       // 8. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
