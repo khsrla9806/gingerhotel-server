@@ -12,7 +12,7 @@ import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Hotel, HotelWindow, Letter, Reply])
+    TypeOrmModule.forFeature([Hotel, HotelWindow, Letter, Reply, MemberBlockHistory])
   ],
   controllers: [LettersController],
   providers: [LettersService]

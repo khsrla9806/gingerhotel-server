@@ -23,6 +23,8 @@ export class LettersService {
     private readonly letterRepository: Repository<Letter>,
     @InjectRepository(Reply)
     private readonly replyRepository: Repository<Reply>,
+    @InjectRepository(MemberBlockHistory)
+    private readonly memberBlockHistoryRepository: Repository<MemberBlockHistory>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -211,6 +213,175 @@ export class LettersService {
 
     } catch (e) {
 
+      await queryRunner.rollbackTransaction();
+
+      return {
+        success: false,
+        error: e.message
+      }
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * 편지 차단 메서드
+   */
+  async blockLetter(letterId: number, loginMember: Member) {
+    
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // 1. 존재하는 편지인지 확인
+      const letter = await this.letterRepository
+        .createQueryBuilder('letter')
+        .innerJoinAndSelect('letter.sender', 'sender')
+        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
+        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
+        .innerJoinAndSelect('hotel.member', 'member')
+        .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
+        .getOne();
+
+      if (!letter) {
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+      }
+
+      // 2. 편지를 받은 사람과 로그인한 사용자와 같은지 확인 (자신이 받은 편지만 차단이 가능)
+      if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
+        throw new BadRequestException('내가 받은 편지만 차단할 수 있습니다.');
+      }
+
+      // 3. 이미 차단 되어 있는 편지인지 확인
+      if (letter.isBlocked) {
+        throw new BadRequestException('이미 차단된 편지입니다.')
+      }
+
+      // 4. 관련된 답장들 중에서 sender가 letterSender와 같은  isBlocked를 모두 true로 변경
+      await queryRunner.query(
+        `UPDATE reply SET is_blocked = true WHERE letter_id = ${letter.id} and sender_id = ${letter.sender.id}`
+      );
+
+      // 5. 해당 편지 차단
+      await queryRunner.query(
+        `UPDATE letter SET is_blocked = true WHERE id = ${letter.id}`
+      );
+
+      // 6. 로그인한 사용자(fromMember)와 편지를 보낸 사람(toMember)의 차단 관계를 형성
+      const memberBlockHistory = await this.memberBlockHistoryRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: loginMember.id, toMemberId: letter.sender.id }
+        )
+        .getOne();
+
+      // 7. 이미 차단된 내역이 있으면 count를 1증가한 후 UPDATE, 없으면 count를 1로 새로 만들어서 INSERT
+      if (!memberBlockHistory) {
+        await queryRunner.manager.save(this.memberBlockHistoryRepository.create({
+          fromMember: loginMember,
+          toMember: letter.sender,
+          count: 1
+        }));
+      } else {
+        await queryRunner.query(
+          `UPDATE member_block_history SET count = ${memberBlockHistory.count + 1} WHERE id = ${memberBlockHistory.id}`
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+
+      return {
+        success: false,
+        error: e.message
+      }
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * 편지 차단 해제
+   */
+  async unblockLetter(letterId: number, loginMember: Member) {
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // 1. 존재하는 편지인지 확인
+      const letter = await this.letterRepository
+        .createQueryBuilder('letter')
+        .innerJoinAndSelect('letter.sender', 'sender')
+        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
+        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
+        .innerJoinAndSelect('hotel.member', 'member')
+        .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
+        .getOne();
+
+      if (!letter) {
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+      }
+
+      // 2. 편지를 받은 사람과 로그인한 사용자와 같은지 확인 (자신이 받은 편지만 차단 해제 가능)
+      if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
+        throw new BadRequestException('내가 받은 편지만 차단 해제할 수 있습니다.');
+      }
+
+      // 3. 차단 되어 있지 않는 편지인지 확인
+      if (!letter.isBlocked) {
+        throw new BadRequestException('차단 되어 있지 않은 편지입니다.')
+      }
+
+      // 4. 관련된 답장들 중에서 sender가 letterSender와 같은  isBlocked를 모두 false로 변경
+      await queryRunner.query(
+        `UPDATE reply SET is_blocked = false WHERE letter_id = ${letter.id} and sender_id = ${letter.sender.id}`
+      );
+
+      // 5. 해당 편지 차단 해제
+      await queryRunner.query(
+        `UPDATE letter SET is_blocked = false WHERE id = ${letter.id}`
+      );
+
+      // 6. 로그인한 사용자(fromMember)와 편지를 보낸 사람(toMember)의 차단 관계를 해제
+      const memberBlockHistory = await this.memberBlockHistoryRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: loginMember.id, toMemberId: letter.sender.id }
+        )
+        .getOne();
+
+      // 7. 이미 차단된 내역이 있으면 count를 확인
+      if (memberBlockHistory) {
+        const minusCount = memberBlockHistory.count - 1;
+
+        if (minusCount <= 0) {
+          await queryRunner.query(
+            `DELETE FROM member_block_history WHERE id = ${memberBlockHistory.id}`
+          );
+        } else {
+          await queryRunner.query(
+            `UPDATE member_block_history SET count = ${minusCount} WHERE id = ${memberBlockHistory.id}`
+          );
+        }
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+    } catch (e) {
       await queryRunner.rollbackTransaction();
 
       return {
