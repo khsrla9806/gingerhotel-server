@@ -49,6 +49,23 @@ export class LettersService {
         }
       });
 
+      if (!hotel) {
+        throw new BadRequestException(`존재하지 않는 호텔 정보입니다. : ${hotelId}`);
+      }
+
+      // 내가 편지 보내려는 사용자가 나를 차단한 경우
+      const memberBlock = await this.memberBlockHistoryRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: hotel.member.id, toMemberId: loginMember.id }
+        )
+        .getOne();
+      
+      if (memberBlock) {
+        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
+      }
+
       // 2. 자신의 호텔인지 확인 (자기 호텔에는 편지를 쓰지 못함)
       if (hotel.member.id === loginMember.id) {
         throw new BadRequestException("자신의 호텔에는 편지를 쓸 수 없습니다.");

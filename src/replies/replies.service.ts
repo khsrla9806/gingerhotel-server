@@ -24,7 +24,7 @@ export class RepliesService {
     @InjectRepository(Reply)
     private readonly replyRepository: Repository<Reply>,
     @InjectRepository(MemberBlockHistory)
-    private readonly memberBlockRepository: Repository<MemberBlockHistory>,
+    private readonly memberBlockHistoryRepository: Repository<MemberBlockHistory>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -65,6 +65,19 @@ export class RepliesService {
       
       // 4. 답장 수신자의 호텔 객체를 얻어옴
       let recipientsHotel: Hotel = await this.getRecipientsHotel(letter, loginMember);
+
+      // 내가 편지 보내려는 사용자가 나를 차단한 경우
+      const memberBlock = await this.memberBlockHistoryRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: recipientsHotel.member.id, toMemberId: loginMember.id }
+        )
+        .getOne();
+      
+      if (memberBlock) {
+        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
+      }
 
       // 5. 이미지 파일 존재 여부 확인 (member의 멤버쉽 체크)
       if (image && !loginMember.getMembershipInfo().isPossibleAttachImage) {
@@ -138,16 +151,14 @@ export class RepliesService {
    */
   private async getRecipientsHotel(letter: Letter, loginMember: Member): Promise<Hotel> {
 
-    let recipientsId = letter.sender.id;
-
-    if (letter.sender.id === loginMember.id) {
+    if (letter.sender.id === loginMember.id) { // 편지를 보낸 사람이 로그인한 사용자라면 답장 수신자는 편지의 주인
       return letter.hotelWindow.hotel;
     }
 
     return await this.hotelRepository
       .createQueryBuilder('hotel')
       .innerJoinAndSelect('hotel.member', 'member')
-      .where('hotel.member.id = :memberId', { memberId: recipientsId })
+      .where('hotel.member.id = :memberId', { memberId: letter.sender.id })
       .getOne();
   }
 
@@ -290,7 +301,7 @@ export class RepliesService {
       }
 
       // 6. 나(loginMember)와 답장을 보낸 사람(reply.sender) 사이의 차단 관계를 형성
-      const memberBlock = await this.memberBlockRepository
+      const memberBlock = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -300,7 +311,7 @@ export class RepliesService {
 
       // 7. 이미 차단 관계가 있다면 count를 1 증가 후 UPDATE, 없다면 새로 만들어서 INSERT
       if (!memberBlock) {
-        await queryRunner.manager.save(this.memberBlockRepository.create({
+        await queryRunner.manager.save(this.memberBlockHistoryRepository.create({
           fromMember: loginMember,
           toMember: reply.sender,
           count: 1
@@ -374,7 +385,7 @@ export class RepliesService {
       }
 
       // 6. 나(loginMember)와 답장을 보낸 사람(reply.sender) 사이의 차단 관계를 형성
-      const memberBlock = await this.memberBlockRepository
+      const memberBlock = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
