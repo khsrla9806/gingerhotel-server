@@ -6,7 +6,7 @@ import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
-import { CreateLetterAPI, DeleteLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
+import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, UnblockLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
 
 @Controller('letters')
 @ApiTags('Letters API')
@@ -41,6 +41,7 @@ export class LettersController {
 
   @Post('/:letterId/block')
   @UseGuards(AuthGuard())
+  @BlockLetterAPI()
   async blockLetter(
     @Param('letterId', ParseIntPipe) letterId: number,
     @LoginMember() loginMember: Member
@@ -50,6 +51,7 @@ export class LettersController {
 
   @Post('/:letterId/unblock')
   @UseGuards(AuthGuard())
+  @UnblockLetterAPI()
   async unblockLetter(
     @Param('letterId', ParseIntPipe) letterId: number,
     @LoginMember() loginMember: Member

@@ -51,3 +51,51 @@ export function DeleteReplyAPI() {
     ApiBearerAuth('Authorization')
   );
 }
+
+export function BlockReplyAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '답장 차단', description: '사용자가 답장를 보낸 사람을 차단합니다.' }),
+    ApiOkResponse({
+      description: '답장 차단 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '답장 차단 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 답장 정보입니다. | 내가 받은 답장만 차단할 수 있습니다. | 이미 차단된 답장입니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
+export function UnblockReplyAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '답장 차단 해제', description: '사용자가 차단된 답장를 차단 해제합니다.' }),
+    ApiOkResponse({
+      description: '답장 차단 해제 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '답장 차단 해제 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 답장 정보입니다. | 내가 받은 답장만 차단 해제할 수 있습니다. | 차단 되어 있지 않은 답장입니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}

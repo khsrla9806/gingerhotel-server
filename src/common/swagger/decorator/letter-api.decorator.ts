@@ -51,3 +51,51 @@ export function DeleteLetterAPI() {
     ApiBearerAuth('Authorization')
   );
 }
+
+export function BlockLetterAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '편지 차단', description: '사용자가 편지를 보낸 사람을 차단합니다.' }),
+    ApiOkResponse({
+      description: '편지 차단 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '편지 차단 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 편지 정보입니다. | 내가 받은 편지만 차단할 수 있습니다. | 이미 차단된 편지입니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
+export function UnblockLetterAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '편지 차단 해제', description: '사용자가 차단된 편지를 차단 해제합니다.' }),
+    ApiOkResponse({
+      description: '편지 차단 해제 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '편지 차단 해제 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 편지 정보입니다. | 내가 받은 편지만 차단 해제할 수 있습니다. | 차단 되어 있지 않은 편지입니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}

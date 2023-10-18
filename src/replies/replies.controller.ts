@@ -6,7 +6,7 @@ import { CreateReplyRequest } from './dto/create-reply.dto';
 import { Member } from 'src/entities/member.entity';
 import { RepliesService } from './replies.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateReplyAPI, DeleteReplyAPI } from 'src/common/swagger/decorator/reply-api.decorator';
+import { BlockReplyAPI, CreateReplyAPI, DeleteReplyAPI, UnblockReplyAPI } from 'src/common/swagger/decorator/reply-api.decorator';
 
 @Controller('replies')
 @ApiTags('Replies API')
@@ -41,6 +41,7 @@ export class RepliesController {
 
   @Post('/:replyId/block')
   @UseGuards(AuthGuard())
+  @BlockReplyAPI()
   async blockReply(
     @Param('replyId', ParseIntPipe) replyId: number,
     @LoginMember() loginMember: Member
@@ -50,6 +51,7 @@ export class RepliesController {
 
   @Post('/:replyId/unblock')
   @UseGuards(AuthGuard())
+  @UnblockReplyAPI()
   async unblockReply(
     @Param('replyId', ParseIntPipe) replyId: number,
     @LoginMember() loginMember: Member
