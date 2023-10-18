@@ -39,4 +39,22 @@ export class LettersController {
     return await this.letterService.deleteLetter(letterId, loginMember);
   }
 
+  @Post('/:letterId/block')
+  @UseGuards(AuthGuard())
+  async blockLetter(
+    @Param('letterId', ParseIntPipe) letterId: number,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.letterService.blockLetter(letterId, loginMember);
+  }
+
+  @Post('/:letterId/unblock')
+  @UseGuards(AuthGuard())
+  async unblockLetter(
+    @Param('letterId', ParseIntPipe) letterId: number,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.letterService.unblockLetter(letterId, loginMember);
+  }
+
 }
