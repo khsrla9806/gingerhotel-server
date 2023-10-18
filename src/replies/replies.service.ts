@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Injectable()
 export class RepliesService {
@@ -22,6 +23,8 @@ export class RepliesService {
     private readonly letterRepository: Repository<Letter>,
     @InjectRepository(Reply)
     private readonly replyRepository: Repository<Reply>,
+    @InjectRepository(MemberBlockHistory)
+    private readonly memberBlockRepository: Repository<MemberBlockHistory>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -239,6 +242,174 @@ export class RepliesService {
         success: false,
         error: e.message
       }
+    }
+  }
+
+  /**
+   * 답장 차단 메서드
+   */
+  async blockReply(replyId: number, loginMember: Member) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    
+    try {
+      // 1. 존재하는 답장인지 확인 (식별자만 Projection)
+      const reply = await this.replyRepository
+        .createQueryBuilder('reply')
+        .innerJoin('reply.sender', 'sender')
+        .innerJoin('reply.letter', 'letter')
+        .innerJoin('letter.sender', 'letterSender')
+        .innerJoin('reply.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['reply', 'sender.id', 'letter.id', 'letterSender.id', 'hotelWindow.id', 'hotel.id', 'member.id'])
+        .where('reply.id = :replyId and reply.isDeleted = false', { replyId: replyId })
+        .getOne();
+
+      // 2. 내가 받은 답장이 맞는지 확인
+      if (reply.hotelWindow.hotel.member.id !== loginMember.id) {
+        throw new BadRequestException('내가 받은 답장만 차단이 가능합니다.');
+      }
+
+      // 3. 이미 차단된 답장인지 확인
+      if (reply.isBlocked) {
+        throw new BadRequestException('이미 차단된 답장입니다.');
+      }
+
+      // 4. 이 답장을 포함해서 관련된(reply.sender가 동일한) 다른 답장들의 isBlocked를 true로 변경
+      await queryRunner.query(
+        `UPDATE reply SET is_blocked = true WHERE letter_id = ${reply.letter.id} and sender_id = ${reply.sender.id}`
+      );
+
+      // 5. 이 답장의 시작이 된 편지를 보낸 사람이 동알하다면 편지도 차단
+      if (reply.letter.sender.id === reply.sender.id) {
+        await queryRunner.query(
+          `UPDATE letter SET is_blocked = true WHERE id = ${reply.letter.id}`
+        );
+      }
+
+      // 6. 나(loginMember)와 답장을 보낸 사람(reply.sender) 사이의 차단 관계를 형성
+      const memberBlock = await this.memberBlockRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: loginMember.id, toMemberId: reply.sender.id }
+        )
+        .getOne();
+
+      // 7. 이미 차단 관계가 있다면 count를 1 증가 후 UPDATE, 없다면 새로 만들어서 INSERT
+      if (!memberBlock) {
+        await queryRunner.manager.save(this.memberBlockRepository.create({
+          fromMember: loginMember,
+          toMember: reply.sender,
+          count: 1
+        }));
+      } else {
+        await queryRunner.query(
+          `UPDATE member_block_history SET count = ${memberBlock.count + 1} WHERE id = ${memberBlock.id}`
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+    } catch (e) {
+
+      await queryRunner.rollbackTransaction();
+
+      return {
+        success: false,
+        error: e.message
+      }
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * 답장 차단 해제 메서드
+   */
+  async unblockReply(replyId: number, loginMember: Member) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    
+    try {
+      // 1. 존재하는 답장인지 확인 (식별자만 Projection)
+      const reply = await this.replyRepository
+        .createQueryBuilder('reply')
+        .innerJoin('reply.sender', 'sender')
+        .innerJoin('reply.letter', 'letter')
+        .innerJoin('letter.sender', 'letterSender')
+        .innerJoin('reply.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['reply', 'sender.id', 'letter.id', 'letterSender.id', 'hotelWindow.id', 'hotel.id', 'member.id'])
+        .where('reply.id = :replyId and reply.isDeleted = false', { replyId: replyId })
+        .getOne();
+
+      // 2. 내가 받은 답장이 맞는지 확인
+      if (reply.hotelWindow.hotel.member.id !== loginMember.id) {
+        throw new BadRequestException('내가 받은 답장만 차단 해제가 가능합니다.');
+      }
+
+      // 3. 차단된 답장인지 확인
+      if (!reply.isBlocked) {
+        throw new BadRequestException('차단되어 있지 않은 답장입니다.');
+      }
+
+      // 4. 이 답장을 포함해서 관련된(reply.sender가 동일한) 다른 답장들의 isBlocked를 false로 변경
+      await queryRunner.query(
+        `UPDATE reply SET is_blocked = false WHERE letter_id = ${reply.letter.id} and sender_id = ${reply.sender.id}`
+      );
+
+      // 5. 이 답장의 시작이 된 편지를 보낸 사람이 동알하다면 편지도 차단 해제
+      if (reply.letter.sender.id === reply.sender.id) {
+        await queryRunner.query(
+          `UPDATE letter SET is_blocked = false WHERE id = ${reply.letter.id}`
+        );
+      }
+
+      // 6. 나(loginMember)와 답장을 보낸 사람(reply.sender) 사이의 차단 관계를 형성
+      const memberBlock = await this.memberBlockRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: loginMember.id, toMemberId: reply.sender.id }
+        )
+        .getOne();
+
+      // 7. 이미 차단 관계가 있다면 count를 -1 감소후 count가 0 이하인지 확인하고, 0 이하면 없앰
+      if (memberBlock) {
+        const minusCount = memberBlock.count - 1;
+
+        if (minusCount <= 0) {
+          await queryRunner.query(`DELETE FROM member_block_history WHERE id = ${memberBlock.id}`);
+        } else {
+          await queryRunner.query(
+            `UPDATE member_block_history SET count = ${minusCount} WHERE id = ${memberBlock.id}`
+          );
+        }
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+    } catch (e) {
+
+      await queryRunner.rollbackTransaction();
+
+      return {
+        success: false,
+        error: e.message
+      }
+    } finally {
+      await queryRunner.release();
     }
   }
 }

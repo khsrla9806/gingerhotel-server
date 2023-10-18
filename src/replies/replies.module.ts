@@ -8,11 +8,12 @@ import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Member } from 'src/entities/member.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Hotel, HotelWindow, Member, Letter, Reply])
+    TypeOrmModule.forFeature([Hotel, HotelWindow, Member, Letter, Reply, MemberBlockHistory])
   ],
   controllers: [RepliesController],
   providers: [RepliesService]
