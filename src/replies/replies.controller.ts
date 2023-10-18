@@ -38,4 +38,22 @@ export class RepliesController {
   ) {
     return await this.repliesService.deleteReply(replyId, loginMember);
   }
+
+  @Post('/:replyId/block')
+  @UseGuards(AuthGuard())
+  async blockReply(
+    @Param('replyId', ParseIntPipe) replyId: number,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.repliesService.blockReply(replyId, loginMember);
+  }
+
+  @Post('/:replyId/unblock')
+  @UseGuards(AuthGuard())
+  async unblockReply(
+    @Param('replyId', ParseIntPipe) replyId: number,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.repliesService.unblockReply(replyId, loginMember);
+  }
 }
