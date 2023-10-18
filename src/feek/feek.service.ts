@@ -6,6 +6,7 @@ import { Letter } from 'src/entities/letter.entity';
 import { Member } from 'src/entities/member.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AcceptFeekRequest } from './dto/accept-feek.dto';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Injectable()
 export class FeekService {
@@ -14,6 +15,8 @@ export class FeekService {
     private readonly feekRepository: Repository<Feek>,
     @InjectRepository(Letter)
     private readonly letterRepository: Repository<Letter>,
+    @InjectRepository(MemberBlockHistory)
+    private readonly memberBlockHistoryRepository: Repository<MemberBlockHistory>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -36,6 +39,7 @@ export class FeekService {
 
       const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
+        .innerJoinAndSelect('letter.sender', 'sender')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
         .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
         .innerJoinAndSelect('hotel.member', 'member')
@@ -48,6 +52,19 @@ export class FeekService {
 
       if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
         throw new BadRequestException('자신이 받은 편지만 엿보기 요청이 가능합니다.')
+      }
+
+      // 엿보기 요청을 보내려는 사용자가 나를 차단한 경우
+      const memberBlock = await this.memberBlockHistoryRepository
+        .createQueryBuilder('memberBlock')
+        .where(
+          'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
+          { fromMemberId: letter.sender.id, toMemberId: loginMember.id }
+        )
+        .getOne();
+      
+      if (memberBlock) {
+        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
       }
 
       await queryRunner.manager.save(this.feekRepository.create({
