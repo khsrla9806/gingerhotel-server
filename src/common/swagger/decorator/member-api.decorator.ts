@@ -9,12 +9,20 @@ export function GetMemberInfoAPI() {
       schema: {
         example: {
           success: true,
-          nickname: '헤르미온느',
-          code: '2EFd54a',
-          membership: 'DELUXE',
-          keyCount: 2,
-          feekCount: 0,
-          myHotelId: 12
+          user: {
+            nickname: '헤르미온느',
+            code: 'cEH7UbQ',
+            membership: 'DELUXE',
+            keyCount: 2,
+            feekCount: 0
+          },
+          hotel: {
+            id: 12,
+            nickname: '헤르미온느',
+            description: '헤르미온느의 호텔에 오신걸 환영합니다.',
+            headColor: "#2E9AFE",
+            bodyColot: "#2E9AFE"
+          }
         }
       }
     }),

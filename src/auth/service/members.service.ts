@@ -31,12 +31,20 @@ export class MemberService {
 
       return {
         success: true,
-        nickname: hotel.nickname,
-        code: loginMember.code,
-        membership: loginMember.membership,
-        keyCount: loginMember.keyCount,
-        feekCount: loginMember.feekCount,
-        myHotelId: hotel.id
+        user: {
+          nickname: hotel.nickname,
+          code: loginMember.code,
+          membership: loginMember.membership,
+          keyCount: loginMember.keyCount,
+          feekCount: loginMember.feekCount
+        },
+        hotel: {
+          id: hotel.id,
+          nickname: hotel.nickname,
+          description: hotel.description,
+          headColor: hotel.headColor,
+          bodyColot: hotel.bodyColor
+        }
       }
 
     } catch (e) {
