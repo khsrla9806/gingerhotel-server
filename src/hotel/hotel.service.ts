@@ -9,6 +9,7 @@ import { Reply } from 'src/entities/reply.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { LocalDate } from '@js-joda/core';
 import { Village } from 'src/entities/village.entity';
+import { HotelUpdateRequest } from './dto/hotel-update.dto';
 
 @Injectable()
 export class HotelService {
@@ -106,5 +107,42 @@ export class HotelService {
       .getCount();
 
     return letterCount + replyCount;
+  }
+
+  /**
+   * 호텔 수정 메서드
+   */
+  async modifyHotel(hotelId: number, dto: HotelUpdateRequest, loginMember: Member) {
+    try {
+      // 1. 로그인한 사용자의 호텔 정보를 조회
+      const hotel = await this.hotelRepository
+       .createQueryBuilder('hotel')
+       .innerJoin('hotel.member', 'member', 'member.id = :memberId', { memberId: loginMember.id })
+       .select(['hotel', 'member.id'])
+       .getOne();
+
+      if (!hotel) {
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다. 호텔 생성을 완료 후 이용해주세요.');
+      }
+
+      // 2. 수정 요청된 호텔과 로그인한 사용자의 호텔이 동일한지 확인
+      if (hotel.id !== hotelId) {
+        throw new BadRequestException('자신의 호텔 정보만 수정이 가능합니다.');
+      }
+
+      // 3. 호텔 수정 (무조건 hotel에 대한 select 쿼리가 발생되고, 수정 사항이 없으면 update 쿼리는 안 나감)
+      const updatedHotel: Hotel = await this.hotelRepository.save(dto.getUpdatedHotel(hotel));
+
+      return {
+        success: true,
+        hotelId: updatedHotel.id
+      }
+
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
+      }
+    }
   }
 }
