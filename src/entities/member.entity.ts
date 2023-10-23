@@ -35,7 +35,11 @@ export class Member extends CoreEntity {
       })
     birthDate?: LocalDate;
 
-    @Column({ nullable: true })
+    @Column({ 
+        type: 'enum',
+        enum: Gender,
+        nullable: true
+     })
     gender?: Gender;
 
     @Column({ default: true })
