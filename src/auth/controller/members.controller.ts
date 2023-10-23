@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, UseGuards } from "@nestjs/common";
 import { MemberService } from "../service/members.service";
 import { AuthGuard } from "@nestjs/passport";
 import { LoginMember } from "../decorator/login-member.decorator";
@@ -34,5 +34,14 @@ export class MemberController {
     @LoginMember() loginMember: Member
   ) {
     return await this.memberService.updateMemberInfo(memberId, dto, loginMember);
+  }
+
+  @Delete('/:memberId')
+  @UseGuards(AuthGuard())
+  async deleteMember(
+    @Param('memberId', ParseIntPipe) memberId: number,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.memberService.deleteMember(memberId, loginMember);
   }
 }

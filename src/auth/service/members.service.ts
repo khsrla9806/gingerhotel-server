@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Hotel } from "src/entities/hotel.entity";
 import { Member } from "src/entities/member.entity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { UpdateMemberRequest } from "../dto/update-member.dto";
 
 @Injectable()
@@ -11,7 +11,8 @@ export class MemberService {
     @InjectRepository(Member)
     private readonly memberRepository: Repository<Member>,
     @InjectRepository(Hotel)
-    private readonly hotelRepository: Repository<Hotel>
+    private readonly hotelRepository: Repository<Hotel>,
+    private readonly dataSource: DataSource
   ) {}
 
   async getMemberInfo(memberId: number, loginMember: Member) {
@@ -23,7 +24,7 @@ export class MemberService {
 
       const hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
-        .innerJoin('hotel.member', 'member', 'member.id = :memberId', { memberId: memberId })
+        .innerJoin('hotel.member', 'member', 'member.id = :memberId and member.isActive = true', { memberId: memberId })
         .getOne();
 
       if (!hotel) {
@@ -92,6 +93,53 @@ export class MemberService {
         success: false,
         error: e.message
       }
+    }
+  }
+
+  /**
+   * 회원 탈퇴
+   */
+  async deleteMember(memberId: number, loginMember: Member) {
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // 1. 삭제 요청된 사용자와 로그인한 사용자가 동일한지 확인
+      if (memberId !== loginMember.id) {
+        throw new BadRequestException('자신의 계정만 탈퇴가 가능합니다.');
+      }
+
+      // 2. 나를 빌리지에 추가한 사람, 내가 빌리지에 추가한 사람 모두 삭제
+      queryRunner.manager.query(
+        `DELETE FROM village WHERE from_member_id = ${loginMember.id} OR to_member_id = ${loginMember.id}`
+      );
+
+      // 3. 나를 차단한 사람, 내가 차단한 사람 모두 삭제
+      queryRunner.manager.query(
+        `DELETE FROM member_block_history WHERE from_member_id = ${loginMember.id} OR to_member_id = ${loginMember.id}`
+      );
+
+      // 4. 사용자 탈퇴 처리
+      loginMember.isActive = false;
+      await queryRunner.manager.save(loginMember);
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+
+      return {
+        success: false,
+        error: e.message
+      }
+    } finally {
+      await queryRunner.release();
     }
   }
 }
