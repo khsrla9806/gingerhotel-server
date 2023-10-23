@@ -32,7 +32,8 @@ export class LettersService {
    * 편지 생성 메서드
    */
   async createLetter(
-    hotelId: number, loginMember: Member, image: Express.Multer.File, dto: CreateLetterRequest): Promise<CommonResponse> {
+    hotelId: number, loginMember: Member, image: Express.Multer.File, dto: CreateLetterRequest
+  ): Promise<CommonResponse> {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -40,14 +41,11 @@ export class LettersService {
 
     try {
       // 1. 존재하는 호텔인지 확인
-      const hotel: Hotel = await this.hotelRepository.findOne({
-        where: {
-          id: hotelId
-        },
-        relations: {
-          member: true
-        }
-      });
+      const hotel: Hotel = await this.hotelRepository
+        .createQueryBuilder('hotel')
+        .innerJoinAndSelect('hotel.member', 'member')
+        .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
+        .getOne();
 
       if (!hotel) {
         throw new BadRequestException(`존재하지 않는 호텔 정보입니다. : ${hotelId}`);

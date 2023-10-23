@@ -23,7 +23,7 @@ export class VillageService {
       const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoinAndSelect('hotel.member', 'member')
-        .where('hotel.id = :hotelId', { hotelId: hotelId })
+        .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
         .getOne();
   
       if (!hotel) {
@@ -69,7 +69,7 @@ export class VillageService {
       const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoinAndSelect('hotel.member', 'member')
-        .where('hotel.id = :hotelId', { hotelId: hotelId })
+        .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
         .getOne();
 
       if (!hotel) {

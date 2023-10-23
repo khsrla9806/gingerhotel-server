@@ -27,7 +27,11 @@ export class MemberInterceptor implements NestInterceptor {
       try {
         const token = authorization.replace('Bearer ', '').replace('bearer ', '');
         const payload = this.jwtService.verify(token);
-        const loginMember = await this.memberRepository.findOne({ where: { id: payload.memberId } });
+        const loginMember = await this.memberRepository
+          .createQueryBuilder('member')
+          .where('member.id = :memberId and member.isActive = true', { memberId: payload.memberId })
+          .getOne();
+        
         request.user = loginMember;
 
       } catch (e) {

@@ -66,6 +66,10 @@ export class RepliesService {
       // 4. 답장 수신자의 호텔 객체를 얻어옴
       let recipientsHotel: Hotel = await this.getRecipientsHotel(letter, loginMember);
 
+      if (!recipientsHotel) {
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+      }
+
       // 내가 편지 보내려는 사용자가 나를 차단한 경우
       const memberBlock = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
@@ -152,13 +156,17 @@ export class RepliesService {
   private async getRecipientsHotel(letter: Letter, loginMember: Member): Promise<Hotel> {
 
     if (letter.sender.id === loginMember.id) { // 편지를 보낸 사람이 로그인한 사용자라면 답장 수신자는 편지의 주인
+      if (!letter.hotelWindow.hotel.member.isActive) {
+        throw new BadRequestException('답장 수신자는 탈퇴한 사용자입니다.');
+      }
+
       return letter.hotelWindow.hotel;
     }
 
     return await this.hotelRepository
       .createQueryBuilder('hotel')
       .innerJoinAndSelect('hotel.member', 'member')
-      .where('hotel.member.id = :memberId', { memberId: letter.sender.id })
+      .where('member.id = :memberId and member.isActive = true', { memberId: letter.sender.id })
       .getOne();
   }
 

@@ -28,7 +28,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    */
   async validate(payload: any) {
     const { memberId } = payload;
-    const member: Member = await this.memberRepository.findOne({ where: { id: memberId } });
+    const member: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('member.id = :memberId and member.isActive = true', { memberId: memberId })
+      .getOne();
 
     if (!member) {
       throw new UnauthorizedException('인증되지 않은 사용자입니다.');

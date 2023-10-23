@@ -35,7 +35,7 @@ export class HotelService {
       const hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoinAndSelect('hotel.member', 'member')
-        .where('hotel.id = :hotelId', { hotelId: hotelId })
+        .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
         .getOne();
 
       if (!hotel) {
@@ -117,7 +117,7 @@ export class HotelService {
       // 1. 로그인한 사용자의 호텔 정보를 조회
       const hotel = await this.hotelRepository
        .createQueryBuilder('hotel')
-       .innerJoin('hotel.member', 'member', 'member.id = :memberId', { memberId: loginMember.id })
+       .innerJoin('hotel.member', 'member', 'member.id = :memberId and member.isActive = true', { memberId: loginMember.id })
        .select(['hotel', 'member.id'])
        .getOne();
 
