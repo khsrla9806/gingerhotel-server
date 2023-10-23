@@ -3,11 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
 import { DataSource, Repository } from 'typeorm';
-import { SocialLoginResponse } from './dto/social-login.dto';
+import { SocialLoginResponse } from '../dto/social-login.dto';
 import { Member } from 'src/entities/member.entity';
 import { MembershipType } from 'src/entities/domain/membership.type';
 import { Response } from 'express';
-import { CreateHotelRequest, CreateHotelResponse } from './dto/create-hotel.dto';
+import { CreateHotelRequest, CreateHotelResponse } from '../dto/create-hotel.dto';
 import { Hotel } from 'src/entities/hotel.entity';
 
 @Injectable()

@@ -1,15 +1,15 @@
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
-import { AppleSocialRequest, GoogleSocialRequest, KakaoSocialRequest, NaverSocialRequest } from './dto/social-login.dto';
-import { AuthService } from './auth.service';
+import { AppleSocialRequest, GoogleSocialRequest, KakaoSocialRequest, NaverSocialRequest } from '../dto/social-login.dto';
+import { AuthService } from '../service/auth.service';
 import { Vendor } from 'src/entities/domain/vendor.type';
 import { AuthGuard } from '@nestjs/passport';
 import { Member } from 'src/entities/member.entity';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LoginMember } from './decorator/login-member.decorator';
+import { LoginMember } from '../decorator/login-member.decorator';
 import { Response } from 'express';
-import { CreateHotelRequest } from './dto/create-hotel.dto';
+import { CreateHotelRequest } from '../dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
-import { CreateHotelValidationPipe } from './pipes/create-hotel.validation.pipe';
+import { CreateHotelValidationPipe } from '../pipes/create-hotel.validation.pipe';
 import { CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
 
 @Controller('auth')
