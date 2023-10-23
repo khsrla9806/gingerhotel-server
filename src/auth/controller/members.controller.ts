@@ -1,10 +1,12 @@
-import { Controller, Get, Param, ParseIntPipe, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from "@nestjs/common";
 import { MemberService } from "../service/members.service";
 import { AuthGuard } from "@nestjs/passport";
 import { LoginMember } from "../decorator/login-member.decorator";
 import { Member } from "src/entities/member.entity";
 import { ApiTags } from "@nestjs/swagger";
 import { GetMemberInfoAPI } from "src/common/swagger/decorator/member-api.decorator";
+import { UpdateMemberRequest } from "../dto/update-member.dto";
+import { UpdateMemberValidationPipe } from "../pipes/update-member.validation.pipe";
 
 @Controller('members')
 @ApiTags('Member API')
@@ -21,5 +23,15 @@ export class MemberController {
     @LoginMember() loginMember: Member
   ) {
     return await this.memberService.getMemberInfo(memberId, loginMember);
+  }
+
+  @Patch('/:memberId')
+  @UseGuards(AuthGuard())
+  async updateMemberInfo(
+    @Param('memberId', ParseIntPipe) memberId: number,
+    @Body(UpdateMemberValidationPipe) dto: UpdateMemberRequest,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.memberService.updateMemberInfo(memberId, dto, loginMember);
   }
 }
