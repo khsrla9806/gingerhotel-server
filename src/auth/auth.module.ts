@@ -9,6 +9,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt-strategy';
 import { Hotel } from 'src/entities/hotel.entity';
 import { MemberInterceptor } from './interceptor/member.interceptor';
+import { MemberController } from './controller/members.controller';
+import { MemberService } from './service/members.service';
 
 @Module({
   imports: [
@@ -26,8 +28,8 @@ import { MemberInterceptor } from './interceptor/member.interceptor';
     }),
     TypeOrmModule.forFeature([Member, Hotel])
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, MemberInterceptor],
+  controllers: [AuthController, MemberController],
+  providers: [AuthService, MemberService, JwtStrategy, MemberInterceptor],
   exports: [JwtStrategy, JwtModule, PassportModule, MemberInterceptor]
 })
 export class AuthModule {}
