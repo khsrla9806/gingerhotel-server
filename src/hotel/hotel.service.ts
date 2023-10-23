@@ -112,7 +112,7 @@ export class HotelService {
   /**
    * 호텔 수정 메서드
    */
-  async modifyHotel(hotelId: number, dto: HotelUpdateRequest, loginMember: Member) {
+  async updateHotel(hotelId: number, dto: HotelUpdateRequest, loginMember: Member) {
     try {
       // 1. 로그인한 사용자의 호텔 정보를 조회
       const hotel = await this.hotelRepository

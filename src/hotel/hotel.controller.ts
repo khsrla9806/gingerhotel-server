@@ -4,7 +4,7 @@ import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { MemberInterceptor } from 'src/auth/interceptor/member.interceptor';
 import { ApiTags } from '@nestjs/swagger';
-import { GetHotelAPI } from 'src/common/swagger/decorator/hotel-api.decorator';
+import { GetHotelAPI, UpdateHotelAPI } from 'src/common/swagger/decorator/hotel-api.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { HotelUpdateRequest } from './dto/hotel-update.dto';
 import { UpdateHotelValidationPipe } from './pipes/update-hotel.validation.pipe';
@@ -28,11 +28,12 @@ export class HotelController {
 
   @Patch('/:hotelId')
   @UseGuards(AuthGuard())
-  async modifyHotel(
+  @UpdateHotelAPI()
+  async updateHotel(
     @Param('hotelId', ParseIntPipe) hotelId: number,
     @Body(UpdateHotelValidationPipe) dto: HotelUpdateRequest,
     @LoginMember() loginMember: Member
   ) {
-    return await this.hotelService.modifyHotel(hotelId, dto, loginMember);
+    return await this.hotelService.updateHotel(hotelId, dto, loginMember);
   }
 }
