@@ -67,3 +67,27 @@ export function UpdateMemberInfoAPI() {
     ApiBearerAuth('Authorization')
   );
 }
+
+export function DeleteMemberAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '회원 탈퇴', description: '회원 탈퇴를 진행합니다.' }),
+    ApiOkResponse({
+      description: '회원 탈퇴에 성공 했을 때',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '회원 탈퇴에 실패했을 때',
+      schema: {
+        example: {
+          success: false,
+          error: '자신의 계정만 탈퇴가 가능합니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}

@@ -4,7 +4,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { LoginMember } from "../decorator/login-member.decorator";
 import { Member } from "src/entities/member.entity";
 import { ApiTags } from "@nestjs/swagger";
-import { GetMemberInfoAPI, UpdateMemberInfoAPI } from "src/common/swagger/decorator/member-api.decorator";
+import { DeleteMemberAPI, GetMemberInfoAPI, UpdateMemberInfoAPI } from "src/common/swagger/decorator/member-api.decorator";
 import { UpdateMemberRequest } from "../dto/update-member.dto";
 import { UpdateMemberValidationPipe } from "../pipes/update-member.validation.pipe";
 
@@ -38,6 +38,7 @@ export class MemberController {
 
   @Delete('/:memberId')
   @UseGuards(AuthGuard())
+  @DeleteMemberAPI()
   async deleteMember(
     @Param('memberId', ParseIntPipe) memberId: number,
     @LoginMember() loginMember: Member
