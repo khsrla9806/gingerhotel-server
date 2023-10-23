@@ -13,6 +13,8 @@ export function GetMemberInfoAPI() {
             nickname: '헤르미온느',
             code: 'cEH7UbQ',
             membership: 'DELUXE',
+            gender: 'MAN | WOMAN | null',
+            birthDate: '1998-06-13 | null',
             keyCount: 2,
             feekCount: 0
           },

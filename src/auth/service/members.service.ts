@@ -35,6 +35,8 @@ export class MemberService {
           nickname: hotel.nickname,
           code: loginMember.code,
           membership: loginMember.membership,
+          gender: loginMember.gender,
+          birthDate: loginMember.birthDate,
           keyCount: loginMember.keyCount,
           feekCount: loginMember.feekCount
         },
