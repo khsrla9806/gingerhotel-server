@@ -57,7 +57,7 @@ export class HotelService {
 
         const village: Village = await this.villageRepository
         .createQueryBuilder('village')
-        .where('village.fromMember.id = :fromMemberId and village.toMember.id = :toMemberId', { fromMemberId: loginMember.id, toMemberId: hotel.member.id })
+        .where('village.fromMember.id = :fromMemberId and village.toHotel.id = :toHotelId', { fromMemberId: loginMember.id, toHotelId: hotel.id })
         .getOne();
       
         if (village) {
