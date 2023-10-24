@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { LettersService } from './letters.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,6 +7,8 @@ import { Member } from 'src/entities/member.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
 import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, UnblockLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
+import { LocalDate } from '@js-joda/core';
+import { StringToLocalDateValidationPipe } from './pipes/string-to-local-date.validation.pipe';
 
 @Controller('letters')
 @ApiTags('Letters API')
@@ -57,6 +59,16 @@ export class LettersController {
     @LoginMember() loginMember: Member
   ) {
     return await this.letterService.unblockLetter(letterId, loginMember);
+  }
+
+  @Get('/hotel/:hotelId')
+  @UseGuards(AuthGuard())
+  async getLetters(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+    @Query('date', StringToLocalDateValidationPipe) date: LocalDate,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.letterService.getLetters(hotelId, date, loginMember);
   }
 
 }
