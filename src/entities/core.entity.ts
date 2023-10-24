@@ -4,9 +4,15 @@ export class CoreEntity {
     @PrimaryGeneratedColumn()
     id: number;
     
-    @CreateDateColumn()
-    creaedAt: Date;
+    @CreateDateColumn({
+        type: 'timestamptz',
+        nullable: false
+    })
+    createdAt: Date;
     
-    @UpdateDateColumn()
-    updateAt: Date;
+    @UpdateDateColumn({
+        type: 'timestamptz',
+        nullable: false
+    })
+    updatedAt: Date;
 }
