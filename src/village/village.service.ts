@@ -105,4 +105,36 @@ export class VillageService {
       }
     }
   }
+
+  /**
+   * 내 빌리지 조회
+   */
+  async getVillages(loginMember: Member) {
+    try {
+      // 1. 나의 빌리지 목록을 조회
+      const villages = await this.villageRepository
+        .createQueryBuilder('village')
+        .innerJoin('village.toHotel', 'toHotel')
+        .select('village.id', 'villageId')
+        .addSelect('village.isBookmark', 'isBookmark')
+        .addSelect('toHotel.nickname', 'nickname')
+        .addSelect('toHotel.id', 'hotelId')
+        .addSelect('toHotel.headColor', 'headColor')
+        .addSelect('toHotel.bodyColor', 'bodyColor')
+        .where('village.fromMember.id = :fromMemberId', { fromMemberId: loginMember.id })
+        .orderBy('village.isBookmark', 'DESC')
+        .getRawMany();
+
+      return {
+        success: true,
+        villages: villages
+      }
+
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
+      }
+    }
+  }
 }

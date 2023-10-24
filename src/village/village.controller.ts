@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
@@ -6,7 +6,7 @@ import { VillageService } from './village.service';
 import { CreateVillageAPI, DeleteVillageAPI } from 'src/common/swagger/decorator/village-api.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
-@Controller('village')
+@Controller('villages')
 @ApiTags('Village API')
 export class VillageController {
   constructor(
@@ -31,5 +31,11 @@ export class VillageController {
     @LoginMember() loginMember: Member
   ) {
     return await this.villageService.deleteVillage(hotelId, loginMember);
+  }
+
+  @Get('/my')
+  @UseGuards(AuthGuard())
+  async getVillages(@LoginMember() loginMember: Member) {
+    return await this.villageService.getVillages(loginMember);
   }
 }
