@@ -5,11 +5,12 @@ import { DataSource, Repository } from 'typeorm';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
-import { LocalDate } from '@js-joda/core';
+import { LocalDate, LocalDateTime, nativeJs } from '@js-joda/core';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
+import { LocalDateTimeConverter } from 'src/common/utils/local-date-time.converter';
 
 @Injectable()
 export class LettersService {
@@ -405,6 +406,82 @@ export class LettersService {
       }
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  /**
+   * 내 편지함 조회
+   */
+  async getLetters(hotelId: number, date: LocalDate, loginMember: Member) {
+    try {
+      // 1. 내호텔 확인
+      const hotel = await this.hotelRepository
+        .createQueryBuilder('hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['hotel', 'member.id'])
+        .where('hotel.id = :hotelId', { hotelId: hotelId })
+        .getOne();
+      
+
+      if (!hotel) {
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+      }
+
+      if (hotel.member.id !== loginMember.id) {
+        throw new BadRequestException('내 호텔의 편지만 확인할 수 있습니다.');
+      }
+
+      // 2. 오늘 날짜에 해당하는 창문을 탐색
+      const hotelWindow = await this.hotelWindowRepository
+        .createQueryBuilder('hotelWindow')
+        .where('hotelWindow.hotel.id = :hotelId', { hotelId: hotel.id })
+        .getOne();
+
+      if (!hotelWindow) {
+        throw new BadRequestException(`${date}에 받은 편지가 존재하지 않습니다.`);
+      }
+
+      // 3. 오늘 날짜에 해당하는 편지를 내림차순으로 정렬
+      const letters = await this.letterRepository
+        .createQueryBuilder('letter')
+        .select('letter.id', 'id')
+        .addSelect('letter.senderNickname', 'senderNickname')
+        .addSelect('letter.content', 'content')
+        .addSelect('letter.imageUrl', 'imageUrl')
+        .addSelect('letter.isBlocked', 'isBlocked')
+        .addSelect('letter.createdAt', 'createdAt')
+        .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
+        .orderBy('letter.createdAt', 'DESC')
+        .getRawMany();
+
+      LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(letters);
+
+      // 4. 오늘 날짜에 해당하는 답장을 내림차순으로 정렬
+      const replies = await this.replyRepository
+        .createQueryBuilder('reply')
+        .innerJoin('reply.letter', 'letter')
+        .select('reply.id', 'id')
+        .addSelect('letter.senderNickname', 'senderNickname')
+        .addSelect('reply.content', 'content')
+        .addSelect('reply.imageUrl', 'imageUrl')
+        .addSelect('reply.isBlocked', 'isBlocked')
+        .addSelect('reply.createdAt', 'createdAt')
+        .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
+        .orderBy('reply.createdAt', 'DESC')
+        .getRawMany();
+
+      LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(replies);
+
+      return {
+        success: true,
+        letters: letters,
+        replies: replies
+      }
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
+      }
     }
   }
 }
