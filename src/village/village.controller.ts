@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { VillageService } from './village.service';
-import { CreateVillageAPI, DeleteVillageAPI } from 'src/common/swagger/decorator/village-api.decorator';
+import { CreateVillageAPI, DeleteVillageAPI, GetVillagesAPI } from 'src/common/swagger/decorator/village-api.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('villages')
@@ -35,6 +35,7 @@ export class VillageController {
 
   @Get('/my')
   @UseGuards(AuthGuard())
+  @GetVillagesAPI()
   async getVillages(@LoginMember() loginMember: Member) {
     return await this.villageService.getVillages(loginMember);
   }
