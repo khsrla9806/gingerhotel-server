@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Patch, UseGuards } from "@nestjs/common";
 import { MemberService } from "../service/members.service";
 import { AuthGuard } from "@nestjs/passport";
 import { LoginMember } from "../decorator/login-member.decorator";
@@ -15,34 +15,31 @@ export class MemberController {
     private readonly memberService: MemberService
   ) {}
 
-  @Get('/:memberId')
+  @Get('/my')
   @UseGuards(AuthGuard())
   @GetMemberInfoAPI()
   async getMemberInfo(
-    @Param('memberId', ParseIntPipe) memberId: number,
     @LoginMember() loginMember: Member
   ) {
-    return await this.memberService.getMemberInfo(memberId, loginMember);
+    return await this.memberService.getMemberInfo(loginMember);
   }
 
-  @Patch('/:memberId')
+  @Patch('/me')
   @UseGuards(AuthGuard())
   @UpdateMemberInfoAPI()
   async updateMemberInfo(
-    @Param('memberId', ParseIntPipe) memberId: number,
     @Body(UpdateMemberValidationPipe) dto: UpdateMemberRequest,
     @LoginMember() loginMember: Member
   ) {
-    return await this.memberService.updateMemberInfo(memberId, dto, loginMember);
+    return await this.memberService.updateMemberInfo(dto, loginMember);
   }
 
-  @Delete('/:memberId')
+  @Delete('/me')
   @UseGuards(AuthGuard())
   @DeleteMemberAPI()
   async deleteMember(
-    @Param('memberId', ParseIntPipe) memberId: number,
     @LoginMember() loginMember: Member
   ) {
-    return await this.memberService.deleteMember(memberId, loginMember);
+    return await this.memberService.deleteMember(loginMember);
   }
 }
