@@ -6,7 +6,7 @@ import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from './dto/create-letter.dto';
-import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, GetLettersAPI, UnblockLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
+import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, GetLettersAPI, GetRepliesAPI, UnblockLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
 import { LocalDate } from '@js-joda/core';
 import { StringToLocalDateValidationPipe } from './pipes/string-to-local-date.validation.pipe';
 import { SortValidationPipe } from './pipes/sort.validation.pipe';
@@ -75,6 +75,7 @@ export class LettersController {
 
   @Get('/:letterId/replies')
   @UseGuards(AuthGuard())
+  @GetRepliesAPI()
   async getReplies(
     @Param('letterId', ParseIntPipe) letterId: number,
     @Query('sort', SortValidationPipe) sort: string,

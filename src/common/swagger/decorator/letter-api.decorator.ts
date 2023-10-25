@@ -1,6 +1,5 @@
-import { LocalDate, LocalDateTime } from "@js-joda/core";
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateLetterRequest } from "src/letters/dto/create-letter.dto";
 
 export function CreateLetterAPI() {
@@ -240,6 +239,109 @@ export function GetLettersAPI() {
         example: {
           success: false,
           error: '존재하지 않는 호텔 정보입니다. | 내 호텔의 편지만 확인할 수 있습니다. | 2023-12-01에 받은 편지가 존재하지 않습니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
+export function GetRepliesAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '답장 모아보기', description: 'letter의 식별자를 이용하여 답장 모아보기 페이지로 이동' }),
+    ApiQuery({
+      name: 'sort',
+      type: '"ASC" | "DESC"',
+      example: 'ASC',
+      description: '답장의 createdAt 정렬 조건을 직접 선택할 수 있습니다. 옵션 값이기 때문에 입력하지 않으면 자동으로 DESC 정렬합니다.',
+      required: false
+    }),
+    ApiOkResponse({
+      description: '조회 성공',
+      schema: {
+        description: '최초 편지를 받은 사람이 요청한 경우',
+        example: {
+          success: true,
+          letter: {
+            id: 9,
+            nickname: "최초 편지를 쓴 사람의 닉네임",
+            content: "다음주에 나랑 영화보러 갈래?",
+            date: "2023-10-24",
+            isOpen: true,
+            isBlocked: false,
+            isMe: false,
+            createdAt: "2023-10-24T17:38:02.317"
+          },
+          replies: [
+            {
+              id: 5,
+              nickname: "최초 편지를 받은 사람의 닉네임",
+              content: "나 돈 없어 그냥 알려줘.",
+              date: "2023-10-24",
+              isOpen: true,
+              isBlocked: false,
+              isMe: true,
+              createdAt: "2023-10-24T18:22:22.543"
+            },
+            {
+              id: 4,
+              nickname: "최초 편지를 쓴 사람의 닉네임",
+              content: "궁금하면 돈 써서 알아내야지",
+              date: "2023-10-24",
+              isOpen: true,
+              isBlocked: false,
+              isMe: false,
+              createdAt: "2023-10-24T17:38:53.183"
+            },
+            {
+              id: 3,
+              nickname: "최초 편지를 받은 사람의 닉네임",
+              content: "엿보기 기능 그거 돈 드는 거 아니야?",
+              date: "2023-10-24",
+              isOpen: true,
+              isBlocked: false,
+              isMe: true,
+              createdAt: "2023-10-24T17:38:15.780"
+            },
+            {
+              id: 2,
+              nickname: "최초 편지를 쓴 사람의 닉네임",
+              content: "그건 알고 싶으면 엿보기 기능 써봐",
+              date: "2023-10-24",
+              isOpen: true,
+              isBlocked: false,
+              isMe: false,
+              createdAt: "2023-10-24T17:38:02.317"
+            },
+            {
+              id: 1,
+              nickname: "최초 편지를 받은 사람의 닉네임",
+              content: "너가 누군지 알려줘야지 영화보러 가지",
+              date: "2023-10-24",
+              isOpen: true,
+              isBlocked: false,
+              isMe: true,
+              createdAt: "2023-10-24T17:38:02.317"
+            }
+          ]
+      }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '조회 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 편지 정보입니다.'
+        }
+      }
+    }),
+    ApiForbiddenResponse({
+      description: '권한이 없는 사용자',
+      schema: {
+        example: {
+          success: false,
+          error: '편지 주인과 편지를 보낸 사람만 조회가 가능합니다.'
         }
       }
     }),
