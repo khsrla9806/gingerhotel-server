@@ -1,16 +1,17 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { Member } from 'src/entities/member.entity';
 import { CreateLetterRequest } from './dto/create-letter.dto';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
-import { LocalDate, LocalDateTime, nativeJs } from '@js-joda/core';
+import { LocalDate } from '@js-joda/core';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { LocalDateTimeConverter } from 'src/common/utils/local-date-time.converter';
+import { GetRepliesResponse } from './dto/get-replies.dto';
 
 @Injectable()
 export class LettersService {
@@ -483,5 +484,80 @@ export class LettersService {
         error: e.message
       }
     }
+  }
+
+  /**
+   * 답장 모아보기
+   */
+  async getReplies(letterId: number, sort: string, loginMember: Member) {
+    try {
+      // 1. 존재하는 편지인지 확인
+      const letter: Letter = await this.letterRepository
+        .createQueryBuilder('letter')
+        .innerJoin('letter.sender', 'sender')
+        .innerJoin('letter.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select([
+          'letter', 
+          'sender.id', 
+          'hotelWindow.id', 'hotelWindow.isOpen', 'hotelWindow.date', 
+          'hotel.id', 'hotel.nickname',
+          'member.id'
+        ])
+        .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
+        .getOne();
+
+      if (!letter) {
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+      }
+
+      // 2. 답장 모아보기 조회 권한을 확인
+      const letterOwnerId = letter.hotelWindow.hotel.member.id;
+
+      if (loginMember.id !== letter.sender.id && loginMember.id !== letterOwnerId) {
+        throw new ForbiddenException('편지 주인과 편지를 보낸 사람만 조회가 가능합니다.');
+      }
+
+      // 3. 해당 편지와 연관된 답장 목록을 가져옴 (쿼리 빌더 생성)
+      let replyQueryBuilder: SelectQueryBuilder<Reply> = this.replyRepository
+        .createQueryBuilder('reply')
+        .innerJoin('reply.sender', 'sender')
+        .innerJoin('reply.hotelWindow', 'hotelWindow')
+        .innerJoin('reply.letter', 'letter', 'letter.id = :letterId', { letterId: letter.id })
+        .select([
+          'reply', 
+          'sender.id',
+          'hotelWindow.id', 'hotelWindow.isOpen', 'hotelWindow.date'
+        ])
+        .where('reply.isDeleted = false');
+
+      // 4. 정렬 조건에 따른 orderBy 조건 추가
+      replyQueryBuilder = this.addOrderByToReplyQueryBuilder(replyQueryBuilder, sort);
+
+      const replies: Reply[] = await replyQueryBuilder.getMany();
+
+      return new GetRepliesResponse(letter, replies, loginMember);
+
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
+      }
+    }
+  }
+
+  private addOrderByToReplyQueryBuilder(
+    queryBuilder: SelectQueryBuilder<Reply>, 
+    sort: string
+  ): SelectQueryBuilder<Reply> {
+
+    if (sort && sort === 'ASC') {
+      queryBuilder = queryBuilder.orderBy('reply.createdAt', 'ASC');
+    } else {
+      queryBuilder = queryBuilder.orderBy('reply.createdAt', 'DESC');
+    }
+
+    return queryBuilder;
   }
 }
