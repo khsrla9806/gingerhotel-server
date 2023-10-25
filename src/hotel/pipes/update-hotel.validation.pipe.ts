@@ -22,7 +22,7 @@ export class UpdateHotelValidationPipe implements PipeTransform {
           throw new BadRequestException('호텔 설명은 필수 값입니다.');
         }
 
-        return new HotelUpdateRequest(value.headColor, value.bodyColor, value.nickanme, value.description);
+        return new HotelUpdateRequest(value.headColor, value.bodyColor, value.nickname, value.description);
         
       } catch (error) {
         throw new BadRequestException(error.message);
