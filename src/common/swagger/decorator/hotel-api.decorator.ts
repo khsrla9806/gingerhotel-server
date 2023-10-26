@@ -10,10 +10,26 @@ export function GetHotelAPI() {
       schema: {
         example: {
           success: true,
-          todayReceivedLetterCount: 2,
+          todayReceivedLetterCount: 8,
+          feekCount: 18,
+          keyCount: 0,
           hotel: {
-            headColor: '#2E9AFE',
-            bodyColor: '#2E9AFE'
+              nickname: "헤르미온느",
+              description: "제 호텔에 오신것을 환영합니다.",
+              headColor: "#fffff",
+              bodyColor: "#fffff"
+          },
+          hotelWindows: {
+              "2023-12-01": {
+                  id: 1,
+                  isOpen: true,
+                  hasCookie: true
+              },
+              "2023-12-04": {
+                  id: 3,
+                  isOpen: true,
+                  hasCookie: true
+              }
           },
           isLoginMember: true,
           isOwner: true,
