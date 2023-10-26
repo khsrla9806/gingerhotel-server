@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { LettersController } from './letters.controller';
-import { LettersService } from './letters.service';
+import { LettersController } from './controller/letters.controller';
+import { LettersService } from './service/letters.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';

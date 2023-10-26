@@ -199,6 +199,7 @@ export function GetLettersAPI() {
           "replies": [
               {
                   id: 5,
+                  letterId: 1,
                   createdAt: "2023-10-24T18:22:22.543",
                   content: "9번 편지에 3번 유저가 보내는 답장(4)",
                   isBlocked: false,
@@ -207,6 +208,7 @@ export function GetLettersAPI() {
               },
               {
                   id: 4,
+                  letterId: 1,
                   createdAt: "2023-10-24T17:38:53.183",
                   content: "9번 편지에 3번 유저가 보내는 답장(3)",
                   isBlocked: false,
@@ -215,6 +217,7 @@ export function GetLettersAPI() {
               },
               {
                   id: 3,
+                  letterId: 1,
                   createdAt: "2023-10-24T17:38:15.780",
                   content: "9번 편지에 3번 유저가 보내는 답장(2)",
                   isBlocked: false,
@@ -223,6 +226,7 @@ export function GetLettersAPI() {
               },
               {
                   id: 2,
+                  letterId: 1,
                   createdAt: "2023-10-24T17:38:02.317",
                   content: "9번 편지에 3번 유저가 보내는 답장(1)",
                   isBlocked: false,

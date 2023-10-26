@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { HotelController } from './hotel.controller';
-import { HotelService } from './hotel.service';
+import { HotelController } from './controller/hotel.controller';
+import { HotelService } from './service/hotel.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Member } from 'src/entities/member.entity';

@@ -26,7 +26,7 @@ export class UpdateMemberValidationPipe implements PipeTransform {
         if (value.birthDate) {
           try {
             convertedBirthDate = LocalDate.parse(value.birthDate);
-          } catch (e) {
+          } catch (error) {
             throw new BadRequestException('잘못된 날짜 형식입니다. Ex) yyyy-MM-dd');
           }
         }

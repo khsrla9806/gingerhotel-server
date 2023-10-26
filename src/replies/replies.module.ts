@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { RepliesController } from './replies.controller';
-import { RepliesService } from './replies.service';
+import { RepliesController } from './controller/replies.controller';
+import { RepliesService } from './service/replies.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';

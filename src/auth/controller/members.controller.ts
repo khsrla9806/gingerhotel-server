@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Patch, UseFilters, UseGuards } from "@nestjs/common";
 import { MemberService } from "../service/members.service";
 import { AuthGuard } from "@nestjs/passport";
 import { LoginMember } from "../decorator/login-member.decorator";
@@ -7,7 +7,9 @@ import { ApiTags } from "@nestjs/swagger";
 import { DeleteMemberAPI, GetMemberInfoAPI, UpdateMemberInfoAPI } from "src/common/swagger/decorator/member-api.decorator";
 import { UpdateMemberRequest } from "../dto/update-member.dto";
 import { UpdateMemberValidationPipe } from "../pipes/update-member.validation.pipe";
+import { GlobalExceptionFilter } from "src/common/filter/global-exception.filter";
 
+@UseFilters(GlobalExceptionFilter)
 @Controller('members')
 @ApiTags('Member API')
 export class MemberController {

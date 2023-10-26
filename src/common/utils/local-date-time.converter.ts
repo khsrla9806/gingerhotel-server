@@ -9,7 +9,7 @@ export class LocalDateTimeConverter {
   public static convertDateToLocalDateTime(date: Date): LocalDateTime {
     try {
       return nativeJs(date).toLocalDateTime();
-    } catch (e) {
+    } catch (error) {
       throw new InternalServerErrorException('[convertDateToLocalDateTime] 잘못된 Date 형태입니다.');
     }
   }

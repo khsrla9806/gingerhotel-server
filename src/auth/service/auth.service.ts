@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
@@ -9,40 +9,51 @@ import { MembershipType } from 'src/entities/domain/membership.type';
 import { Response } from 'express';
 import { CreateHotelRequest, CreateHotelResponse } from '../dto/create-hotel.dto';
 import { Hotel } from 'src/entities/hotel.entity';
+import * as winston from 'winston';
 
 @Injectable()
 export class AuthService {
+  private readonly logger;
 
   constructor(
     @InjectRepository(Member) private readonly memberRepository: Repository<Member>,
     @InjectRepository(Hotel) private readonly hotelRepository: Repository<Hotel>,
     private readonly jwtService: JwtService,
     private readonly dataSource: DataSource
-  ) { }
+  ) {
+    this.logger = winston.createLogger({
+      transports: [
+        new winston.transports.File({
+          level: 'error',
+          filename: 'generate.code.error.log',
+          dirname: 'logs',
+          format: winston.format.simple()
+        })
+    ]});
+  }
 
-  private log = new Logger('AuthService');
-
+  /**
+   * 소셜 로그인
+   */
   async socialLogin(email: string, socialId: string, vendor: Vendor, response: Response): Promise<SocialLoginResponse> {
-
     try {
-
-      const existingMember: Member = await this.memberRepository.findOne({ where: { socialId: socialId, vendor: vendor } });
+      const existingMember: Member = await this.memberRepository
+        .createQueryBuilder('member')
+        .where(
+          'member.socialId = :socialId and member.vendor = :vendor', 
+          { socialId: socialId, vendor: vendor }
+        )
+        .getOne();
 
       if (existingMember) {
-        
         if (!existingMember.isActive) {
-          return {
-            success: false,
-            error: '탈퇴한 사용자 정보입니다.'
-          }
+          throw new BadRequestException('탈퇴한 사용자입니다.');
         }
 
         const tokenPayload = { memberId: existingMember.id };
 
         if (!existingMember.hasHotel) {
-          // TODO: 나중에 로직 변경 (이건 호텔 생성 페이지로 리다이렉트를 해야할지? 의논 후 결정)
-
-          response.status(HttpStatus.OK);
+          response.status(HttpStatus.FOUND);
 
           return {
             success: false,
@@ -51,14 +62,12 @@ export class AuthService {
           };
         }
 
-        response.status(HttpStatus.CREATED);
-
         return {
           success: true,
           accessToken: this.jwtService.sign(tokenPayload)
         }
       }
-
+      
       const code: string = await this.generateMemberCode(7);
 
       const member = await this.memberRepository.save(this.memberRepository.create({
@@ -67,14 +76,14 @@ export class AuthService {
         vendor: vendor,
         email: email,
         isActive: true,
-        hasHotel: false, // 호텔 생성 페이지에서 호텔 생성 후 true로 변경
+        hasHotel: false,
         code: code,
         feekCount: 0,
         keyCount: 0
       }));
 
-      if (code === null) {
-        this.log.error(`사용자 code null : ${member.id}`);
+      if (!code) {
+        this.logger.error(`[memberId: ${member.id}] code is null`);
       }
 
       const tokenPayload = { memberId: member.id };
@@ -85,14 +94,7 @@ export class AuthService {
       }
 
     } catch (error) {
-      this.log.error('error: ', error);
-
-      response.status(HttpStatus.BAD_REQUEST);
-
-      return {
-        success: false,
-        error: error.message
-      }
+      throw error;
     }
   }
 
@@ -102,7 +104,7 @@ export class AuthService {
     let uniqueCode: string = '';
     let limitCount = 0;
 
-    /* 겹치는 코드가 나오지 않을 때 까지 동작 => 최대 10번까지만 확인하고, 넘어서면 null 반환 (StackOverFlow 피하고 추후에 처리할 수 있도록) */
+    // 겹치는 코드가 나오지 않을 때 까지 동작 => 최대 10번까지만 확인하고, 넘어서면 error 로그를 찍고, null 반환
     while (!isUnique) {
       for (let i = 0; i < length; i++) {
         uniqueCode += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -129,10 +131,9 @@ export class AuthService {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
-    await queryRunner.startTransaction(); // Transaction 시작
+    await queryRunner.startTransaction();
 
     try {
-      console.log(member)
       if (member.hasHotel) {
         throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${member.id}`);
       }
@@ -168,23 +169,18 @@ export class AuthService {
         member: savedMember
       }));
 
-      await queryRunner.commitTransaction(); // Transaction Commit (DB 반영)
+      await queryRunner.commitTransaction();
 
       return {
         success: true,
         hotelId: hotel.id
       }
-
-    } catch (exception) {
-      this.log.error('exception', exception);
-      await queryRunner.rollbackTransaction(); // 하나라도 실패 시 Transaction Rollback (원자성 보장)
-
-      return {
-        success: false,
-        error: exception.message
-      }
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      
+      throw error;
     } finally {
-      await queryRunner.release(); // Transaction 반납 (다른 사용자들이 사용할 수 있도록)
+      await queryRunner.release();
     }
   }
 

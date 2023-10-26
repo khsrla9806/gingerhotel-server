@@ -54,11 +54,8 @@ export class VillageService {
         success: true
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -97,12 +94,8 @@ export class VillageService {
         success: true
       }
 
-
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -130,11 +123,8 @@ export class VillageService {
         villages: villages
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 }

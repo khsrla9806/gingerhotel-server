@@ -1,16 +1,18 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { LettersService } from './letters.service';
+import { LettersService } from '../service/letters.service';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateLetterRequest } from './dto/create-letter.dto';
+import { CreateLetterRequest } from '../dto/create-letter.dto';
 import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, GetLettersAPI, GetRepliesAPI, UnblockLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
 import { LocalDate } from '@js-joda/core';
-import { StringToLocalDateValidationPipe } from './pipes/string-to-local-date.validation.pipe';
-import { SortValidationPipe } from './pipes/sort.validation.pipe';
+import { StringToLocalDateValidationPipe } from '../pipes/string-to-local-date.validation.pipe';
+import { SortValidationPipe } from '../pipes/sort.validation.pipe';
+import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 
+@UseFilters(GlobalExceptionFilter)
 @Controller('letters')
 @ApiTags('Letters API')
 export class LettersController {

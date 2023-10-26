@@ -34,7 +34,7 @@ export class MemberInterceptor implements NestInterceptor {
         
         request.user = loginMember;
 
-      } catch (e) {
+      } catch (error) {
         // 유효하지 않은 토큰은 에러에 걸림 = 로그인하지 않은 사용자로 판단하고 어떤 처리도 하지 않음
       }
     }

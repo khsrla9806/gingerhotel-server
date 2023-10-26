@@ -5,7 +5,7 @@ import { Feek } from 'src/entities/feek.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Member } from 'src/entities/member.entity';
 import { DataSource, Repository } from 'typeorm';
-import { AcceptFeekRequest } from './dto/accept-feek.dto';
+import { AcceptFeekRequest } from '../dto/accept-feek.dto';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Injectable()
@@ -84,13 +84,10 @@ export class FeekService {
         success: true
       }
 
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -130,11 +127,8 @@ export class FeekService {
         letterContent: feek.letter.content
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -177,11 +171,8 @@ export class FeekService {
         comment: updatedFeek.comment
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -218,11 +209,8 @@ export class FeekService {
         requestorName: feek.requestorName
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { FeekService } from './feek.service';
-import { FeekController } from './feek.controller';
+import { FeekService } from './service/feek.service';
+import { FeekController } from './controller/feek.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feek } from 'src/entities/feek.entity';

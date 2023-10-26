@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { Member } from 'src/entities/member.entity';
-import { CreateReplyRequest } from './dto/create-reply.dto';
+import { CreateReplyRequest } from '../dto/create-reply.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { DataSource, Repository } from 'typeorm';
 import { LocalDate } from '@js-joda/core';
@@ -61,6 +61,11 @@ export class RepliesService {
 
       if (letter.isDeleted) {
         throw new BadRequestException('삭제된 편지 정보입니다.');
+      }
+
+      // 최초 편지를 보낸 사람 또는 최초 편지를 받은 사람이 맞는지 확인 (제3 자는 답장을 못보냄)
+      if (letter.hotelWindow.hotel.member.id !== loginMember.id && letter.sender.id !== loginMember.id) {
+        throw new ForbiddenException('권한이 없습니다.');
       }
       
       // 4. 답장 수신자의 호텔 객체를 얻어옴
@@ -136,13 +141,10 @@ export class RepliesService {
         success: true
       }
 
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -256,11 +258,8 @@ export class RepliesService {
         success: true
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -335,14 +334,10 @@ export class RepliesService {
       return {
         success: true
       }
-    } catch (e) {
-
+    } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -419,14 +414,11 @@ export class RepliesService {
       return {
         success: true
       }
-    } catch (e) {
+    } catch (error) {
 
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }

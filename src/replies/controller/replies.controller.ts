@@ -1,13 +1,15 @@
-import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Param, ParseIntPipe, Post, UploadedFile, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
-import { CreateReplyRequest } from './dto/create-reply.dto';
+import { CreateReplyRequest } from '../dto/create-reply.dto';
 import { Member } from 'src/entities/member.entity';
-import { RepliesService } from './replies.service';
+import { RepliesService } from '../service/replies.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BlockReplyAPI, CreateReplyAPI, DeleteReplyAPI, UnblockReplyAPI } from 'src/common/swagger/decorator/reply-api.decorator';
+import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 
+@UseFilters(GlobalExceptionFilter)
 @Controller('replies')
 @ApiTags('Replies API')
 export class RepliesController {

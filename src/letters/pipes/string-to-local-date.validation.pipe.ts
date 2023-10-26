@@ -10,22 +10,12 @@ export class StringToLocalDateValidationPipe implements PipeTransform {
         
         try {
           return LocalDate.parse(value);
-        } catch (e) {
+        } catch (error) {
           throw new BadRequestException(`잘못된 날짜 형태입니다. (yyyy-MM-dd) : ${value}`);
         }
 
-      } catch (e) {
-        if (e instanceof BadRequestException) {
-          throw new BadRequestException({
-            success: false,
-            error: e.message
-          });
-        }
-
-        throw new InternalServerErrorException({
-          success: false,
-          error: e.message
-        });
+      } catch (error) {
+        throw error;
       }
   }
 }

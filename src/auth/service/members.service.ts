@@ -46,11 +46,8 @@ export class MemberService {
         }
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -77,12 +74,8 @@ export class MemberService {
         memberId: updatedMember.id
       }
 
-
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -123,13 +116,10 @@ export class MemberService {
         success: true
       }
 
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }

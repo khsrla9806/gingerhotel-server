@@ -15,18 +15,8 @@ export class SortValidationPipe implements PipeTransform {
         }
 
         return defaultSortType; // 정렬 조건 미선택 시 (default 값으로 설정)
-      } catch (e) {
-        if (e instanceof BadRequestException) {
-          throw new BadRequestException({
-            success: false,
-            error: e.message
-          });
-        }
-
-        throw new InternalServerErrorException({
-          success: false,
-          error: e.message
-        });
+      } catch (error) {
+        throw error;
       }
   }
 }

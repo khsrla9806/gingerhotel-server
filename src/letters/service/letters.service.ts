@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { Member } from 'src/entities/member.entity';
-import { CreateLetterRequest } from './dto/create-letter.dto';
+import { CreateLetterRequest } from '../dto/create-letter.dto';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,7 +11,7 @@ import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { LocalDateTimeConverter } from 'src/common/utils/local-date-time.converter';
-import { GetRepliesResponse } from './dto/get-replies.dto';
+import { GetRepliesResponse } from '../dto/get-replies.dto';
 
 @Injectable()
 export class LettersService {
@@ -124,13 +124,10 @@ export class LettersService {
         success: true
       }
 
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -228,14 +225,11 @@ export class LettersService {
         success: true
       }
 
-    } catch (e) {
+    } catch (error) {
 
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -313,13 +307,10 @@ export class LettersService {
         success: true
       }
 
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -398,13 +389,10 @@ export class LettersService {
       return {
         success: true
       }
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      return {
-        success: false,
-        error: e.message
-      }
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -435,11 +423,18 @@ export class LettersService {
       // 2. 오늘 날짜에 해당하는 창문을 탐색
       const hotelWindow = await this.hotelWindowRepository
         .createQueryBuilder('hotelWindow')
-        .where('hotelWindow.hotel.id = :hotelId', { hotelId: hotel.id })
+        .where(
+          'hotelWindow.hotel.id = :hotelId and hotelWindow.date = :date', 
+          { hotelId: hotel.id, date: date }
+        )
         .getOne();
 
       if (!hotelWindow) {
         throw new BadRequestException(`${date}에 받은 편지가 존재하지 않습니다.`);
+      }
+
+      if (!hotelWindow.isOpen) {
+        throw new BadRequestException(`${date} 창문이 닫혀있습니다.`);
       }
 
       // 3. 오늘 날짜에 해당하는 편지를 내림차순으로 정렬
@@ -462,6 +457,7 @@ export class LettersService {
         .createQueryBuilder('reply')
         .innerJoin('reply.letter', 'letter')
         .select('reply.id', 'id')
+        .addSelect('letter.id', 'letterId')
         .addSelect('letter.senderNickname', 'senderNickname')
         .addSelect('reply.content', 'content')
         .addSelect('reply.imageUrl', 'imageUrl')
@@ -478,11 +474,8 @@ export class LettersService {
         letters: letters,
         replies: replies
       }
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -539,11 +532,8 @@ export class LettersService {
 
       return new GetRepliesResponse(letter, replies, loginMember);
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 

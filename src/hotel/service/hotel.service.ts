@@ -3,13 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Member } from 'src/entities/member.entity';
 import { Repository } from 'typeorm';
-import { HotelDetailResponse } from './dto/hotel-detail.dto';
+import { HotelDetailResponse } from '../dto/hotel-detail.dto';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { LocalDate } from '@js-joda/core';
 import { Village } from 'src/entities/village.entity';
-import { HotelUpdateRequest } from './dto/hotel-update.dto';
+import { HotelUpdateRequest } from '../dto/hotel-update.dto';
 
 @Injectable()
 export class HotelService {
@@ -77,11 +77,8 @@ export class HotelService {
         isFriend: isFriend
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -138,11 +135,8 @@ export class HotelService {
         hotelId: updatedHotel.id
       }
 
-    } catch (e) {
-      return {
-        success: false,
-        error: e.message
-      }
+    } catch (error) {
+      throw error;
     }
   }
 }

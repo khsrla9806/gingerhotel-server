@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { AppleSocialRequest, GoogleSocialRequest, KakaoSocialRequest, NaverSocialRequest } from '../dto/social-login.dto';
 import { AuthService } from '../service/auth.service';
 import { Vendor } from 'src/entities/domain/vendor.type';
@@ -11,7 +11,9 @@ import { CreateHotelRequest } from '../dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from '../pipes/create-hotel.validation.pipe';
 import { CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
+import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 
+@UseFilters(GlobalExceptionFilter)
 @Controller('auth')
 @ApiTags('Auth API')
 export class AuthController {
