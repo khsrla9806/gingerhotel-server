@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Member } from 'src/entities/member.entity';
 import { Repository } from 'typeorm';
-import { HotelDetailResponse } from '../dto/hotel-detail.dto';
+import { HotelDetailResponse, HotelWindowInfo } from '../dto/hotel-detail.dto';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
@@ -64,14 +64,26 @@ export class HotelService {
           isFriend = true;
         }
       }
+    
+      // 3. 호텔과 관련된 창문 상태 정보 확인
+      const hotelWindows: HotelWindow[] = await this.hotelWindowRepository
+        .createQueryBuilder('hotelWindow')
+        .select(['hotelWindow.id', 'hotelWindow.date', 'hotelWindow.isOpen', 'hotelWindow.hasCookie'])
+        .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotel.id })
+        .getMany();
 
       return {
         success: true,
         todayReceivedLetterCount: todayReceivedLetterCount,
+        feekCount: hotel.member.feekCount,
+        keyCount: hotel.member.keyCount,
         hotel: {
+          nickname: hotel.nickname,
+          description: hotel.description,
           headColor: hotel.headColor,
           bodyColor: hotel.bodyColor
         },
+        hotelWindows: this.convertHotelWindowsToJSON(hotelWindows),
         isLoginMember: isLoginMember,
         isOwner: isOwner,
         isFriend: isFriend
@@ -106,6 +118,21 @@ export class HotelService {
     return letterCount + replyCount;
   }
 
+  private convertHotelWindowsToJSON(hotelWindows: HotelWindow[]): object {
+    const jsonObject: object = {};
+
+    hotelWindows.forEach((hotelWindow) => {
+      const hotelWindowInfo: HotelWindowInfo = {
+        id: hotelWindow.id,
+        isOpen: hotelWindow.isOpen,
+        hasCookie: hotelWindow.hasCookie
+      }
+      jsonObject[hotelWindow.date.toString()] = hotelWindowInfo;
+    });
+
+    return jsonObject;
+  }
+
   /**
    * 호텔 수정 메서드
    */
@@ -113,10 +140,10 @@ export class HotelService {
     try {
       // 1. 로그인한 사용자의 호텔 정보를 조회
       const hotel = await this.hotelRepository
-       .createQueryBuilder('hotel')
-       .innerJoin('hotel.member', 'member', 'member.id = :memberId and member.isActive = true', { memberId: loginMember.id })
-       .select(['hotel', 'member.id'])
-       .getOne();
+        .createQueryBuilder('hotel')
+        .innerJoin('hotel.member', 'member', 'member.id = :memberId and member.isActive = true', { memberId: loginMember.id })
+        .select(['hotel', 'member.id'])
+        .getOne();
 
       if (!hotel) {
         throw new BadRequestException('존재하지 않는 호텔 정보입니다. 호텔 생성을 완료 후 이용해주세요.');
