@@ -4,7 +4,7 @@ import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import { Response } from "express";
 import * as winston from 'winston';
 
-const { combine, timestamp, simple, printf } = winston.format;
+const { simple } = winston.format;
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
