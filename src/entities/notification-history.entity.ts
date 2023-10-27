@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { CoreEntity } from "./core.entity";
 import { Member } from "./member.entity";
+import { NotificationType } from "./domain/notification.type";
 
 @Entity()
 export class NotificationHistory extends CoreEntity {
@@ -9,11 +10,15 @@ export class NotificationHistory extends CoreEntity {
   @JoinColumn()
   member: Member;
   
-  @Column()
-  type: string;
+  @Column({
+    type: 'enum',
+    enum: NotificationType,
+    nullable: false
+  })
+  type: NotificationType;
 
   @Column()
-  typeId: number;
+  typeData: string;
 
   @Column()
   message: string;

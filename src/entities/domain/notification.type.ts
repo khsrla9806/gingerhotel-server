@@ -1,0 +1,8 @@
+
+export enum NotificationType {
+  LETTER = 'LETTER',
+  REPLY = 'REPLY',
+  FEEK_REQUEST = 'FEEK_REQUEST',
+  FEEK_ACCEPT = 'FEEK_ACCEPT',
+  FEEK_REJECT = 'FEEK_REJECT'
+}
