@@ -1,5 +1,7 @@
 import { LocalDate, LocalDateTime } from "@js-joda/core";
 import { LocalDateTimeConverter } from "src/common/utils/local-date-time.converter";
+import { FeekStatus } from "src/entities/domain/feek-status.type";
+import { Feek } from "src/entities/feek.entity";
 import { Letter } from "src/entities/letter.entity";
 import { Member } from "src/entities/member.entity";
 import { Reply } from "src/entities/reply.entity";
@@ -9,9 +11,9 @@ export class GetRepliesResponse {
   private letter: LetterDTO;
   private replies: ReplyDTO[];
 
-  constructor(letter: Letter, replies: Reply[], loginMember: Member) {
+  constructor(letter: Letter, feek: Feek, replies: Reply[], loginMember: Member) {
     this.success = true;
-    this.letter = LetterDTO.from(letter, loginMember);
+    this.letter = LetterDTO.from(letter, feek, loginMember);
     this.replies = replies.map((reply: Reply): ReplyDTO => ReplyDTO.from(reply, letter, loginMember));;
   }
 }
@@ -25,10 +27,12 @@ export class LetterDTO {
     private isOpen: boolean,
     private isBlocked: boolean,
     private isMe: boolean,
-    private createdAt: LocalDateTime
+    private createdAt: LocalDateTime,
+    private feekStatus: FeekStatus,
+    private feekComment: string
   ) {}
 
-  public static from(letter: Letter, loginMember: Member): LetterDTO {
+  public static from(letter: Letter, feek: Feek, loginMember: Member): LetterDTO {
     let isMe: boolean = false;
 
     // 편지를 보낸 사람과 로그인한 사람이 같은 경우
@@ -46,7 +50,9 @@ export class LetterDTO {
       letter.hotelWindow.isOpen,
       letter.isBlocked,
       isMe,
-      LocalDateTimeConverter.convertDateToLocalDateTime(letter.createdAt)
+      LocalDateTimeConverter.convertDateToLocalDateTime(letter.createdAt),
+      feek ? feek.feekStatus : null,
+      feek ? feek.comment : null
     );
   }
 }

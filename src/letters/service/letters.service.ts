@@ -14,6 +14,7 @@ import { LocalDateTimeConverter } from 'src/common/utils/local-date-time.convert
 import { GetRepliesResponse } from '../dto/get-replies.dto';
 import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
+import { Feek } from 'src/entities/feek.entity';
 
 @Injectable()
 export class LettersService {
@@ -166,10 +167,6 @@ export class LettersService {
     return letterCount + replyCount;
   }
 
-  /**
-   * FREE 멤버쉽의 사용자의 경우 최대 수신 가능한 편지수를 넘은 경우를 확인하는 메서드
-   * @param recievedLetterCount: 현재까지 받은 편지수
-   */
   private checkMaximumReceivedLetterCount(recievedLetterCount: number) {
     const maximumReceivedLetterCount = 20; // 편지 수신 제한 개수 20개로 고정
 
@@ -178,12 +175,6 @@ export class LettersService {
     }
   }
 
-  /**
-   * 편지 수신자의 창문의 개폐 여부를 판단하는 메서드
-   * @param recievedLetterCount: 받은 편지수
-   * @param hotelWindow: 호텔 창문 객체
-   * @returns: 창문이 열리는 조건에 만족한 경우 true / 아닌 경우 false 반환
-   */
   private checkHotelWindowOpenCondition(recievedLetterCount: number, hotelWindow: HotelWindow): boolean {
     const hotelWindowOpenConditionCount = 5; // 창문이 열리는 COUNT 5로 고정
 
@@ -423,7 +414,7 @@ export class LettersService {
   async getLetters(hotelId: number, date: LocalDate, loginMember: Member) {
     try {
       // 1. 내호텔 확인
-      const hotel = await this.hotelRepository
+      const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoin('hotel.member', 'member')
         .select(['hotel', 'member.id'])
@@ -459,15 +450,19 @@ export class LettersService {
       // 3. 오늘 날짜에 해당하는 편지를 내림차순으로 정렬
       const letters = await this.letterRepository
         .createQueryBuilder('letter')
+        .leftJoin('feek', 'feek', 'feek.letter.id = letter.id')
         .select('letter.id', 'id')
         .addSelect('letter.senderNickname', 'senderNickname')
         .addSelect('letter.content', 'content')
         .addSelect('letter.imageUrl', 'imageUrl')
         .addSelect('letter.isBlocked', 'isBlocked')
         .addSelect('letter.createdAt', 'createdAt')
+        .addSelect('feek.feekStatus', 'feekStatus')
+        .addSelect('feek.comment', 'feekComment')
         .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
         .orderBy('letter.createdAt', 'DESC')
         .getRawMany();
+      console.log(letters);
 
       LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(letters);
 
@@ -549,7 +544,13 @@ export class LettersService {
 
       const replies: Reply[] = await replyQueryBuilder.getMany();
 
-      return new GetRepliesResponse(letter, replies, loginMember);
+      const feek: Feek = await this.dataSource.getRepository(Feek)
+        .createQueryBuilder('feek')
+        .select(['feek.feekStatus', 'feek.comment'])
+        .where('feek.letter.id = :letterId', { letterId: letter.id })
+        .getOne();
+
+      return new GetRepliesResponse(letter, feek, replies, loginMember);
 
     } catch (error) {
       throw error;

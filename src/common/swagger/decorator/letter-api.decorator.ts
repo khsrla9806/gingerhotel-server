@@ -116,84 +116,54 @@ export function GetLettersAPI() {
           success: true,
           letters: [
               {
-                  id: 1,
-                  createdAt: "2023-10-24T17:38:02.317",
-                  senderNickname: "삼번유저",
-                  content: "안녕~~친구야~~~",
-                  isBlocked: false,
-                  imageUrl: "저장된 image URL"
-              },
-              {
-                  id: 2,
-                  createdAt: "2023-10-24T17:38:02.317",
-                  senderNickname: "삼번유저",
-                  content: "안녕~~친구야~~~",
-                  isBlocked: false,
-                  imageUrl: "저장된 image URL"
-              },
-              {
-                  id: 3,
-                  createdAt: "2023-10-24T17:38:02.317",
-                  senderNickname: "삼번유저",
-                  content: "안녕~~친구야~~~",
-                  isBlocked: false,
-                  imageUrl: "저장된 image URL"
-              },
-              {
-                  id: 4,
-                  createdAt: "2023-10-24T17:38:02.317",
-                  senderNickname: "삼번유저",
-                  content: "안녕~~친구야~~~",
-                  isBlocked: false,
-                  imageUrl: "저장된 image URL"
-              },
-              {
                   id: 5,
                   createdAt: "2023-10-24T17:38:02.317",
                   senderNickname: "삼번유저",
                   content: "안녕~~친구야~~~",
                   isBlocked: false,
-                  imageUrl: "저장된 image URL"
+                  imageUrl: "저장된 image URL",
+                  feekStatus: "REJECT",
+                  feekComment: null
               },
               {
-                  id: 6,
-                  createdAt: "2023-10-24T17:38:02.317",
+                  id: 4,
+                  createdAt: "2023-10-24T16:28:02.317",
                   senderNickname: "삼번유저",
                   content: "안녕~~친구야~~~",
                   isBlocked: false,
-                  imageUrl: "저장된 image URL"
+                  imageUrl: "저장된 image URL",
+                  feekStatus: "REQUEST",
+                  feekComment: null
               },
               {
-                  id: 7,
-                  createdAt: "2023-10-24T17:38:02.317",
+                  id: 3,
+                  createdAt: "2023-10-24T16:18:02.317",
                   senderNickname: "삼번유저",
                   content: "안녕~~친구야~~~",
                   isBlocked: false,
-                  imageUrl: "저장된 image URL"
+                  imageUrl: "저장된 image URL",
+                  feekStatus: "ACCEPT",
+                  feekComment: "너 뒤에 앉은 사람"
               },
               {
-                  id: 8,
-                  createdAt: "2023-10-24T17:38:02.317",
+                  id: 2,
+                  createdAt: "2023-10-24T16:09:02.317",
                   senderNickname: "삼번유저",
                   content: "안녕~~친구야~~~",
                   isBlocked: false,
-                  imageUrl: "저장된 image URL"
+                  imageUrl: "저장된 image URL",
+                  feekStatus: null,
+                  feekComment: null
               },
               {
-                  id: 9,
-                  createdAt: "2023-10-24T17:38:02.317",
+                  id: 1,
+                  createdAt: "2023-10-24T16:03:02.317",
                   senderNickname: "삼번유저",
                   content: "안녕~~친구야~~~",
                   isBlocked: false,
-                  imageUrl: "저장된 image URL"
-              },
-              {
-                  id: 10,
-                  createdAt: "2023-10-24T17:38:02.317",
-                  senderNickname: "삼번유저",
-                  content: "안녕~~친구야~~~",
-                  isBlocked: false,
-                  imageUrl: "저장된 image URL"
+                  imageUrl: "저장된 image URL",
+                  feekStatus: "ACCEPT",
+                  feekComment: "너랑 같은 반임"
               }
           ],
           "replies": [
@@ -274,7 +244,9 @@ export function GetRepliesAPI() {
             isOpen: true,
             isBlocked: false,
             isMe: false,
-            createdAt: "2023-10-24T17:38:02.317"
+            createdAt: "2023-10-24T17:38:02.317",
+            feekStatus: "ACCEPT",
+            feekComment: "나 안경끼고 다녀"
           },
           replies: [
             {
