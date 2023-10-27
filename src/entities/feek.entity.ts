@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { CoreEntity } from "./core.entity";
 import { Member } from "./member.entity";
 import { Letter } from "./letter.entity";
@@ -11,7 +11,7 @@ export class Feek extends CoreEntity {
   @JoinColumn()
   requestor: Member;
 
-  @ManyToOne(() => Letter, { nullable: false })
+  @OneToOne(() => Letter, { nullable: false })
   @JoinColumn()
   letter: Letter;
 
