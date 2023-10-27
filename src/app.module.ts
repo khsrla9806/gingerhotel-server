@@ -10,10 +10,10 @@ import { RepliesModule } from './replies/replies.module';
 import { HotelModule } from './hotel/hotel.module';
 import { VillageModule } from './village/village.module';
 import { FeekModule } from './feek/feek.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
-
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test",
@@ -45,25 +45,11 @@ import { FeekModule } from './feek/feek.module';
     RepliesModule,
     HotelModule,
     VillageModule,
-    FeekModule
+    FeekModule,
+    NotificationsModule
 ],
   controllers: [],
   providers: [],
 })
 
 export class AppModule {}
-
-/** 
- * 
-   TypeOrmModule.forRoot({
-      type: "postgres",
-      host: "127.0.0.1",
-      port: 5433,
-      username: "postgres",
-      password: "123456",
-      database: "postgres",
-      synchronize: true,
-      logging: true,
-      entities: [Member, Hotel, Window, Letter],
-  }),
- * **/
