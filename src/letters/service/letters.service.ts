@@ -12,6 +12,8 @@ import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { LocalDateTimeConverter } from 'src/common/utils/local-date-time.converter';
 import { GetRepliesResponse } from '../dto/get-replies.dto';
+import { NotificationHistory } from 'src/entities/notification-history.entity';
+import { NotificationType } from 'src/entities/domain/notification.type';
 
 @Injectable()
 export class LettersService {
@@ -45,7 +47,8 @@ export class LettersService {
       // 1. 존재하는 호텔인지 확인
       const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
-        .innerJoinAndSelect('hotel.member', 'member')
+        .innerJoin('hotel.member', 'member')
+        .select(['hotel', 'member.id', 'member.membership'])
         .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
         .getOne();
 
@@ -117,6 +120,22 @@ export class LettersService {
       if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
         await queryRunner.manager.save(hotelWindow); // Update 반영
       }
+
+      // 9. 편지 수신자에게 알림을 남김
+      const letterTypeDataObject = {
+        hotelId: hotel.id,
+        date: today.toString()
+      };
+      const notification: NotificationHistory = queryRunner.manager
+        .getRepository(NotificationHistory)
+        .create({
+          member: hotel.member,
+          type: NotificationType.LETTER,
+          typeData: JSON.stringify(letterTypeDataObject),
+          message: '두근두근! 새 편지 도착!',
+          isChecked: false
+        });
+      await queryRunner.manager.save(notification);
       
       await queryRunner.commitTransaction();
 

@@ -10,6 +10,8 @@ import { Hotel } from 'src/entities/hotel.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
+import { NotificationHistory } from 'src/entities/notification-history.entity';
+import { NotificationType } from 'src/entities/domain/notification.type';
 
 @Injectable()
 export class RepliesService {
@@ -45,12 +47,16 @@ export class RepliesService {
       }
 
       // 2. 존재하는 편지인지 확인
-      const letter = await this.letterRepository
+      const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
-        .innerJoinAndSelect('letter.sender', 'sender')
-        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
-        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.member', 'member')
+        .innerJoin('letter.sender', 'sender')
+        .innerJoin('letter.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select([
+          'letter', 'sender.id', 'hotelWindow.id', 'hotel.id', 'hotel.nickname', 
+          'member.id', 'member.isActive', 'member.membership'
+        ])
         .where('letter.id = :letterId', { letterId: letterId })
         .getOne();
       
@@ -112,7 +118,7 @@ export class RepliesService {
 
       // 7. 답장 수신자의 편지 개수 제한을 확인
       const recievedLetterCount = await this.getRecievedLetterCount(hotelWindow);
-      const recipient: Member = await recipientsHotel.member;
+      const recipient: Member = recipientsHotel.member;
       if (recipient.getMembershipInfo().hasLetterLimit) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
       }
@@ -134,6 +140,22 @@ export class RepliesService {
       if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
         await queryRunner.manager.save(hotelWindow); // Update 반영
       }
+
+      // 10. 답장 수신자에게 알림을 추가
+      const replyTypeDataObject = {
+        letterId: letter.id
+      };
+      const replySenderNickname: string = this.getReplySenderNickname(letter, loginMember);
+      const notification: NotificationHistory = queryRunner.manager
+        .getRepository(NotificationHistory)
+        .create({
+          member: recipient,
+          type: NotificationType.REPLY,
+          typeData: JSON.stringify(replyTypeDataObject),
+          message: `${replySenderNickname}님으로부터 답장이 도착했어요!`,
+          isChecked: false
+        });
+      await queryRunner.manager.save(notification);
       
       await queryRunner.commitTransaction();
 
@@ -150,11 +172,6 @@ export class RepliesService {
     }
   }
 
-  /**
-   * @param letter: 답장의 대상이 되는 편지 객체
-   * @param loginMember: 현재 로그인한 사용자 객체
-   * @returns 답장 수신자의 호텔 객체를 반환
-   */
   private async getRecipientsHotel(letter: Letter, loginMember: Member): Promise<Hotel> {
 
     if (letter.sender.id === loginMember.id) { // 편지를 보낸 사람이 로그인한 사용자라면 답장 수신자는 편지의 주인
@@ -167,15 +184,12 @@ export class RepliesService {
 
     return await this.hotelRepository
       .createQueryBuilder('hotel')
-      .innerJoinAndSelect('hotel.member', 'member')
+      .innerJoin('hotel.member', 'member')
+      .select(['hotel', 'member.id', 'member.isActive', 'member.membership'])
       .where('member.id = :memberId and member.isActive = true', { memberId: letter.sender.id })
       .getOne();
   }
 
-  /**
-   * @param hotelWindow: 편지/답장 수신자의 호텔 창문 객체
-   * @returns 해당 호텔 창문 날짜에 받은 모든 편지 수를 반환
-   */
   private async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
     const letterCount = await this.letterRepository
       .createQueryBuilder('letter')
@@ -190,10 +204,6 @@ export class RepliesService {
     return letterCount + replyCount;
   }
 
-  /**
-   * FREE 멤버쉽의 사용자의 경우 최대 수신 가능한 편지수를 넘은 경우를 확인하는 메서드
-   * @param recievedLetterCount: 현재까지 받은 편지수
-   */
   private checkMaximumReceivedLetterCount(recievedLetterCount: number) {
     const maximumReceivedLetterCount = 20; // 편지 수신 제한 개수 20개로 고정
 
@@ -202,12 +212,6 @@ export class RepliesService {
     }
   }
 
-  /**
-   * 답장 수신자의 창문의 개폐 여부를 판단하는 메서드
-   * @param recievedLetterCount: 받은 편지수
-   * @param hotelWindow: 호텔 창문 객체
-   * @returns: 창문이 열리는 조건에 만족한 경우 true / 아닌 경우 false 반환
-   */
   private checkHotelWindowOpenCondition(recievedLetterCount: number, hotelWindow: HotelWindow): boolean {
     const hotelWindowOpenConditionCount = 5; // 창문이 열리는 COUNT 5로 고정
 
@@ -225,6 +229,10 @@ export class RepliesService {
   private async saveImage(image: Express.Multer.File): Promise<string> {
 
     return '저장된 image URL';
+  }
+
+  private getReplySenderNickname(letter: Letter, loginMember: Member) {
+    return letter.sender.id === loginMember.id ? letter.senderNickname : letter.hotelWindow.hotel.nickname;
   }
 
   /**
