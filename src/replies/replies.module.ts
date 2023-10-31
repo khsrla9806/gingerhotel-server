@@ -9,9 +9,11 @@ import { Member } from 'src/entities/member.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
+    CommonModule,
     AuthModule,
     TypeOrmModule.forFeature([Hotel, HotelWindow, Member, Letter, Reply, MemberBlockHistory])
   ],
