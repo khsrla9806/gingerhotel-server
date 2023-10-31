@@ -15,6 +15,7 @@ import { GetRepliesResponse } from '../dto/get-replies.dto';
 import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
 import { Feek } from 'src/entities/feek.entity';
+import { S3Service } from 'src/common/utils/s3.service';
 
 @Injectable()
 export class LettersService {
@@ -30,7 +31,8 @@ export class LettersService {
     private readonly replyRepository: Repository<Reply>,
     @InjectRepository(MemberBlockHistory)
     private readonly memberBlockHistoryRepository: Repository<MemberBlockHistory>,
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+    private readonly s3Service: S3Service
   ) {}
 
   /**
@@ -188,10 +190,10 @@ export class LettersService {
     return false;
   }
 
-  // TODO: 이미지 저장 메서드 (Storage 연결되면 이 부분에 이미지를 저장하는 로직 추가)
   private async saveImage(image: Express.Multer.File): Promise<string> {
+    const s3UploadResponse = await this.s3Service.uploadToS3(image);
 
-    return '저장된 image URL';
+    return s3UploadResponse.url;
   }
 
   /**
