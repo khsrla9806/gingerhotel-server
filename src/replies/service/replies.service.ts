@@ -228,6 +228,9 @@ export class RepliesService {
   }
 
   private async saveImage(image: Express.Multer.File): Promise<string> {
+    if (!image) {
+      return null;
+    }
     const s3UploadResponse = await this.s3Service.uploadToS3(image);
 
     return s3UploadResponse.url;
