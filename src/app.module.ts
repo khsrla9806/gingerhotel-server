@@ -16,7 +16,7 @@ import { NotificationsModule } from './notifications/notifications.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test",
+      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.prod",
       validationSchema: Joi.object({
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.string().required(),
@@ -34,8 +34,8 @@ import { NotificationsModule } from './notifications/notifications.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: true,
-      logging: true,
+      synchronize: process.env.DB_SYNCHRONIZE === 'true' ? true : false,
+      logging: process.env.DB_LOGGING === 'true' ? true : false,
       entities: ['dist/**/*.entity.js'],
       namingStrategy: new SnakeNamingStrategy()
     }),
@@ -51,5 +51,4 @@ import { NotificationsModule } from './notifications/notifications.module';
   controllers: [],
   providers: [],
 })
-
 export class AppModule {}
