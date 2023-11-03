@@ -31,10 +31,6 @@ export class FeekService {
     await queryRunner.startTransaction();
 
     try {
-      if (!loginMember.getMembershipInfo().isPossiblePeek) {
-        throw new BadRequestException(`엿보기를 사용할 수 없는 멤버쉽 사용자입니다. : ${loginMember.membership}`);
-      }
-
       if (loginMember.feekCount <= 0) {
         throw new BadRequestException(`사용할 수 있는 엿보기 개수가 없습니다. : ${loginMember.feekCount}개`)
       }
