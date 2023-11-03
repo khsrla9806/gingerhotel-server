@@ -53,15 +53,11 @@ export class AuthController {
     return this.authService.createHotel(member, dto);
   }
 
-  /**
-   * LoginMember 데코레이터 테스트 핸들러 method (추후에 지울 예정)
-   */
   @Get('/member')
-  @UseGuards(AuthGuard())
   @ApiBearerAuth('accessToken')
   @ApiOperation({ description: '테스트하기 위해 만든 API (삭제 예정)', deprecated: true })
-  getMemberInfomationForTest(@LoginMember() member: Member) {
-    console.log(member);
+  getMemberInfomationForTest() {
+    console.log("/auth/member 요청");
   }
 
 }
