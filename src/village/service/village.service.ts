@@ -105,7 +105,7 @@ export class VillageService {
   async getVillages(loginMember: Member) {
     try {
       // 1. 나의 빌리지 목록을 조회
-      const villages = await this.villageRepository
+      const villages: Village[] = await this.villageRepository
         .createQueryBuilder('village')
         .innerJoin('village.toHotel', 'toHotel')
         .select('village.id', 'villageId')

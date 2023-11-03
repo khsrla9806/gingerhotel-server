@@ -70,7 +70,7 @@ export class AuthService {
       
       const code: string = await this.generateMemberCode(7);
 
-      const member = await this.memberRepository.save(this.memberRepository.create({
+      const member: Member = await this.memberRepository.save(this.memberRepository.create({
         membership: MembershipType.FREE,
         socialId: socialId,
         vendor: vendor,
@@ -148,7 +148,7 @@ export class AuthService {
       }
 
       if (dto.code) {
-        const recommendedMember = await this.memberRepository.findOne({ where: { code: dto.code } });
+        const recommendedMember: Member = await this.memberRepository.findOne({ where: { code: dto.code } });
 
         if (!recommendedMember) {
           throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`);

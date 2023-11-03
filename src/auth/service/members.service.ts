@@ -17,7 +17,7 @@ export class MemberService {
 
   async getMemberInfo(loginMember: Member) {
     try {
-      const hotel = await this.hotelRepository
+      const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoin('hotel.member', 'member', 'member.id = :memberId and member.isActive = true', { memberId: loginMember.id })
         .getOne();
@@ -90,7 +90,7 @@ export class MemberService {
 
     try {
 
-      const hotel = await this.hotelRepository
+      const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .select('hotel.id')
         .where('hotel.member.id = :memberId', { memberId: loginMember.id })

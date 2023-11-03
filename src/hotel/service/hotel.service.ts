@@ -35,7 +35,7 @@ export class HotelService {
   async getHotel(hotelId: number, loginMember: Member): Promise<HotelDetailResponse> {
     try {
       // 1. 존재하는 호텔 식별자인지 확인
-      const hotel = await this.hotelRepository
+      const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoinAndSelect('hotel.member', 'member')
         .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
@@ -125,12 +125,12 @@ export class HotelService {
       return 0;
     }
 
-    const letterCount = await this.letterRepository
+    const letterCount: number = await this.letterRepository
       .createQueryBuilder('letter')
       .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
 
-    const replyCount = await this.replyRepository
+    const replyCount: number = await this.replyRepository
       .createQueryBuilder('reply')
       .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
@@ -159,7 +159,7 @@ export class HotelService {
   async updateHotel(hotelId: number, dto: HotelUpdateRequest, loginMember: Member) {
     try {
       // 1. 로그인한 사용자의 호텔 정보를 조회
-      const hotel = await this.hotelRepository
+      const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoin('hotel.member', 'member', 'member.id = :memberId and member.isActive = true', { memberId: loginMember.id })
         .select(['hotel', 'member.id'])

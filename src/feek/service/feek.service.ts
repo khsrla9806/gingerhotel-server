@@ -66,7 +66,7 @@ export class FeekService {
       }
 
       // 엿보기 요청을 보내려는 사용자가 나를 차단한 경우
-      const memberBlock = await this.memberBlockHistoryRepository
+      const memberBlock: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -124,7 +124,7 @@ export class FeekService {
    */
   async getFeekDetail(feekId: number, loginMember: Member) {
     try {
-      const feek = await this.feekRepository
+      const feek: Feek = await this.feekRepository
         .createQueryBuilder('feek')
         .innerJoinAndSelect('feek.requestor', 'requestor')
         .innerJoinAndSelect('feek.letter', 'letter')
@@ -199,7 +199,7 @@ export class FeekService {
 
       feek.comment = dto.comment;
       feek.feekStatus = FeekStatus.ACCEPT;
-      const updatedFeek = await this.feekRepository.save(feek);
+      const updatedFeek: Feek = await this.feekRepository.save(feek);
 
       // 해당 편지가 삭제되지 않았다면, 엿보기를 요청했던 사람에게 수락한 알림을 추가
       if (!feek.letter.isDeleted) {

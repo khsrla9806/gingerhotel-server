@@ -12,7 +12,7 @@ import { Reply } from 'src/entities/reply.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
-import { S3Service } from 'src/common/utils/s3.service';
+import { S3Service, S3UploadResponse } from 'src/common/utils/s3.service';
 
 @Injectable()
 export class RepliesService {
@@ -84,7 +84,7 @@ export class RepliesService {
       }
 
       // 내가 편지 보내려는 사용자가 나를 차단한 경우
-      const memberBlock = await this.memberBlockHistoryRepository
+      const memberBlock: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -119,7 +119,7 @@ export class RepliesService {
       }
 
       // 7. 답장 수신자의 편지 개수 제한을 확인
-      const recievedLetterCount = await this.getRecievedLetterCount(hotelWindow);
+      const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
       const recipient: Member = recipientsHotel.member;
       if (recipient.getMembershipInfo().hasLetterLimit) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
@@ -193,12 +193,12 @@ export class RepliesService {
   }
 
   private async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
-    const letterCount = await this.letterRepository
+    const letterCount: number = await this.letterRepository
       .createQueryBuilder('letter')
       .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
 
-    const replyCount = await this.replyRepository
+    const replyCount: number = await this.replyRepository
       .createQueryBuilder('reply')
       .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
@@ -231,7 +231,7 @@ export class RepliesService {
     if (!image) {
       return null;
     }
-    const s3UploadResponse = await this.s3Service.uploadToS3(image);
+    const s3UploadResponse: S3UploadResponse = await this.s3Service.uploadToS3(image);
 
     return s3UploadResponse.url;
   }
@@ -246,7 +246,7 @@ export class RepliesService {
   async deleteReply(replyId: number, loginMember: Member): Promise<CommonResponse> {
     try {
       // 1. 존재하는 답장인지 확인
-      const reply = await this.replyRepository
+      const reply: Reply = await this.replyRepository
       .createQueryBuilder('reply')
       .innerJoinAndSelect('reply.hotelWindow', 'hotelWindow')
       .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
@@ -286,7 +286,7 @@ export class RepliesService {
     
     try {
       // 1. 존재하는 답장인지 확인 (식별자만 Projection)
-      const reply = await this.replyRepository
+      const reply: Reply = await this.replyRepository
         .createQueryBuilder('reply')
         .innerJoin('reply.sender', 'sender')
         .innerJoin('reply.letter', 'letter')
@@ -321,7 +321,7 @@ export class RepliesService {
       }
 
       // 6. 나(loginMember)와 답장을 보낸 사람(reply.sender) 사이의 차단 관계를 형성
-      const memberBlock = await this.memberBlockHistoryRepository
+      const memberBlock: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -366,7 +366,7 @@ export class RepliesService {
     
     try {
       // 1. 존재하는 답장인지 확인 (식별자만 Projection)
-      const reply = await this.replyRepository
+      const reply: Reply = await this.replyRepository
         .createQueryBuilder('reply')
         .innerJoin('reply.sender', 'sender')
         .innerJoin('reply.letter', 'letter')
@@ -401,7 +401,7 @@ export class RepliesService {
       }
 
       // 6. 나(loginMember)와 답장을 보낸 사람(reply.sender) 사이의 차단 관계를 형성
-      const memberBlock = await this.memberBlockHistoryRepository
+      const memberBlock: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',

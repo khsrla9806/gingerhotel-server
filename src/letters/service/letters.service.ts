@@ -15,7 +15,7 @@ import { GetRepliesResponse } from '../dto/get-replies.dto';
 import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
 import { Feek } from 'src/entities/feek.entity';
-import { S3Service } from 'src/common/utils/s3.service';
+import { S3Service, S3UploadResponse } from 'src/common/utils/s3.service';
 
 @Injectable()
 export class LettersService {
@@ -60,7 +60,7 @@ export class LettersService {
       }
 
       // 내가 편지 보내려는 사용자가 나를 차단한 경우
-      const memberBlock = await this.memberBlockHistoryRepository
+      const memberBlock: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -100,7 +100,7 @@ export class LettersService {
       }
 
       // 6. 받는 사람이 수신 편지 개수 제한이 있는지 확인
-      const recievedLetterCount = await this.getRecievedLetterCount(hotelWindow);
+      const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
 
       if (hotel.member.getMembershipInfo().hasLetterLimit) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
@@ -156,12 +156,12 @@ export class LettersService {
   }
 
   private async getRecievedLetterCount(hotelWindow: HotelWindow): Promise<number> {
-    const letterCount = await this.letterRepository
+    const letterCount: number = await this.letterRepository
       .createQueryBuilder('letter')
       .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
 
-    const replyCount = await this.replyRepository
+    const replyCount: number = await this.replyRepository
       .createQueryBuilder('reply')
       .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
       .getCount();
@@ -194,7 +194,7 @@ export class LettersService {
     if (!image) {
       return null;
     }
-    const s3UploadResponse = await this.s3Service.uploadToS3(image);
+    const s3UploadResponse: S3UploadResponse = await this.s3Service.uploadToS3(image);
 
     return s3UploadResponse.url;
   }
@@ -211,7 +211,7 @@ export class LettersService {
     try {
 
       // 1. 존재하는 편지인지 확인
-      const letter = await this.letterRepository
+      const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
         .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
@@ -261,7 +261,7 @@ export class LettersService {
 
     try {
       // 1. 존재하는 편지인지 확인
-      const letter = await this.letterRepository
+      const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
         .innerJoinAndSelect('letter.sender', 'sender')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
@@ -295,7 +295,7 @@ export class LettersService {
       );
 
       // 6. 로그인한 사용자(fromMember)와 편지를 보낸 사람(toMember)의 차단 관계를 형성
-      const memberBlockHistory = await this.memberBlockHistoryRepository
+      const memberBlockHistory: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -342,7 +342,7 @@ export class LettersService {
 
     try {
       // 1. 존재하는 편지인지 확인
-      const letter = await this.letterRepository
+      const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
         .innerJoinAndSelect('letter.sender', 'sender')
         .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
@@ -376,7 +376,7 @@ export class LettersService {
       );
 
       // 6. 로그인한 사용자(fromMember)와 편지를 보낸 사람(toMember)의 차단 관계를 해제
-      const memberBlockHistory = await this.memberBlockHistoryRepository
+      const memberBlockHistory: MemberBlockHistory = await this.memberBlockHistoryRepository
         .createQueryBuilder('memberBlock')
         .where(
           'memberBlock.fromMember.id = :fromMemberId and memberBlock.toMember.id = :toMemberId',
@@ -436,7 +436,7 @@ export class LettersService {
       }
 
       // 2. 오늘 날짜에 해당하는 창문을 탐색
-      const hotelWindow = await this.hotelWindowRepository
+      const hotelWindow: HotelWindow = await this.hotelWindowRepository
         .createQueryBuilder('hotelWindow')
         .where(
           'hotelWindow.hotel.id = :hotelId and hotelWindow.date = :date', 
@@ -453,7 +453,7 @@ export class LettersService {
       }
 
       // 3. 오늘 날짜에 해당하는 편지를 내림차순으로 정렬
-      const letters = await this.letterRepository
+      const letters: Letter[] = await this.letterRepository
         .createQueryBuilder('letter')
         .leftJoin('feek', 'feek', 'feek.letter.id = letter.id')
         .select('letter.id', 'id')
@@ -472,7 +472,7 @@ export class LettersService {
       LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(letters);
 
       // 4. 오늘 날짜에 해당하는 답장을 내림차순으로 정렬
-      const replies = await this.replyRepository
+      const replies: Reply[] = await this.replyRepository
         .createQueryBuilder('reply')
         .innerJoin('reply.letter', 'letter')
         .select('reply.id', 'id')
