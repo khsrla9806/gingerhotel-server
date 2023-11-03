@@ -9,11 +9,12 @@ import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
 import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { Village } from 'src/entities/village.entity';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Member, Hotel, Letter, Reply, HotelWindow, Village])
+    TypeOrmModule.forFeature([Member, Hotel, Letter, Reply, HotelWindow, Village, MemberBlockHistory])
   ],
   controllers: [HotelController],
   providers: [HotelService]

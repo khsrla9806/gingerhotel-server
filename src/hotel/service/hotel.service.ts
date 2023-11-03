@@ -10,6 +10,7 @@ import { HotelWindow } from 'src/entities/hotel-window.entity';
 import { LocalDate } from '@js-joda/core';
 import { Village } from 'src/entities/village.entity';
 import { HotelUpdateRequest } from '../dto/hotel-update.dto';
+import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 
 @Injectable()
 export class HotelService {
@@ -23,7 +24,9 @@ export class HotelService {
     @InjectRepository(HotelWindow)
     private readonly hotelWindowRepository: Repository<HotelWindow>,
     @InjectRepository(Village)
-    private readonly villageRepository: Repository<Village>
+    private readonly villageRepository: Repository<Village>,
+    @InjectRepository(MemberBlockHistory)
+    private readonly memberBlockRepository: Repository<MemberBlockHistory>
   ) {}
 
   /**
@@ -47,21 +50,37 @@ export class HotelService {
       let isLoginMember: boolean = false;
       let isOwner: boolean = false;
       let isFriend: boolean = false;
+      let isBlocked: boolean = false;
 
       if (loginMember) {
         isLoginMember = true;
 
         if (hotel.member.id === loginMember.id) {
           isOwner = true;
-        }
+        } else {
+          const village: Village = await this.villageRepository
+            .createQueryBuilder('village')
+            .where(
+              'village.fromMember.id = :fromMemberId and village.toHotel.id = :toHotelId', 
+              { fromMemberId: loginMember.id, toHotelId: hotel.id }
+            )
+            .getOne();
+        
+          if (village) {
+            isFriend = true;
+          }
 
-        const village: Village = await this.villageRepository
-        .createQueryBuilder('village')
-        .where('village.fromMember.id = :fromMemberId and village.toHotel.id = :toHotelId', { fromMemberId: loginMember.id, toHotelId: hotel.id })
-        .getOne();
-      
-        if (village) {
-          isFriend = true;
+          const blockHistory: MemberBlockHistory = await this.memberBlockRepository
+            .createQueryBuilder('blockHistory')
+            .where(
+              'blockHistory.fromMember.id = :fromMemberId and blockHistory.toMember.id = :toMemberId',
+              { fromMemberId: hotel.member.id, toMemberId: loginMember.id }
+            )
+            .getOne();
+
+          if (blockHistory) {
+            isBlocked = true;
+          }
         }
       }
     
@@ -86,7 +105,8 @@ export class HotelService {
         hotelWindows: this.convertHotelWindowsToJSON(hotelWindows),
         isLoginMember: isLoginMember,
         isOwner: isOwner,
-        isFriend: isFriend
+        isFriend: isFriend,
+        isBlocked: isBlocked
       }
 
     } catch (error) {

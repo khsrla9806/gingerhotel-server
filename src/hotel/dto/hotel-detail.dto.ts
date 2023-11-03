@@ -9,6 +9,7 @@ export class HotelDetailResponse extends CommonResponse {
   isLoginMember?: boolean;
   isOwner?: boolean;
   isFriend?: boolean;
+  isBlocked?: boolean;
 }
 
 export type HotelInfo = {
