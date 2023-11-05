@@ -52,6 +52,8 @@ export class AuthService {
 
         const tokenPayload = { memberId: existingMember.id };
 
+        /* TEMP: Move to Sign up Page
+        
         if (!existingMember.hasHotel) {
           response.status(HttpStatus.FOUND);
 
@@ -61,6 +63,7 @@ export class AuthService {
             accessToken: this.jwtService.sign(tokenPayload)
           };
         }
+        */
 
         return {
           success: true,
