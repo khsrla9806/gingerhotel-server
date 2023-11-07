@@ -33,7 +33,8 @@ export function GetHotelAPI() {
           },
           isLoginMember: true,
           isOwner: true,
-          isFriend: false
+          isFriend: false,
+          isBlocked: false
         }
       }
     }),
