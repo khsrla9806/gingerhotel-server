@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
 import { CoreEntity } from "./core.entity";
 import { Member } from "./member.entity";
 import { NotificationType } from "./domain/notification.type";
@@ -8,6 +8,7 @@ export class NotificationHistory extends CoreEntity {
 
   @ManyToOne(() => Member, { nullable: false })
   @JoinColumn()
+  @Index()
   member: Member;
   
   @Column({
