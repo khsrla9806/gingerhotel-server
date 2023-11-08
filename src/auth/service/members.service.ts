@@ -97,12 +97,12 @@ export class MemberService {
         .getOne();
 
       // 1. 나를 빌리지에 추가한 사람, 내가 빌리지에 추가한 사람 모두 삭제
-      queryRunner.manager.query(
+      await queryRunner.manager.query(
         `DELETE FROM village WHERE from_member_id = ${loginMember.id} OR to_hotel_id = ${hotel.id}`
       );
 
       // 2. 나를 차단한 사람, 내가 차단한 사람 모두 삭제
-      queryRunner.manager.query(
+      await queryRunner.manager.query(
         `DELETE FROM member_block_history WHERE from_member_id = ${loginMember.id} OR to_member_id = ${loginMember.id}`
       );
 
