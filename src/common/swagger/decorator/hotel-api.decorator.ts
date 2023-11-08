@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { HotelUpdateRequest } from "src/hotel/dto/hotel-update.dto";
 
 export function GetHotelAPI() {
@@ -70,6 +70,45 @@ export function UpdateHotelAPI() {
         example: {
           success: false,
           error: '존재하지 않는 호텔 정보입니다. 호텔 생성을 완료 후 이용해주세요. | 자신의 호텔 정보만 수정이 가능합니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
+export function OpenWindowAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '열쇠로 호텔 창문 열기', description: '열쇠를 사용해서 특정 날짜의 호텔 창문을 개방합니다.' }),
+    ApiQuery({
+      name: 'date',
+      type: 'yyyy-MM-dd',
+      example: '2023-12-01',
+      description: '개방하려는 창문의 날짜를 입력 (Ex. 1번 창문의 경우 2023-12-01)'
+    }),
+    ApiCreatedResponse({
+      description: '창문 개방 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '창문 개방 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 창문입니다. | 이미 열려있는 창문입니다. | 열쇠 개수가 부족합니다.'
+        }
+      }
+    }),
+    ApiForbiddenResponse({
+      description: '창문 개방 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '내 호텔의 창문만 열 수 있습니다.'
         }
       }
     }),
