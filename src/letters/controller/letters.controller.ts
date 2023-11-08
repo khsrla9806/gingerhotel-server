@@ -8,7 +8,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateLetterRequest } from '../dto/create-letter.dto';
 import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, GetLettersAPI, GetRepliesAPI, UnblockLetterAPI } from 'src/common/swagger/decorator/letter-api.decorator';
 import { LocalDate } from '@js-joda/core';
-import { StringToLocalDateValidationPipe } from '../pipes/string-to-local-date.validation.pipe';
+import { StringToLocalDateValidationPipe } from '../../common/pipes/string-to-local-date.validation.pipe';
 import { SortValidationPipe } from '../pipes/sort.validation.pipe';
 import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 
