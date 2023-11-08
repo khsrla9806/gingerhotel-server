@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
 import { HotelService } from '../service/hotel.service';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
@@ -9,6 +9,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { HotelUpdateRequest } from '../dto/hotel-update.dto';
 import { UpdateHotelValidationPipe } from '../pipes/update-hotel.validation.pipe';
 import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
+import { LocalDate } from '@js-joda/core';
+import { StringToLocalDateValidationPipe } from 'src/common/pipes/string-to-local-date.validation.pipe';
 
 @UseFilters(GlobalExceptionFilter)
 @Controller('hotel')
@@ -37,5 +39,15 @@ export class HotelController {
     @LoginMember() loginMember: Member
   ) {
     return await this.hotelService.updateHotel(hotelId, dto, loginMember);
+  }
+
+  @Post('/:hotelId/open/window')
+  @UseGuards(AuthGuard())
+  async openWindow(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+    @Query('date', StringToLocalDateValidationPipe) date: LocalDate,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.hotelService.openWindow(hotelId, date, loginMember);
   }
 }
