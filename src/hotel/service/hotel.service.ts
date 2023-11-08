@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Member } from 'src/entities/member.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { HotelDetailResponse, HotelWindowInfo } from '../dto/hotel-detail.dto';
 import { Letter } from 'src/entities/letter.entity';
 import { Reply } from 'src/entities/reply.entity';
@@ -26,7 +26,8 @@ export class HotelService {
     @InjectRepository(Village)
     private readonly villageRepository: Repository<Village>,
     @InjectRepository(MemberBlockHistory)
-    private readonly memberBlockRepository: Repository<MemberBlockHistory>
+    private readonly memberBlockRepository: Repository<MemberBlockHistory>,
+    private readonly dateSource: DataSource
   ) {}
 
   /**
@@ -184,6 +185,63 @@ export class HotelService {
 
     } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * 호텔 창문 열기 (열쇠 사용)
+   */
+  async openWindow(hotelId: number, date: LocalDate, loginMember: Member) {
+    const queryRunner = this.dateSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    
+    try {
+      const hotelWindow: HotelWindow = await queryRunner.manager.getRepository(HotelWindow)
+        .createQueryBuilder('hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotelId })
+        .innerJoin('hotel.member', 'member')
+        .select(['hotelWindow', 'hotel.id', 'member.id', 'member.keyCount'])
+        .where('hotelWindow.date = :date', { date: date })
+        .getOne();
+
+      if (!hotelWindow) {
+        throw new BadRequestException('존재하지 않는 창문입니다.');
+      }
+
+      const hotelOwner: Member = hotelWindow.hotel.member;
+
+      if (hotelOwner.id !== loginMember.id) {
+        throw new ForbiddenException('내 호텔의 창문만 열 수 있습니다.');
+      }
+
+      if (hotelWindow.isOpen) {
+        throw new BadRequestException('이미 열려있는 창문입니다.');
+      }
+
+      if (hotelOwner.keyCount <= 0) {
+        throw new BadRequestException('열쇠 개수가 부족합니다.');
+      }
+
+      await queryRunner.manager.query(
+        `UPDATE hotel_window SET is_open = true, has_cookie = true WHERE id = ${hotelWindow.id}`
+      );
+
+      await queryRunner.manager.query(
+        `UPDATE member SET key_count = ${hotelOwner.keyCount - 1} WHERE id = ${hotelOwner.id}`
+      );
+
+      await queryRunner.commitTransaction();
+
+      return {
+        success: true
+      }
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
   }
 }
