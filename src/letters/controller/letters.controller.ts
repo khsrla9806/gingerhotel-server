@@ -11,6 +11,7 @@ import { LocalDate } from '@js-joda/core';
 import { StringToLocalDateValidationPipe } from '../../common/pipes/string-to-local-date.validation.pipe';
 import { SortValidationPipe } from '../pipes/sort.validation.pipe';
 import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
+import { NotificationInterceptor } from 'src/common/interceptor/notification.interceptor';
 
 @UseFilters(GlobalExceptionFilter)
 @Controller('letters')
@@ -66,6 +67,7 @@ export class LettersController {
 
   @Get('/hotel/:hotelId')
   @UseGuards(AuthGuard())
+  @UseInterceptors(NotificationInterceptor)
   @GetLettersAPI()
   async getLetters(
     @Param('hotelId', ParseIntPipe) hotelId: number,
@@ -77,6 +79,7 @@ export class LettersController {
 
   @Get('/:letterId/replies')
   @UseGuards(AuthGuard())
+  @UseInterceptors(NotificationInterceptor)
   @GetRepliesAPI()
   async getReplies(
     @Param('letterId', ParseIntPipe) letterId: number,
