@@ -6,9 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feek } from 'src/entities/feek.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
+    CommonModule,
     AuthModule,
     TypeOrmModule.forFeature([Feek, Letter, MemberBlockHistory])
   ],
