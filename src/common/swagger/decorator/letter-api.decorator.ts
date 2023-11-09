@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateLetterRequest } from "src/letters/dto/create-letter.dto";
 
 export function CreateLetterAPI() {
@@ -103,6 +103,11 @@ export function UnblockLetterAPI() {
 export function GetLettersAPI() {
   return applyDecorators(
     ApiOperation({ summary: '내 편지함 조회 (편지 + 답장)', description: '선택한 날짜에(yyyy-MM-dd)에 해당하는 창문에 도착한 편지와 답장을 조회합니다.' }),
+    ApiHeader({
+      name: 'Notification',
+      description: '알림 페이지에서 접근한 경우에 추가되는 notificationId (Ex. 1)',
+      required: false
+    }),
     ApiQuery({
       name: 'date',
       type: 'yyyy-MM-dd',
@@ -223,6 +228,11 @@ export function GetLettersAPI() {
 export function GetRepliesAPI() {
   return applyDecorators(
     ApiOperation({ summary: '답장 모아보기', description: 'letter의 식별자를 이용하여 답장 모아보기 페이지로 이동' }),
+    ApiHeader({
+      name: 'Notification',
+      description: '알림 페이지에서 접근한 경우에 추가되는 notificationId (Ex. 1)',
+      required: false
+    }),
     ApiQuery({
       name: 'sort',
       type: '"ASC" | "DESC"',

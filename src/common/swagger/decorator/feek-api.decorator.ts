@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
 import { AcceptFeekRequest } from "src/feek/dto/accept-feek.dto";
 
 export function RequestFeekAPI() {
@@ -29,6 +29,11 @@ export function RequestFeekAPI() {
 export function GetFeekDetailAPI() {
   return applyDecorators(
     ApiOperation({ summary: '엿보기 요청 상세 조회', description: '엿보기 요청에 대한 요청자 이름, 요청된 편지의 내용을 응답합니다.' }),
+    ApiHeader({
+      name: 'Notification',
+      description: '알림 페이지에서 접근한 경우에 추가되는 notificationId (Ex. 1)',
+      required: false
+    }),
     ApiOkResponse({
       description: '상세 조회 성공 시',
       schema: {
