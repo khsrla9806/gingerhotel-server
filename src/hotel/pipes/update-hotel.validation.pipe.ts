@@ -6,7 +6,7 @@ export class UpdateHotelValidationPipe implements PipeTransform {
 
   transform(value: any, metadata: ArgumentMetadata) {
       try {
-        if (!value.headColor) {
+        if (!value.structColor) {
           throw new BadRequestException('호텔 지붕 색상은 필수 값입니다.');
         }
 
@@ -22,7 +22,7 @@ export class UpdateHotelValidationPipe implements PipeTransform {
           throw new BadRequestException('호텔 설명은 필수 값입니다.');
         }
 
-        return new HotelUpdateRequest(value.headColor, value.bodyColor, value.nickname, value.description);
+        return new HotelUpdateRequest(value.structColor, value.bodyColor, value.nickname, value.description);
         
       } catch (error) {
         throw new BadRequestException(error.message);

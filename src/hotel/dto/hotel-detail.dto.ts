@@ -15,7 +15,7 @@ export class HotelDetailResponse extends CommonResponse {
 export type HotelInfo = {
   nickname: string;
   description: string;
-  headColor: string;
+  structColor: string;
   bodyColor: string;
 }
 

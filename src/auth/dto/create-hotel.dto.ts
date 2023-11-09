@@ -9,7 +9,7 @@ export class CreateHotelResponse extends CommonResponse {
 
 export class CreateHotelRequest {
   @ApiProperty({ description: '호텔 지붕 색상', example: '#0E5E6F' })
-  headColor: string;
+  structColor: string;
 
   @ApiProperty({ description: '호텔 벽면 색상', example: '#AF2010' })
   bodyColor: string;

@@ -112,7 +112,7 @@ export class VillageService {
         .addSelect('village.isBookmark', 'isBookmark')
         .addSelect('toHotel.nickname', 'nickname')
         .addSelect('toHotel.id', 'hotelId')
-        .addSelect('toHotel.headColor', 'headColor')
+        .addSelect('toHotel.structColor', 'structColor')
         .addSelect('toHotel.bodyColor', 'bodyColor')
         .where('village.fromMember.id = :fromMemberId', { fromMemberId: loginMember.id })
         .orderBy('village.isBookmark', 'DESC')

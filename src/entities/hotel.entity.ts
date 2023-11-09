@@ -16,7 +16,7 @@ export class Hotel extends CoreEntity {
   description: string;
 
   @Column()
-  headColor: string;
+  structColor: string;
 
   @Column()
   bodyColor: string;

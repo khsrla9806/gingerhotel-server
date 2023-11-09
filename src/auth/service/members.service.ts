@@ -41,7 +41,7 @@ export class MemberService {
           id: hotel.id,
           nickname: hotel.nickname,
           description: hotel.description,
-          headColor: hotel.headColor,
+          structColor: hotel.structColor,
           bodyColot: hotel.bodyColor
         }
       }

@@ -16,7 +16,7 @@ export function GetHotelAPI() {
           hotel: {
               nickname: "헤르미온느",
               description: "제 호텔에 오신것을 환영합니다.",
-              headColor: "#fffff",
+              structColor: "#fffff",
               bodyColor: "#fffff"
           },
           hotelWindows: {

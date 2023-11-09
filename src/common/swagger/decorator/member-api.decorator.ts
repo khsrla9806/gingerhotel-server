@@ -23,7 +23,7 @@ export function GetMemberInfoAPI() {
             id: 12,
             nickname: '헤르미온느',
             description: '헤르미온느의 호텔에 오신걸 환영합니다.',
-            headColor: "#2E9AFE",
+            structColor: "#2E9AFE",
             bodyColot: "#2E9AFE"
           }
         }

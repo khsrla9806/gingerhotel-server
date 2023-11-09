@@ -100,7 +100,7 @@ export class HotelService {
         hotel: {
           nickname: hotel.nickname,
           description: hotel.description,
-          headColor: hotel.headColor,
+          structColor: hotel.structColor,
           bodyColor: hotel.bodyColor
         },
         hotelWindows: this.convertHotelWindowsToJSON(hotelWindows),

@@ -63,7 +63,7 @@ export function GetVillagesAPI() {
                   isBookmark: true,
                   hotelId: 5,
                   nickname: "헤르미온느",
-                  headColor: "#2E9AFE",
+                  structColor: "#2E9AFE",
                   bodyColor: "#2E9AFE"
               },
               {
@@ -71,7 +71,7 @@ export function GetVillagesAPI() {
                   isBookmark: false,
                   hotelId: 3,
                   nickname: "해리",
-                  headColor: "#2E9AFE",
+                  structColor: "#2E9AFE",
                   bodyColor: "#2E9AFE"
               },
               {
@@ -79,7 +79,7 @@ export function GetVillagesAPI() {
                   isBookmark: false,
                   hotelId: 7,
                   nickname: "론",
-                  headColor: "#2E9AFE",
+                  structColor: "#2E9AFE",
                   bodyColor: "#2E9AFE"
               },
               {
@@ -87,7 +87,7 @@ export function GetVillagesAPI() {
                   isBookmark: false,
                   hotelId: 8,
                   nickname: "말포이",
-                  headColor: "#2E9AFE",
+                  structColor: "#2E9AFE",
                   bodyColor: "#2E9AFE"
               },
               {
@@ -95,7 +95,7 @@ export function GetVillagesAPI() {
                   isBookmark: false,
                   hotelId: 9,
                   nickname: "김진저",
-                  headColor: "#2E9AFE",
+                  structColor: "#2E9AFE",
                   bodyColor: "#2E9AFE"
               },
               {
@@ -103,7 +103,7 @@ export function GetVillagesAPI() {
                   isBookmark: false,
                   hotelId: 10,
                   nickname: "이진저",
-                  headColor: "#2E9AFE",
+                  structColor: "#2E9AFE",
                   bodyColor: "#2E9AFE"
               }
           ]

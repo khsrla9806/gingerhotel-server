@@ -167,7 +167,7 @@ export class AuthService {
       const hotel = await queryRunner.manager.save(this.hotelRepository.create({
         nickname: dto.nickname,
         description: dto.description,
-        headColor: dto.headColor,
+        structColor: dto.structColor,
         bodyColor: dto.bodyColor,
         member: savedMember
       }));
