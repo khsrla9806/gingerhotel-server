@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { LettersService } from '../service/letters.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -10,10 +10,9 @@ import { BlockLetterAPI, CreateLetterAPI, DeleteLetterAPI, GetLettersAPI, GetRep
 import { LocalDate } from '@js-joda/core';
 import { StringToLocalDateValidationPipe } from '../../common/pipes/string-to-local-date.validation.pipe';
 import { SortValidationPipe } from '../pipes/sort.validation.pipe';
-import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 import { NotificationInterceptor } from 'src/common/interceptor/notification.interceptor';
 
-@UseFilters(GlobalExceptionFilter)
+
 @Controller('letters')
 @ApiTags('Letters API')
 export class LettersController {

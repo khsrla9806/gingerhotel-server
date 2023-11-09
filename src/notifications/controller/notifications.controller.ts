@@ -1,13 +1,12 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, UseFilters, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { NotificationsService } from '../service/notifications.service';
-import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { DeleteNotificationAPI, GetNotificationsAPI } from 'src/common/swagger/decorator/notification-api.decorator';
 
-@UseFilters(GlobalExceptionFilter)
+
 @Controller('notifications')
 @ApiTags('Notification API')
 export class NotificationsController {

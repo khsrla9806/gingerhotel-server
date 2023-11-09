@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FeekService } from '../service/feek.service';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
@@ -6,10 +6,9 @@ import { Member } from 'src/entities/member.entity';
 import { AcceptFeekRequest } from '../dto/accept-feek.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AcceptFeekAPI, GetFeekDetailAPI, RejectFeekAPI, RequestFeekAPI } from 'src/common/swagger/decorator/feek-api.decorator';
-import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 import { NotificationInterceptor } from 'src/common/interceptor/notification.interceptor';
 
-@UseFilters(GlobalExceptionFilter)
+
 @Controller('feek')
 @ApiTags('Feek API')
 export class FeekController {

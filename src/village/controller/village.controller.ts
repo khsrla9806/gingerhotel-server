@@ -1,13 +1,12 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Post, UseFilters, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { VillageService } from '../service/village.service';
 import { CreateVillageAPI, DeleteVillageAPI, GetVillagesAPI } from 'src/common/swagger/decorator/village-api.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { GlobalExceptionFilter } from 'src/common/filter/global-exception.filter';
 
-@UseFilters(GlobalExceptionFilter)
+
 @Controller('villages')
 @ApiTags('Village API')
 export class VillageController {
