@@ -467,7 +467,6 @@ export class LettersService {
         .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
         .orderBy('letter.createdAt', 'DESC')
         .getRawMany();
-      console.log(letters);
 
       LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(letters);
 
