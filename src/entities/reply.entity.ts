@@ -18,6 +18,7 @@ export class Reply extends CoreEntity {
 
   @ManyToOne(() => Letter, { nullable: false })
   @JoinColumn()
+  @Index()
   letter: Letter;
 
   @Column()

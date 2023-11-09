@@ -213,9 +213,10 @@ export class LettersService {
       // 1. 존재하는 편지인지 확인
       const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
-        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
-        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.member', 'member')
+        .innerJoin('letter.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['letter', 'hotelWindow.id', 'hotel.id', 'member.id'])
         .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
         .getOne();
 
@@ -263,10 +264,11 @@ export class LettersService {
       // 1. 존재하는 편지인지 확인
       const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
-        .innerJoinAndSelect('letter.sender', 'sender')
-        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
-        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.member', 'member')
+        .innerJoin('letter.sender', 'sender')
+        .innerJoin('letter.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['letter', 'sender.id', 'hotelWindow.id', 'hotel.id', 'member.id'])
         .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
         .getOne();
 
@@ -344,10 +346,11 @@ export class LettersService {
       // 1. 존재하는 편지인지 확인
       const letter: Letter = await this.letterRepository
         .createQueryBuilder('letter')
-        .innerJoinAndSelect('letter.sender', 'sender')
-        .innerJoinAndSelect('letter.hotelWindow', 'hotelWindow')
-        .innerJoinAndSelect('hotelWindow.hotel', 'hotel')
-        .innerJoinAndSelect('hotel.member', 'member')
+        .innerJoin('letter.sender', 'sender')
+        .innerJoin('letter.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['letter', 'sender.id', 'hotelWindow.id', 'hotel.id', 'member.id'])
         .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
         .getOne();
 
