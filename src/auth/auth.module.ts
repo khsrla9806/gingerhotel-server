@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthController } from './controller/auth.controller';
 import { AuthService } from './service/auth.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -8,10 +8,10 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt-strategy';
 import { Hotel } from 'src/entities/hotel.entity';
-import { MemberInterceptor } from './interceptor/member.interceptor';
 import { MemberController } from './controller/members.controller';
 import { MemberService } from './service/members.service';
 
+@Global()
 @Module({
   imports: [
     PassportModule.register({
@@ -29,7 +29,7 @@ import { MemberService } from './service/members.service';
     TypeOrmModule.forFeature([Member, Hotel])
   ],
   controllers: [AuthController, MemberController],
-  providers: [AuthService, MemberService, JwtStrategy, MemberInterceptor],
-  exports: [JwtStrategy, JwtModule, PassportModule, MemberInterceptor]
+  providers: [AuthService, MemberService, JwtStrategy],
+  exports: [JwtStrategy, JwtModule, PassportModule]
 })
 export class AuthModule {}
