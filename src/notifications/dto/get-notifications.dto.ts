@@ -23,4 +23,8 @@ export class GetNotificationsResponse {
       notificationHistory.isChecked
     );
   }
+
+  public getId() {
+    return this.id;
+  }
 }

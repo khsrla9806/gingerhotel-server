@@ -1,10 +1,11 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { NotificationsService } from '../service/notifications.service';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { DeleteNotificationAPI, GetNotificationsAPI } from 'src/common/swagger/decorator/notification-api.decorator';
+import { CursorPageOptionDTO } from '../../common/dto/cursor-page-option.dto';
 
 
 @Controller('notifications')
@@ -17,8 +18,11 @@ export class NotificationsController {
   @Get('/my')
   @UseGuards(AuthGuard())
   @GetNotificationsAPI()
-  async getNotifications(@LoginMember() loginMember: Member) {
-    return await this.notificationService.getNotifications(loginMember);
+  async getNotifications(
+    @LoginMember() loginMember: Member,
+    @Query() cursorPageOption: CursorPageOptionDTO
+  ) {
+    return await this.notificationService.getNotifications(loginMember, cursorPageOption);
   }
 
   @Delete('/:notificationId')
