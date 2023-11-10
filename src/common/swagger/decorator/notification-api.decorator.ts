@@ -1,5 +1,6 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { CursorPageOptionDTO } from "src/common/dto/cursor-page-option.dto";
 
 export function GetNotificationsAPI() {
   return applyDecorators(
@@ -7,61 +8,116 @@ export function GetNotificationsAPI() {
     ApiOkResponse({
       description: '조회 성공',
       schema: {
-        example: [
-          {
-            id: 37,
-            createdAt: "2023-10-27T18:46:04.511",
-            type: "FEEK_REQUEST",
-            typeData: {
-              feekId: 3
-            },
-            message: "유저 3님께서 엿보기를 요청했어요!",
-            isChecked: false
-          },
-          {
-            id: 35,
-            createdAt: "2023-10-27T18:44:28.200",
-            type: "FEEK_ACCEPT",
-            typeData: {
-              hotelId: 1,
-              date: "2023-10-27"
-            },
-            message: "유저 3님께서 엿보기를 수락했어요!",
-            isChecked: true
-          },
-          {
-            id: 33,
-            createdAt: "2023-10-27T18:42:31.200",
-            type: "FEEK_REJECT",
-            typeData: {
-              hotelId: 1,
-              date: "2023-10-27"
-            },
-            message: "유저 3님께서 엿보기를 거절했어요:(",
-            isChecked: false
-          },
-          {
-            id: 32,
-            createdAt: "2023-10-27T18:01:49.219",
-            type: "REPLY",
-            typeData: {
-              letterId: 36
-            },
-            message: "유저 4님으로부터 답장이 도착했어요!",
-            isChecked: false
-        },
-          {
-            id: 31,
-            createdAt: "2023-10-27T18:00:51.717",
-            type: "LETTER",
-            typeData: {
-              hotelId: 1,
-              date: "2023-10-27"
-            },
-            message: "두근두근! 새 편지 도착!",
-            isChecked: false
-          },
-        ]
+        example: {
+          "data": [
+              {
+                  "id": 25000072,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 25000071,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 25000070,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 25000069,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 25000068,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 25000067,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 15000056,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 15000055,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 15000054,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              },
+              {
+                  "id": 15000053,
+                  "createdAt": "2023-11-10T00:46:55.375",
+                  "type": "FEEK_REQUEST",
+                  "typeData": {
+                      "feekId": 2
+                  },
+                  "message": "4번섭님께서 엿보기를 요청했어요!",
+                  "isChecked": true
+              }
+          ],
+          "meta": {
+              "total": "40",
+              "size": 10,
+              "hasNextData": true,
+              "cursor": 15000053
+          }
+        }
       }
     }),
     ApiBearerAuth('Authorization')
