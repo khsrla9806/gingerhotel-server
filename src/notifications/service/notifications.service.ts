@@ -22,10 +22,11 @@ export class NotificationsService {
   async getNotifications(
     loginMember: Member, { sort, size, cursorId }: CursorPageOptionDTO): Promise<CursorPageDTO<GetNotificationsResponse>> {
     try {
-      const [{ total }] = await this.notificationHistoryRepository.query(
-        `SELECT COUNT(*) as total FROM notification_history WHERE member_id = $1`,
-        [loginMember.id]
-      );
+
+      const total = await this.notificationHistoryRepository
+        .createQueryBuilder('notificationHistory')
+        .where('notificationHistory.member.id = :memberId', { memberId: loginMember.id })
+        .getCount();
       
       const notificationHistoriesQueryBuilder: SelectQueryBuilder<NotificationHistory> = this.notificationHistoryRepository
         .createQueryBuilder('notificationHistory')
