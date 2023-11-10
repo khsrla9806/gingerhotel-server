@@ -49,7 +49,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         .status(status)
         .json({
           success: false,
-          error: exception.message
+          error: exception.getResponse()['message']
         });
       
       return;
