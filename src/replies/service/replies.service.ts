@@ -138,26 +138,39 @@ export class RepliesService {
         imageUrl: imageURL
       }));
 
-      // 9. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
-      if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
-        await queryRunner.manager.save(hotelWindow); // Update 반영
-      }
-
-      // 10. 답장 수신자에게 알림을 추가
+      // 9. 답장 수신자에게 알림을 추가
       const replyTypeDataObject = {
         letterId: letter.id
       };
-      const replySenderNickname: string = this.getReplySenderNickname(letter, loginMember);
       const notification: NotificationHistory = queryRunner.manager
         .getRepository(NotificationHistory)
         .create({
           member: recipient,
           type: NotificationType.REPLY,
           typeData: JSON.stringify(replyTypeDataObject),
-          message: `${replySenderNickname}님으로부터 답장이 도착했어요!`,
+          message: `편지함에 답장이 도착했어요!`,
           isChecked: false
         });
       await queryRunner.manager.save(notification);
+
+      // 10. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
+      if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
+        await queryRunner.manager.save(hotelWindow); // Update 반영
+
+        const windowOpenTypeObject = {
+          hotelId: recipientsHotel.id,
+          date: today.toString()
+        };
+
+        // 창문 열림 알림
+        await queryRunner.manager.save(queryRunner.manager.getRepository(NotificationHistory).create({
+          member: recipient,
+          type: NotificationType.WINDOW_OPEN,
+          typeData: JSON.stringify(windowOpenTypeObject),
+          message: '오늘의 창문이 열렸어요! 확인하러 갈까요?',
+          isChecked: false
+        }));
+      }
       
       await queryRunner.commitTransaction();
 
@@ -234,10 +247,6 @@ export class RepliesService {
     const s3UploadResponse: S3UploadResponse = await this.s3Service.uploadToS3(image);
 
     return s3UploadResponse.url;
-  }
-
-  private getReplySenderNickname(letter: Letter, loginMember: Member) {
-    return letter.sender.id === loginMember.id ? letter.senderNickname : letter.hotelWindow.hotel.nickname;
   }
 
   /**

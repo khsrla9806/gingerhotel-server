@@ -119,12 +119,7 @@ export class LettersService {
         isBlocked: false
       }));
 
-      // 8. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
-      if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
-        await queryRunner.manager.save(hotelWindow); // Update 반영
-      }
-
-      // 9. 편지 수신자에게 알림을 남김
+      // 8. 편지 수신자에게 알림을 남김
       const letterTypeDataObject = {
         hotelId: hotel.id,
         date: today.toString()
@@ -139,6 +134,20 @@ export class LettersService {
           isChecked: false
         });
       await queryRunner.manager.save(notification);
+
+      // 9. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
+      if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
+        await queryRunner.manager.save(hotelWindow); // Update 반영
+
+        // 창문 열림 알림
+        await queryRunner.manager.save(queryRunner.manager.getRepository(NotificationHistory).create({
+          member: hotel.member,
+          type: NotificationType.WINDOW_OPEN,
+          typeData: JSON.stringify(letterTypeDataObject),
+          message: '오늘의 창문이 열렸어요! 확인하러 갈까요?',
+          isChecked: false
+        }));
+      }
       
       await queryRunner.commitTransaction();
 
