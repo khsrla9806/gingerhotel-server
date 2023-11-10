@@ -44,6 +44,15 @@ export class LettersController {
     return await this.letterService.deleteLetter(letterId, loginMember);
   }
 
+  @Get('/:letterId/block')
+  @UseGuards(AuthGuard())
+  async checkBlocked(
+    @Param('letterId', ParseIntPipe) letterId: number,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.letterService.checkBlocked(letterId, loginMember);
+  }
+
   @Post('/:letterId/block')
   @UseGuards(AuthGuard())
   @BlockLetterAPI()

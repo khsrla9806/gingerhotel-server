@@ -261,6 +261,61 @@ export class LettersService {
   }
 
   /**
+   * 내가 답장을 보내려고 하는 사람이 날 차단했는지 확인하는 메서드
+   */
+  async checkBlocked(letterId: number, loginMember: Member) {
+    try {
+      const letter: Letter = await this.letterRepository
+        .createQueryBuilder('letter')
+        .innerJoin('letter.sender', 'sender')
+        .innerJoin('letter.hotelWindow', 'hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel')
+        .innerJoin('hotel.member', 'member')
+        .select(['letter', 'sender.id', 'hotelWindow.id', 'hotel.id', 'member.id'])
+        .where('letter.id = :letterId and letter.isDeleted = false', { letterId: letterId })
+        .getOne();
+
+      if (!letter) {
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+      }
+
+      const letterSenderId: number = letter.sender.id;
+      const letterRecipientId: number = letter.hotelWindow.hotel.member.id;
+
+      if (letterRecipientId !== loginMember.id && letterSenderId !== loginMember.id) {
+        throw new ForbiddenException('접근 권한이 없습니다.');
+      }
+
+      const fromMemberId: number = letterSenderId === loginMember.id ? letterRecipientId : letterSenderId;
+
+      const blockHistory: MemberBlockHistory = await this.memberBlockHistoryRepository
+        .createQueryBuilder('blockHistory')
+        .where(
+          'blockHistory.fromMember.id = :fromMemberId and blockHistory.toMember.id = :toMemberId',
+          { fromMemberId: fromMemberId, toMemberId: loginMember.id }
+        )
+        .getOne();
+
+      if (blockHistory) {
+        return {
+          success: true,
+          isBlockMe: true,
+          message: "상대방이 나를 차단했습니다."
+        }
+      }
+      
+      return {
+        success: true,
+        isBlockMe: false,
+        message: "상대방이 나를 차단하지 않았습니다."
+      }
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * 편지 차단 메서드
    */
   async blockLetter(letterId: number, loginMember: Member) {
