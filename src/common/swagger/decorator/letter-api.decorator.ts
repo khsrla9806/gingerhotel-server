@@ -52,6 +52,41 @@ export function DeleteLetterAPI() {
   );
 }
 
+export function CheckBlockedAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '답장 보내기 전에 상대방에게 차단되었는지 확인', description: 'letterId를 통해서 상대방에게 차단 되었는지 확인한다.' }),
+    ApiOkResponse({
+      description: '차단 여부 확인 완료',
+      schema: {
+        example: {
+          "success": true,
+          "isBlockMe": false,
+          "message": "상대방이 나를 차단하지 않았습니다."
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '차단 여부 확인 실패',
+      schema: {
+        example: {
+          "success": false,
+          "error": "존재하지 않는 편지 정보입니다."
+        }
+      }
+    }),
+    ApiForbiddenResponse({
+      description: '접근 권한 없음 (편지를 받은 사람과 보낸 사람만 접근이 가능)',
+      schema: {
+        example: {
+          "success": false,
+          "error": "접근 권한이 없습니다."
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
 export function BlockLetterAPI() {
   return applyDecorators(
     ApiOperation({ summary: '편지 차단', description: '사용자가 편지를 보낸 사람을 차단합니다.' }),
