@@ -35,10 +35,11 @@ export class HotelService {
    */
   async getHotel(hotelId: number, loginMember: Member): Promise<HotelDetailResponse> {
     try {
-      // 1. 존재하는 호텔 식별자인지 확인
+      // 존재하는 호텔 식별자인지 확인
       const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
-        .innerJoinAndSelect('hotel.member', 'member')
+        .innerJoin('hotel.member', 'member')
+        .select(['hotel', 'member.id', 'member.feekCount', 'member.keyCount'])
         .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
         .getOne();
 
