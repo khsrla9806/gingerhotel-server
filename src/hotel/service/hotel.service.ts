@@ -47,8 +47,18 @@ export class HotelService {
         throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
       }
 
-      // 2. 응답 데이터에 필요한 값들 설정 (오늘 받은 편지 수, 로그인 여부, 호텔 주인 여부, 친구 여부)
-      const todayReceivedLetterCount: number = await this.getTodayReceivedLetterCount(hotel);
+      // 해당 호텔에 관련된 창문의 정보를 모두 가져옴
+      const hotelWindows: HotelWindow[] = await this.hotelWindowRepository
+        .createQueryBuilder('hotelWindow')
+        .select(['hotelWindow.id', 'hotelWindow.date', 'hotelWindow.isOpen', 'hotelWindow.hasCookie'])
+        .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotel.id })
+        .getMany();
+      
+      // 오늘 날짜에 해당하는 창문이 있는지 확인
+      const todayWindow: HotelWindow = this.getTodayWindow(hotelWindows);
+
+      // 응답 데이터에 필요한 값들 설정 (오늘 받은 편지 수, 로그인 여부, 호텔 주인 여부, 친구 여부)
+      const todayReceivedLetterCount: number = await this.getTodayReceivedLetterCount(todayWindow);
       let isLoginMember: boolean = false;
       let isOwner: boolean = false;
       let isFriend: boolean = false;
@@ -85,13 +95,6 @@ export class HotelService {
           }
         }
       }
-    
-      // 3. 호텔과 관련된 창문 상태 정보 확인
-      const hotelWindows: HotelWindow[] = await this.hotelWindowRepository
-        .createQueryBuilder('hotelWindow')
-        .select(['hotelWindow.id', 'hotelWindow.date', 'hotelWindow.isOpen', 'hotelWindow.hasCookie'])
-        .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotel.id })
-        .getMany();
 
       return {
         success: true,
@@ -116,25 +119,31 @@ export class HotelService {
     }
   }
 
-  private async getTodayReceivedLetterCount(hotel: Hotel): Promise<number> {
-    const today: LocalDate = LocalDate.now();
-    const hotelWindow: HotelWindow = await this.hotelWindowRepository
-      .createQueryBuilder('hotelWindow')
-      .where('hotelWindow.date = :today and hotelWindow.hotel.id = :hotelId', { today: today, hotelId: hotel.id })
-      .getOne();
-    
-    if (!hotelWindow) {
+  private getTodayWindow(hotelWindows: HotelWindow[]): HotelWindow {
+    if (hotelWindows) {
+      for (let index: number = 0; index < hotelWindows.length; index++) {
+        if (hotelWindows[index].date.equals(LocalDate.now())) {
+          return hotelWindows[index];
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private async getTodayReceivedLetterCount(todayWindow: HotelWindow): Promise<number> {
+    if (!todayWindow) {
       return 0;
     }
 
     const letterCount: number = await this.letterRepository
       .createQueryBuilder('letter')
-      .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: hotelWindow.id })
+      .where('letter.hotelWindow.id = :hotelWindowId and letter.isDeleted = false', { hotelWindowId: todayWindow.id })
       .getCount();
 
     const replyCount: number = await this.replyRepository
       .createQueryBuilder('reply')
-      .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
+      .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: todayWindow.id })
       .getCount();
 
     return letterCount + replyCount;
