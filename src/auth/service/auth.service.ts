@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
@@ -130,6 +130,9 @@ export class AuthService {
     return null;
   }
 
+  /**
+   * 호텔을 생성하는 메서드
+   */
   async createHotel(member: Member, dto: CreateHotelRequest): Promise<CreateHotelResponse> {
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -151,16 +154,24 @@ export class AuthService {
       }
 
       if (dto.code) {
-        const recommendedMember: Member = await this.memberRepository.findOne({ where: { code: dto.code } });
+        if (member.code === dto.code) {
+          throw new BadRequestException('자기 자신은 추천할 수 없습니다.');
+        }
+
+        const recommendedMember: Member = await this.memberRepository
+          .createQueryBuilder('member')
+          .select(['member.id', 'member.keyCount'])
+          .where('member.code = :code and member.isActive = true', { code: dto.code })
+          .getOne();
 
         if (!recommendedMember) {
           throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`);
         }
-        if (member.id === recommendedMember.id) {
-          throw new BadRequestException('자기 자신은 추천할 수 없습니다.');
-        }
-        recommendedMember.keyCount++;
-        await queryRunner.manager.save(recommendedMember);
+
+        member.keyCount++;
+        await queryRunner.manager.query(
+          `UPDATE member SET key_count = ${recommendedMember.keyCount + 1} WHERE id = ${recommendedMember.id}`
+        );
       }
 
       const savedMember = await queryRunner.manager.save(member);
