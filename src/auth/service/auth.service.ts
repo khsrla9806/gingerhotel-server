@@ -187,4 +187,33 @@ export class AuthService {
     }
   }
 
+  /**
+   * 사용자 코드로 존재하는 유저인지 확인하는 코드
+   */
+  async checkMemeberByCode(loginMember: Member, code: string) {
+    try {
+      if (loginMember.code === code) {
+        throw new BadRequestException('자신의 코드는 입력할 수 없습니다.');
+      }
+
+      const member: Member = await this.memberRepository
+        .createQueryBuilder('member')
+        .select(['member.id'])
+        .where('member.code = :code and member.isActive = true', { code: code })
+        .getOne();
+
+      if (!member) {
+        throw new BadRequestException('잘못된 친구 코드입니다.');
+      }
+
+      return {
+        success: true,
+        message: '친구 코드 확인 완료'
+      }
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
