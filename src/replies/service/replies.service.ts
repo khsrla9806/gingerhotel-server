@@ -43,9 +43,9 @@ export class RepliesService {
     await queryRunner.startTransaction();
 
     try {
-      // 1. 요청한 사용자의 멤버쉽이 답장 기능을 사용할 수 있는지 확인
-      if (!loginMember.getMembershipInfo().isPossibleReply) {
-        throw new BadRequestException(`답장 기능을 사용할 수 없는 멤버쉽의 사용자입니다. : ${loginMember.membership}`);
+      // 1. 광고 시청을 통해 답장 기능이 사용이 가능한지 확인 (TODO)
+      if (false) {
+        throw new BadRequestException('답장 기능을 사용할 수 없습니다.');
       }
 
       // 2. 존재하는 편지인지 확인
@@ -96,9 +96,9 @@ export class RepliesService {
         throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
       }
 
-      // 5. 이미지 파일 존재 여부 확인 (member의 멤버쉽 체크)
-      if (image && !loginMember.getMembershipInfo().isPossibleAttachImage) {
-        throw new BadRequestException("이미지 첨부를 할 수 없는 멤버쉽 정보입니다.");
+      // 5. 이미지 파일 존재 여부 확인 & 이미지 첨부 가능한지 여부 확인 -> 광고 시청 (TODO)
+      if (image && false) {
+        throw new BadRequestException("이미지 첨부 기능을 사용할 수 없습니다.");
       }
 
       // 5. 오늘 날짜 확인 (yyyy-MM-dd) 후 오늘 날짜에 해당하는 호텔 창문이 존재하는지 쿼리
@@ -121,7 +121,9 @@ export class RepliesService {
       // 7. 답장 수신자의 편지 개수 제한을 확인
       const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
       const recipient: Member = recipientsHotel.member;
-      if (recipient.getMembershipInfo().hasLetterLimit) {
+
+      // 멤버쉽 기능 사라짐에 따라서 편지 받는 개수 제한 로직 변경 (TODO)
+      if (false) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
       }
 

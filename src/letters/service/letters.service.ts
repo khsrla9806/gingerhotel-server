@@ -77,9 +77,9 @@ export class LettersService {
         throw new BadRequestException("자신의 호텔에는 편지를 쓸 수 없습니다.");
       }
 
-      // 3. 이미지 파일 존재 여부 확인 (member의 멤버쉽 체크)
-      if (image && !loginMember.getMembershipInfo().isPossibleAttachImage) {
-        throw new BadRequestException("이미지 첨부를 할 수 없는 멤버쉽 정보입니다.");
+      // 3. 이미지 파일 존재 여부 확인 + 광고 봤는지 여부 (TODO)
+      if (image && false) {
+        throw new BadRequestException("이미지 첨부기능을 사용할 수 없습니다.");
       }
 
       // 4. 오늘 날짜 확인 (yyyy-MM-dd) 후 오늘 날짜에 해당하는 호텔 창문이 존재하는지 쿼리
@@ -102,7 +102,8 @@ export class LettersService {
       // 6. 받는 사람이 수신 편지 개수 제한이 있는지 확인
       const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
 
-      if (hotel.member.getMembershipInfo().hasLetterLimit) {
+      // 편지 제한 개수 확인. 멤버쉽 기능 사라져서 로직 수정해야 합니다. (TODO)
+      if (false) {
         this.checkMaximumReceivedLetterCount(recievedLetterCount);
       }
 
