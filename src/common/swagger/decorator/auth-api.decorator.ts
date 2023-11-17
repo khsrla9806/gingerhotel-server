@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CreateHotelRequest } from "src/auth/dto/create-hotel.dto";
 import { Vendor } from "src/entities/domain/vendor.type";
 
@@ -42,6 +42,31 @@ export function CreateHotelAPI() {
         example: {
           success: true,
           hotelId: 2
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
+export function CheckMemberByCodeAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '사용자 코드로 사용자 확인하기', description: '사용자 입력한 코드에 해당하는 사용자가 있는지 확인합니다.' }),
+    ApiOkResponse({
+      description: '사용자 확인에 성공',
+      schema: {
+        example: {
+          "success": true,
+          "message": '친구 코드 확인 완료'
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '사용자 확인에 실패',
+      schema: {
+        example: {
+          "success": false,
+          "message": '잘못된 친구 코드입니다. | 자신의 코드는 입력할 수 없습니다.'
         }
       }
     }),

@@ -10,7 +10,7 @@ import { Response } from 'express';
 import { CreateHotelRequest } from '../dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from '../pipes/create-hotel.validation.pipe';
-import { CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
+import { CheckMemberByCodeAPI, CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
 import { OAuth2Client } from 'google-auth-library';
 import { MemberCodeValidationPipe } from '../pipes/member-code.validation.pipe';
 
@@ -64,6 +64,7 @@ export class AuthController {
   }
 
   @Get('/member')
+  @CheckMemberByCodeAPI()
   @UseGuards(AuthGuard())
   async checkMemberByCode(@LoginMember() loginMember: Member, @Query('code', MemberCodeValidationPipe) code: string) {
     return await this.authService.checkMemeberByCode(loginMember, code);
