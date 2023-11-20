@@ -1,6 +1,7 @@
 import { CommonResponse } from "src/common/dto/output.dto";
 
 export class HotelDetailResponse extends CommonResponse {
+  canReceiveLetterToday?: boolean;
   todayReceivedLetterCount?: number;
   feekCount?: number;
   keyCount?: number;

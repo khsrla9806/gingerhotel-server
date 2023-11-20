@@ -39,7 +39,7 @@ export class HotelService {
       const hotel: Hotel = await this.hotelRepository
         .createQueryBuilder('hotel')
         .innerJoin('hotel.member', 'member')
-        .select(['hotel', 'member.id', 'member.feekCount', 'member.keyCount'])
+        .select(['hotel', 'member.id', 'member.membership', 'member.feekCount', 'member.keyCount'])
         .where('hotel.id = :hotelId and member.isActive = true', { hotelId: hotelId })
         .getOne();
 
@@ -50,7 +50,7 @@ export class HotelService {
       // 해당 호텔에 관련된 창문의 정보를 모두 가져옴
       const hotelWindows: HotelWindow[] = await this.hotelWindowRepository
         .createQueryBuilder('hotelWindow')
-        .select(['hotelWindow.id', 'hotelWindow.date', 'hotelWindow.isOpen', 'hotelWindow.hasCookie'])
+        .select(['hotelWindow.id', 'hotelWindow.date', 'hotelWindow.isOpen', 'hotelWindow.hasCookie', 'hotelWindow.hasLimit'])
         .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotel.id })
         .getMany();
       
@@ -59,6 +59,7 @@ export class HotelService {
 
       // 응답 데이터에 필요한 값들 설정 (오늘 받은 편지 수, 로그인 여부, 호텔 주인 여부, 친구 여부)
       const todayReceivedLetterCount: number = await this.getTodayReceivedLetterCount(todayWindow);
+      let canReceiveLetterToday: boolean = this.getCanReceiveLetterToday(hotel.member, todayWindow, todayReceivedLetterCount);
       let isLoginMember: boolean = false;
       let isOwner: boolean = false;
       let isFriend: boolean = false;
@@ -98,6 +99,7 @@ export class HotelService {
 
       return {
         success: true,
+        canReceiveLetterToday: canReceiveLetterToday,
         todayReceivedLetterCount: todayReceivedLetterCount,
         feekCount: hotel.member.feekCount,
         keyCount: hotel.member.keyCount,
@@ -147,6 +149,21 @@ export class HotelService {
       .getCount();
 
     return letterCount + replyCount;
+  }
+
+  private getCanReceiveLetterToday(member: Member, todayHotelWindow: HotelWindow, todayRecivedLetterCount: number): boolean {
+    // member의 멤버쉽 상태가 편지 제한이 없거나, 오늘 날짜에 해당하는 호텔 창문이 존재하지 않는 경우에는 무조건 추가 편지를 받을 수 있다.
+    if (!member.getMembershipInfo().hasLetterLimit || !todayHotelWindow) {
+      return true;
+    }
+
+    // 오늘 날짜의 호텔 창문에 제한이 있다면 최대 20개, 없다면 최대 100개까지 수신이 가능하다.
+    let maxLetterCount: number = 20;
+    if (!todayHotelWindow.hasLimit) {
+      maxLetterCount = 100;
+    }
+
+    return todayRecivedLetterCount < maxLetterCount;
   }
 
   private convertHotelWindowsToJSON(hotelWindows: HotelWindow[]): object {
