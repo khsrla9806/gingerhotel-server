@@ -122,9 +122,13 @@ export class RepliesService {
       const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
       const recipient: Member = recipientsHotel.member;
 
-      // 멤버쉽 기능 사라짐에 따라서 편지 받는 개수 제한 로직 변경 (TODO)
-      if (false) {
-        this.checkMaximumReceivedLetterCount(recievedLetterCount);
+      if (recipient.getMembershipInfo().hasLetterLimit) {
+        let maxLetterCount: number = 20;
+        // 광고로 편지 제한을 풀어서 hotelWindow의 hasLimit가 false인 경우에는 maxLetterCount가 100으로 설정
+        if (!hotelWindow.hasLimit) {
+          maxLetterCount = 100;
+        }
+        this.checkMaximumReceivedLetterCount(maxLetterCount, recievedLetterCount);
       }
 
       // 8. 이미지와 편지 저장
@@ -221,10 +225,8 @@ export class RepliesService {
     return letterCount + replyCount;
   }
 
-  private checkMaximumReceivedLetterCount(recievedLetterCount: number) {
-    const maximumReceivedLetterCount = 20; // 편지 수신 제한 개수 20개로 고정
-
-    if (recievedLetterCount >= maximumReceivedLetterCount) {
+  private checkMaximumReceivedLetterCount(maxLetterCount: number, recievedLetterCount: number) {
+    if (recievedLetterCount >= maxLetterCount) {
       throw new BadRequestException(`수신자가 하루에 받을 수 있는 개수를 넘어섰습니다. : ${recievedLetterCount}`);
     }
   }
