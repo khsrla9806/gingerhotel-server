@@ -50,4 +50,14 @@ export class HotelController {
   ) {
     return await this.hotelService.openWindow(hotelId, date, loginMember);
   }
+
+  @Post('/:hotelId/unlimit/window')
+  @UseGuards(AuthGuard())
+  async unlimitWindow(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+    @Query('date', StringToLocalDateValidationPipe) date: LocalDate,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.hotelService.unlimitWindow(hotelId, date, loginMember);
+  }
 }

@@ -254,4 +254,45 @@ export class HotelService {
       await queryRunner.release();
     }
   }
+
+  /**
+   * 오늘 창문(편지함)의 제한 수를 해제 (20개 -> 100개)
+   */
+  async unlimitWindow(hotelId: number, date: LocalDate, loginMember: Member) {
+    
+    try {
+      const hotelWindow: HotelWindow = await this.hotelWindowRepository
+        .createQueryBuilder('hotelWindow')
+        .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotelId })
+        .innerJoin('hotel.member', 'member')
+        .select(['hotelWindow', 'hotel.id', 'member.id'])
+        .where('hotelWindow.date = :date', { date: date })
+        .getOne();
+
+      if (!hotelWindow) {
+        throw new BadRequestException('존재하지 않는 창문입니다.');
+      }
+
+      const hotelOwner: Member = hotelWindow.hotel.member;
+
+      if (hotelOwner.id !== loginMember.id) {
+        throw new ForbiddenException('내 호텔의 창문이 아닙니다.');
+      }
+
+      if (!hotelWindow.hasLimit) {
+        throw new ForbiddenException('오늘 편지 제한수를 이미 해제했습니다.');
+      }
+
+      await this.hotelWindowRepository.manager.query(
+        `UPDATE hotel_window SET has_limit = false WHERE id = ${hotelWindow.id}`
+      );
+
+      return {
+        success: true
+      }
+    } catch (error) {
+      
+      throw error;
+    }
+  }
 }
