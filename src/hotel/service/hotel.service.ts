@@ -280,7 +280,7 @@ export class HotelService {
       }
 
       if (!hotelWindow.hasLimit) {
-        throw new ForbiddenException('오늘 편지 제한수를 이미 해제했습니다.');
+        throw new BadRequestException('오늘 편지 제한수를 이미 해제했습니다.');
       }
 
       await this.hotelWindowRepository.manager.query(
