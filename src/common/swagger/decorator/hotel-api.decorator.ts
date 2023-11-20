@@ -143,7 +143,7 @@ export function UnlimitWindowAPI() {
       }
     }),
     ApiForbiddenResponse({
-      description: '창문 개방 실패',
+      description: '편지 제한수 해제 실패 (권한 없음)',
       schema: {
         example: {
           success: false,
