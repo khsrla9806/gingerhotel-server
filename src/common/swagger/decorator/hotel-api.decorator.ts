@@ -10,6 +10,7 @@ export function GetHotelAPI() {
       schema: {
         example: {
           success: true,
+          canReceiveLetterToday: true,
           todayReceivedLetterCount: 8,
           feekCount: 18,
           keyCount: 0,
