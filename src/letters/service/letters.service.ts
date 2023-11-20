@@ -16,6 +16,7 @@ import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
 import { Feek } from 'src/entities/feek.entity';
 import { S3Service, S3UploadResponse } from 'src/common/utils/s3.service';
+import { LetterLimit } from 'src/entities/domain/letter-limit.type';
 
 @Injectable()
 export class LettersService {
@@ -104,10 +105,10 @@ export class LettersService {
       const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
 
       if (hotel.member.getMembershipInfo().hasLetterLimit) {
-        let maxLetterCount: number = 20;
+        let maxLetterCount: number = LetterLimit.limitCount;
         // 광고로 편지 제한을 풀어서 hotelWindow의 hasLimit가 false인 경우에는 maxLetterCount가 100으로 설정
         if (!hotelWindow.hasLimit) {
-          maxLetterCount = 100;
+          maxLetterCount = LetterLimit.unlimitCount;
         }
         this.checkMaximumReceivedLetterCount(maxLetterCount, recievedLetterCount);
       }

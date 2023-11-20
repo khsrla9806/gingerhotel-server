@@ -11,6 +11,7 @@ import { LocalDate } from '@js-joda/core';
 import { Village } from 'src/entities/village.entity';
 import { HotelUpdateRequest } from '../dto/hotel-update.dto';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
+import { LetterLimit } from 'src/entities/domain/letter-limit.type';
 
 @Injectable()
 export class HotelService {
@@ -158,9 +159,9 @@ export class HotelService {
     }
 
     // 오늘 날짜의 호텔 창문에 제한이 있다면 최대 20개, 없다면 최대 100개까지 수신이 가능하다.
-    let maxLetterCount: number = 20;
+    let maxLetterCount: number = LetterLimit.limitCount;
     if (!todayHotelWindow.hasLimit) {
-      maxLetterCount = 100;
+      maxLetterCount = LetterLimit.unlimitCount;
     }
 
     return todayRecivedLetterCount < maxLetterCount;
