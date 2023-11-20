@@ -115,3 +115,42 @@ export function OpenWindowAPI() {
     ApiBearerAuth('Authorization')
   );
 }
+
+export function UnlimitWindowAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '해당 날짜의 편지 제한수를 해제', description: '해당 날짜에 해당하는 편지함의 편지 제한수를 해제합니다.' }),
+    ApiQuery({
+      name: 'date',
+      type: 'yyyy-MM-dd',
+      example: '2023-12-01',
+      description: '제한 해제하려는 창문(편지함)의 날짜를 입력 (Ex. 1번 창문의 경우 2023-12-01)'
+    }),
+    ApiCreatedResponse({
+      description: '편지 제한수 해제 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '편지 제한수 해제 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '존재하지 않는 창문입니다. | 오늘 편지 제한수를 이미 해제했습니다.'
+        }
+      }
+    }),
+    ApiForbiddenResponse({
+      description: '창문 개방 실패',
+      schema: {
+        example: {
+          success: false,
+          error: '내 호텔의 창문이 아닙니다.'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}

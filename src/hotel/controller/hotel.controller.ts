@@ -4,7 +4,7 @@ import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { MemberInterceptor } from 'src/auth/interceptor/member.interceptor';
 import { ApiTags } from '@nestjs/swagger';
-import { GetHotelAPI, OpenWindowAPI, UpdateHotelAPI } from 'src/common/swagger/decorator/hotel-api.decorator';
+import { GetHotelAPI, OpenWindowAPI, UnlimitWindowAPI, UpdateHotelAPI } from 'src/common/swagger/decorator/hotel-api.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { HotelUpdateRequest } from '../dto/hotel-update.dto';
 import { UpdateHotelValidationPipe } from '../pipes/update-hotel.validation.pipe';
@@ -53,6 +53,7 @@ export class HotelController {
 
   @Post('/:hotelId/unlimit/window')
   @UseGuards(AuthGuard())
+  @UnlimitWindowAPI()
   async unlimitWindow(
     @Param('hotelId', ParseIntPipe) hotelId: number,
     @Query('date', StringToLocalDateValidationPipe) date: LocalDate,
