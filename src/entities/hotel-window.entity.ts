@@ -25,4 +25,7 @@ export class HotelWindow extends CoreEntity {
 
   @Column({ default: false })
   hasCookie: boolean;
+
+  @Column({ default: true })
+  hasLimit: boolean;
 }
