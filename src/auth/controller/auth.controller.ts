@@ -14,6 +14,9 @@ import { CheckMemberByCodeAPI, CreateHotelAPI, SocialLoginAPI } from 'src/common
 import { OAuth2Client } from 'google-auth-library';
 import { MemberCodeValidationPipe } from '../pipes/member-code.validation.pipe';
 
+import * as jwt from "jsonwebtoken";
+import verifyAppleToken from "verify-apple-id-token";
+
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
@@ -52,8 +55,18 @@ export class AuthController {
 
   @Post('/apple')
   @SocialLoginAPI(Vendor.APPLE, AppleSocialRequest)
-  async appleSocialLogin(@Body() dto: AppleSocialRequest, @Res() response: Response) {
-    response.json(await this.authService.socialLogin(dto.email, dto.sub, Vendor.APPLE, response));
+  async appleSocialLogin(@Body('token') token, @Res() response: Response) {
+    // Todo: Need to validation apple auth.
+    const appleData = jwt.decode(token);
+    /* Need to find out how to handle the client ID.
+    // client id 
+    const jwtClaims = await verifyAppleToken({ 
+      idToken: token,
+      clientId: "com.teamginger.gingerhoteltest", // or ["app1ClientId", "app2ClientId"]
+      nonce: "nonce", // optional
+    });*/
+    
+    response.json(await this.authService.socialLogin(appleData["email"], appleData["sub"].toString(), Vendor.APPLE, response));
   }
 
   @Post('/hotel')
