@@ -1,12 +1,12 @@
-import { Body, Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { AppleSocialRequest, GoogleSocialRequest, KakaoSocialRequest, NaverSocialRequest } from '../dto/social-login.dto';
 import { AuthService } from '../service/auth.service';
 import { Vendor } from 'src/entities/domain/vendor.type';
 import { AuthGuard } from '@nestjs/passport';
 import { Member } from 'src/entities/member.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginMember } from '../decorator/login-member.decorator';
-import { Response } from 'express';
+import { Response, response } from 'express';
 import { CreateHotelRequest } from '../dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from '../pipes/create-hotel.validation.pipe';
@@ -70,4 +70,26 @@ export class AuthController {
     return await this.authService.checkMemeberByCode(loginMember, code);
   }
 
+  @Post('/test')
+  @ApiOperation({description: '임시 소셜 로그인 API', deprecated: true })
+  async testSocialLogin(
+    @Body() { socialId, vendor },
+    @Res() response: Response
+  ) {
+    let socialVendor: Vendor = null;
+
+    if (vendor === 'GOOGLE') {
+      socialVendor = Vendor.GOOGLE;
+    } else if (vendor === 'APPLE') {
+      socialVendor = Vendor.APPLE;
+    } else if (vendor === 'NAVER') {
+      socialVendor = Vendor.NAVER;
+    } else if (vendor === 'KAKAO') {
+      socialVendor = Vendor.KAKAO;
+    } else {
+      throw new BadRequestException('vendor는 GOOGLE, APPLE, NAVER, KAKAO 중에서 한 개를 입력해야 합니다.');
+    }
+
+    response.json(await this.authService.socialLogin(null, socialId, socialVendor, response));
+  }
 }
