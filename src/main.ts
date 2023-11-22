@@ -16,6 +16,13 @@ async function bootstrap() {
       return new BadRequestException(result);
     },
   }));
+  /* cors setting start */
+  app.enableCors({
+    origin: ['https://www.ginger-hotel.site', 'https://www.gingerhotel.site', 'http://localhost:8081'],
+    credentials: true,
+    exposedHeaders: ['Authorization']
+  });
+  /* cors setting end */
 
   /* swagger security start */
   app.use(
