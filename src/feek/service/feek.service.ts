@@ -4,11 +4,14 @@ import { FeekStatus } from 'src/entities/domain/feek-status.type';
 import { Feek } from 'src/entities/feek.entity';
 import { Letter } from 'src/entities/letter.entity';
 import { Member } from 'src/entities/member.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { AcceptFeekRequest } from '../dto/accept-feek.dto';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
+import { Device } from 'src/entities/device.entity';
+import { DeviceStatus } from 'src/entities/domain/device-status.type';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class FeekService {
@@ -93,16 +96,19 @@ export class FeekService {
       const feekTypeDataObject = {
         feekId: feek.id
       };
+      let notificationMessage: string = `${letter.hotelWindow.hotel.nickname}님께서 엿보기를 요청했어요!`;
       const notification: NotificationHistory = queryRunner.manager
         .getRepository(NotificationHistory)
         .create({
           member: letter.sender,
           type: NotificationType.FEEK_REQUEST,
           typeData: JSON.stringify(feekTypeDataObject),
-          message: `${letter.hotelWindow.hotel.nickname}님께서 엿보기를 요청했어요!`,
+          message: notificationMessage,
           isChecked: false
         });
       await queryRunner.manager.save(notification);
+
+      await this.pushNotification(queryRunner, letter.sender.id, notificationMessage, feekTypeDataObject);
 
       await queryRunner.commitTransaction();
 
@@ -207,17 +213,22 @@ export class FeekService {
           hotelId: feek.letter.hotelWindow.hotel.id,
           date: feek.letter.hotelWindow.date.toString()
         };
+        let notificationMessage: string = `${feek.letter.senderNickname}님께서 엿보기를 수락했어요!`;
+
         const notification: NotificationHistory = queryRunner.manager
           .getRepository(NotificationHistory)
           .create({
             member: feek.requestor,
             type: NotificationType.FEEK_ACCEPT,
             typeData: JSON.stringify(feekAcceptTypeDataObject),
-            message: `${feek.letter.senderNickname}님께서 엿보기를 수락했어요!`,
+            message: notificationMessage,
             isChecked: false
           });
         await queryRunner.manager.save(notification);
+
+        await this.pushNotification(queryRunner, feek.requestor.id, notificationMessage, feekAcceptTypeDataObject);
       }
+
       await queryRunner.commitTransaction();
 
       return {
@@ -279,16 +290,20 @@ export class FeekService {
           hotelId: feek.letter.hotelWindow.hotel.id,
           date: feek.letter.hotelWindow.date.toString()
         };
+
+        let notificationMessage: string = `${feek.letter.senderNickname}님께서 엿보기를 거절했어요 :(`;
         const notification: NotificationHistory = queryRunner.manager
           .getRepository(NotificationHistory)
           .create({
             member: feek.requestor,
             type: NotificationType.FEEK_REJECT,
             typeData: JSON.stringify(feekRejectTypeDataObject),
-            message: `${feek.letter.senderNickname}님께서 엿보기를 거절했어요 :(`,
+            message: notificationMessage,
             isChecked: false
           });
         await queryRunner.manager.save(notification);
+
+        await this.pushNotification(queryRunner, feek.requestor.id, notificationMessage, feekRejectTypeDataObject);
       }
       await queryRunner.commitTransaction();
 
@@ -304,5 +319,46 @@ export class FeekService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async pushNotification(
+    queryRunner: QueryRunner, 
+    memberId: number, 
+    notificationMessage: string, 
+    typeDataObject: any
+  ) {
+    // 디바이스가 존재한다면 푸시 알림을 보냄
+    const devices: Device[] = await queryRunner.manager.getRepository(Device)
+    .createQueryBuilder('device')
+    .where('device.member.id = :memberId', { memberId: memberId })
+    .getMany();
+
+    // 푸시 알림을 못 보내면 그만이기 때문에 try-catch로 잡아서 예외를 그냥 버림 (푸시 알림 때문에 편지가 안 보내지면 안 되기 때문에)
+    try {
+      if (devices && devices.length > 0) {
+        // device를 순회하면서 push 알림을 보냄
+        for (let i = 0; i < devices.length; i++) {
+          const device: Device = devices[i];
+          if (device.status === DeviceStatus.granted) {
+            const message = {
+              to: device.token,
+              sound: 'default',
+              title: notificationMessage,
+              body: '',
+              data: typeDataObject
+            }
+            await fetch("https://exp.host/--/api/v2/push/send", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Accept-encoding": "gzip, deflate",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(message),
+            });
+          }
+        }
+      }
+    } catch (error) {}
   }
 }

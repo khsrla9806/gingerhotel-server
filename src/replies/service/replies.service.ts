@@ -14,6 +14,9 @@ import { NotificationHistory } from 'src/entities/notification-history.entity';
 import { NotificationType } from 'src/entities/domain/notification.type';
 import { S3Service, S3UploadResponse } from 'src/common/utils/s3.service';
 import { LetterLimit } from 'src/entities/domain/letter-limit.type';
+import { Device } from 'src/entities/device.entity';
+import { DeviceStatus } from 'src/entities/domain/device-status.type';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class RepliesService {
@@ -145,22 +148,13 @@ export class RepliesService {
         imageUrl: imageURL
       }));
 
-      // 9. 답장 수신자에게 알림을 추가
+      // 9. 답장 알림 Object 생성
       const replyTypeDataObject = {
         letterId: letter.id
       };
-      const notification: NotificationHistory = queryRunner.manager
-        .getRepository(NotificationHistory)
-        .create({
-          member: recipient,
-          type: NotificationType.REPLY,
-          typeData: JSON.stringify(replyTypeDataObject),
-          message: `편지함에 답장이 도착했어요!`,
-          isChecked: false
-        });
-      await queryRunner.manager.save(notification);
+      let notificationMessage: string;
 
-      // 10. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
+      // 10. 답장을 받아 창문이 열리는 경우에는 창문 열림 알림을 보냄, 그 외에는 답장 알림을 보냄
       if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
         await queryRunner.manager.save(hotelWindow); // Update 반영
 
@@ -169,15 +163,61 @@ export class RepliesService {
           date: today.toString()
         };
 
-        // 창문 열림 알림
+        notificationMessage = '오늘의 창문이 열렸어요! 확인하러 갈까요?';
         await queryRunner.manager.save(queryRunner.manager.getRepository(NotificationHistory).create({
           member: recipient,
           type: NotificationType.WINDOW_OPEN,
           typeData: JSON.stringify(windowOpenTypeObject),
-          message: '오늘의 창문이 열렸어요! 확인하러 갈까요?',
+          message: notificationMessage,
           isChecked: false
         }));
+      } else {
+        notificationMessage = '편지함에 답장이 도착했어요!';
+        const notification: NotificationHistory = queryRunner.manager
+          .getRepository(NotificationHistory)
+          .create({
+            member: recipient,
+            type: NotificationType.REPLY,
+            typeData: JSON.stringify(replyTypeDataObject),
+            message: notificationMessage,
+            isChecked: false
+          });
+        await queryRunner.manager.save(notification);
       }
+
+      // 10. 디바이스가 존재한다면 푸시 알림을 보냄
+      const devices: Device[] = await queryRunner.manager.getRepository(Device)
+        .createQueryBuilder('device')
+        .where('device.member.id = :memberId', { memberId: recipient.id })
+        .getMany();
+
+      // 푸시 알림을 못 보내면 그만이기 때문에 try-catch로 잡아서 예외를 그냥 버림 (푸시 알림 때문에 편지가 안 보내지면 안 되기 때문에)
+      try {
+        if (devices && devices.length > 0) {
+          // device를 순회하면서 push 알림을 보냄
+          for (let i = 0; i < devices.length; i++) {
+            const device: Device = devices[i];
+            if (device.status === DeviceStatus.granted) {
+              const message = {
+                to: device.token,
+                sound: 'default',
+                title: notificationMessage,
+                body: '',
+                data: replyTypeDataObject
+              }
+              await fetch("https://exp.host/--/api/v2/push/send", {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Accept-encoding": "gzip, deflate",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(message),
+              });
+            }
+          }
+        }
+      } catch (error) {}
       
       await queryRunner.commitTransaction();
 
