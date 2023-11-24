@@ -3,10 +3,11 @@ import { NotificationsController } from './controller/notifications.controller';
 import { NotificationsService } from './service/notifications.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationHistory } from 'src/entities/notification-history.entity';
+import { Device } from 'src/entities/device.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([NotificationHistory])
+    TypeOrmModule.forFeature([NotificationHistory, Device])
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService]

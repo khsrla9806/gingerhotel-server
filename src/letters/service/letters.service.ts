@@ -17,6 +17,9 @@ import { NotificationType } from 'src/entities/domain/notification.type';
 import { Feek } from 'src/entities/feek.entity';
 import { S3Service, S3UploadResponse } from 'src/common/utils/s3.service';
 import { LetterLimit } from 'src/entities/domain/letter-limit.type';
+import { Device } from 'src/entities/device.entity';
+import { DeviceStatus } from 'src/entities/domain/device-status.type';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class LettersService {
@@ -126,35 +129,72 @@ export class LettersService {
         isBlocked: false
       }));
 
-      // 8. 편지 수신자에게 알림을 남김
+      // 8. 편지 알림 Data Object 생성
       const letterTypeDataObject = {
         hotelId: hotel.id,
         date: today.toString()
       };
-      const notification: NotificationHistory = queryRunner.manager
-        .getRepository(NotificationHistory)
-        .create({
-          member: hotel.member,
-          type: NotificationType.LETTER,
-          typeData: JSON.stringify(letterTypeDataObject),
-          message: '두근두근! 새 편지 도착!',
-          isChecked: false
-        });
-      await queryRunner.manager.save(notification);
 
-      // 9. 편지를 받는 사람이 받아야 하는 편지수를 채운 경우 창문 OPEN
+      let notificationMessage: string;
+
+      // 9. 편지를 받아서 창문이 열리는 경우에는 창문 열림 알림을 보내고, 열리지 않은 경우에는 편지 도착 알림을 보낸다.
       if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
-        await queryRunner.manager.save(hotelWindow); // Update 반영
-
-        // 창문 열림 알림
+        await queryRunner.manager.save(hotelWindow);
+        notificationMessage = '오늘의 창문이 열렸어요! 확인하러 갈까요?';
         await queryRunner.manager.save(queryRunner.manager.getRepository(NotificationHistory).create({
           member: hotel.member,
           type: NotificationType.WINDOW_OPEN,
           typeData: JSON.stringify(letterTypeDataObject),
-          message: '오늘의 창문이 열렸어요! 확인하러 갈까요?',
+          message: notificationMessage,
           isChecked: false
         }));
+      } else {
+        notificationMessage = '두근두근! 새 편지 도착!';
+        const notification: NotificationHistory = queryRunner.manager
+          .getRepository(NotificationHistory)
+          .create({
+            member: hotel.member,
+            type: NotificationType.LETTER,
+            typeData: JSON.stringify(letterTypeDataObject),
+            message: notificationMessage,
+            isChecked: false
+          });
+        await queryRunner.manager.save(notification);
       }
+
+      // 10. 디바이스가 존재한다면 푸시 알림을 보냄
+      const devices: Device[] = await queryRunner.manager.getRepository(Device)
+        .createQueryBuilder('device')
+        .where('device.member.id = :memberId', { memberId: hotel.member.id })
+        .getMany();
+
+      // 푸시 알림을 못 보내면 그만이기 때문에 try-catch로 잡아서 예외를 그냥 버림 (푸시 알림 때문에 편지가 안 보내지면 안 되기 때문에)
+      try {
+        if (devices && devices.length > 0) {
+          // device를 순회하면서 push 알림을 보냄
+          for (let i = 0; i < devices.length; i++) {
+            const device: Device = devices[i];
+            if (device.status === DeviceStatus.granted) {
+              const message = {
+                to: device.token,
+                sound: 'default',
+                title: notificationMessage,
+                body: '',
+                data: letterTypeDataObject
+              }
+              await fetch("https://exp.host/--/api/v2/push/send", {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Accept-encoding": "gzip, deflate",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(message),
+              });
+            }
+          }
+        }
+      } catch (error) {}
       
       await queryRunner.commitTransaction();
 
