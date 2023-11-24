@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { NotificationsService } from '../service/notifications.service';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
@@ -6,6 +6,7 @@ import { Member } from 'src/entities/member.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { DeleteNotificationAPI, GetNotificationsAPI } from 'src/common/swagger/decorator/notification-api.decorator';
 import { CursorPageOptionDTO } from '../../common/dto/cursor-page-option.dto';
+import { CreateDeviceRequestDTO } from '../dto/create-device.dto';
 
 
 @Controller('notifications')
@@ -33,5 +34,14 @@ export class NotificationsController {
     @LoginMember() loginMember: Member
   ) {
     return await this.notificationService.deleteNotification(notificationId, loginMember);
+  }
+
+  @Post('/device')
+  @UseGuards(AuthGuard())
+  async createDevice(
+    @LoginMember() loginMember: Member, 
+    @Body() createDeviceRequest: CreateDeviceRequestDTO
+  ) {
+    return await this.notificationService.createDevice(loginMember, createDeviceRequest);
   }
 }
