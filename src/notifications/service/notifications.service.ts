@@ -8,12 +8,17 @@ import { CursorPageOptionDTO } from '../../common/dto/cursor-page-option.dto';
 import { Order } from '../../common/dto/cursor-page-order.enum';
 import { CursorPageMetaDTO } from 'src/common/dto/cursor-page-meta.dto';
 import { CursorPageDTO } from 'src/common/dto/cursor-page.dto';
+import { CreateDeviceRequestDTO } from '../dto/create-device.dto';
+import { Device } from 'src/entities/device.entity';
+import { CommonResponse } from 'src/common/dto/output.dto';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(NotificationHistory)
-    private readonly notificationHistoryRepository: Repository<NotificationHistory>
+    private readonly notificationHistoryRepository: Repository<NotificationHistory>,
+    @InjectRepository(Device)
+    private readonly deviceRepository: Repository<Device>
   ) {}
 
   /**
@@ -90,6 +95,39 @@ export class NotificationsService {
       return {
         success: true
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 사용자의 디바이스 등록
+   */
+  async createDevice(loginMember: Member, createDeviceRequest: CreateDeviceRequestDTO): Promise<CommonResponse> {
+    try {
+      const token: string = createDeviceRequest.getToken();
+
+      const isExistDevice: boolean = await this.deviceRepository
+        .createQueryBuilder('device')
+        .where('device.member.id = :memberId and device.token = :token', { memberId: loginMember.id, token: token })
+        .getExists();
+
+      if (isExistDevice) {
+        throw new BadRequestException('The device token is already registered as login user.');
+      }
+
+      const device: Device = this.deviceRepository.create({
+        member: loginMember,
+        token: createDeviceRequest.getToken(),
+        status: createDeviceRequest.getStatus()
+      });
+
+      await this.deviceRepository.save(device);
+
+      return {
+        success: true
+      }
+
     } catch (error) {
       throw error;
     }
