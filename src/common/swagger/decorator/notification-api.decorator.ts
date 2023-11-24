@@ -1,6 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
 import { CursorPageOptionDTO } from "src/common/dto/cursor-page-option.dto";
+import { CreateDeviceRequestDTO } from "src/notifications/dto/create-device.dto";
 
 export function GetNotificationsAPI() {
   return applyDecorators(
@@ -145,6 +146,34 @@ export function DeleteNotificationAPI() {
         example: {
           success: false,
           error: "존재하지 않는 알림 정보입니다. | 내 알림만 삭제가 가능합니다."
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}
+
+export function CreateDeviceAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '푸시 알림을 위한 디바이스 등록', description: '푸시 알림을 위한 디바이스 정보를 등록합니다.' }),
+    ApiBody({ 
+      description: '디바이스 등록을 위한 ', 
+      type: CreateDeviceRequestDTO
+    }),
+    ApiOkResponse({
+      description: '디바이스 등록 성공',
+      schema: {
+        example: {
+          "success": true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '디바이스 등록 실패',
+      schema: {
+        example: {
+          "success": false,
+          "error": "The device token is already registered as login user."
         }
       }
     }),

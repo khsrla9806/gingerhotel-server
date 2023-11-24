@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { ApiTags } from '@nestjs/swagger';
-import { DeleteNotificationAPI, GetNotificationsAPI } from 'src/common/swagger/decorator/notification-api.decorator';
+import { CreateDeviceAPI, DeleteNotificationAPI, GetNotificationsAPI } from 'src/common/swagger/decorator/notification-api.decorator';
 import { CursorPageOptionDTO } from '../../common/dto/cursor-page-option.dto';
 import { CreateDeviceRequestDTO } from '../dto/create-device.dto';
 
@@ -38,6 +38,7 @@ export class NotificationsController {
 
   @Post('/device')
   @UseGuards(AuthGuard())
+  @CreateDeviceAPI()
   async createDevice(
     @LoginMember() loginMember: Member, 
     @Body() createDeviceRequest: CreateDeviceRequestDTO
