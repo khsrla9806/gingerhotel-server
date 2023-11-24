@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vendor } from 'src/entities/domain/vendor.type';
@@ -44,32 +44,32 @@ export class AuthService {
           { socialId: socialId, vendor: vendor }
         )
         .getOne();
-
-      if (existingMember) {
-        if (!existingMember.isActive) {
-          throw new BadRequestException('탈퇴한 사용자입니다.');
-        }
-
-        const tokenPayload = { memberId: existingMember.id };
-
-        /* TEMP: Move to Sign up Page
         
-        if (!existingMember.hasHotel) {
-          response.status(HttpStatus.FOUND);
+        if (existingMember) {
+          if (!existingMember.isActive) {
+            throw new BadRequestException('탈퇴한 사용자입니다.');
+          }
+
+          const tokenPayload = { memberId: existingMember.id };
+
+          // TEMP: Move to Sign up Page
+          
+          if (!existingMember.hasHotel) {
+            response.status(HttpStatus.OK);
+            
+            return {
+              success: false,
+              error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingMember.id}`,
+              accessToken: this.jwtService.sign(tokenPayload)
+            };
+          }
+          
 
           return {
-            success: false,
-            error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingMember.id}`,
-            accessToken: this.jwtService.sign(tokenPayload)
-          };
+            success: true,
+            accessToken: this.jwtService.sign(tokenPayload),
+          }
         }
-        */
-
-        return {
-          success: true,
-          accessToken: this.jwtService.sign(tokenPayload)
-        }
-      }
       
       const code: string = await this.generateMemberCode(7);
 
@@ -90,10 +90,10 @@ export class AuthService {
       }
 
       const tokenPayload = { memberId: member.id };
-
+      response.status(HttpStatus.OK);
       return {
-        success: true,
-        accessToken: this.jwtService.sign(tokenPayload)
+        success: false,
+        accessToken: this.jwtService.sign(tokenPayload),
       }
 
     } catch (error) {

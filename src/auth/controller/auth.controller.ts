@@ -38,13 +38,9 @@ export class AuthController {
 
   @Post('/google')
   @SocialLoginAPI(Vendor.GOOGLE, GoogleSocialRequest)
-  async googleSocialLogin(@Body('token') token, @Res() response: Response) {
-    const ticket = await googleClient.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    // need to ticket.getPayload().name to nickname
-    response.json(await this.authService.socialLogin(ticket.getPayload().email, ticket.getPayload().sub, Vendor.GOOGLE, response));
+  async googleSocialLogin(@Body() dto:GoogleSocialRequest, @Res() response: Response) {
+
+    response.json(await this.authService.socialLogin(dto.email, dto.sub, Vendor.GOOGLE, response));
   }
 
   @Post('/naver')
