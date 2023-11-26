@@ -16,8 +16,9 @@ export function CreateVillageAPI() {
       description: '빌리지 등록 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 호텔 정보입니다. | 자기 자신은 빌리지에 추가할 수 없습니다. | 이미 내 빌리지에 등록한 사용자입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -40,8 +41,9 @@ export function DeleteVillageAPI() {
       description: '빌리지 삭제 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 호텔 정보입니다. | 자기 자신을 빌리지에서 삭제할 수 없습니다. | 내 빌리지에 등록되어 있지 않은 사용자입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),

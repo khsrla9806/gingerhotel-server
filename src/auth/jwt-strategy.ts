@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { ErrorCode } from "src/common/filter/code/error-code.enum";
 import { Member } from "src/entities/member.entity";
 import { Repository } from "typeorm";
 
@@ -34,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       .getOne();
 
     if (!member) {
-      throw new UnauthorizedException('인증되지 않은 사용자입니다.');
+      throw new UnauthorizedException('인증되지 않은 사용자입니다.', ErrorCode.NotAuthenticated);
     }
 
     return member;

@@ -4,6 +4,7 @@ import { Hotel } from "src/entities/hotel.entity";
 import { Member } from "src/entities/member.entity";
 import { DataSource, Repository } from "typeorm";
 import { UpdateMemberRequest } from "../dto/update-member.dto";
+import { ErrorCode } from "src/common/filter/code/error-code.enum";
 
 @Injectable()
 export class MemberService {
@@ -23,7 +24,7 @@ export class MemberService {
         .getOne();
 
       if (!hotel) {
-        throw new BadRequestException('사용자의 호텔이 존재하지 않습니다. 호텔 생성을 완료 후 이용해주세요.')
+        throw new BadRequestException('사용자의 호텔이 존재하지 않습니다. 호텔 생성을 완료 후 이용해주세요.', ErrorCode.NotFoundResource)
       }
 
       return {
@@ -58,12 +59,12 @@ export class MemberService {
     try {
       // 1. 성별 정보가 이미 있는 경우
       if (dto.getGener() && loginMember.gender) {
-        throw new BadRequestException('성별은 한번 설정하면 변경이 불가능합니다.');
+        throw new BadRequestException('성별은 한번 설정하면 변경이 불가능합니다.', ErrorCode.GenderChangedOnce);
       }
 
       // 2. 생년월일 정보가 이미 있는 경우
       if (dto.getBirthDaate() && loginMember.birthDate) {
-        throw new BadRequestException('생년월일은 한번 설정하면 변경이 불가능합니다.');
+        throw new BadRequestException('생년월일은 한번 설정하면 변경이 불가능합니다.', ErrorCode.BirthDateChangedOnce);
       }
       
       // 3. 사용자의 성별, 생년월일을 수정 (존재한다면)

@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonResponse } from 'src/common/dto/output.dto';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Member } from 'src/entities/member.entity';
 import { Village } from 'src/entities/village.entity';
@@ -28,11 +29,11 @@ export class VillageService {
         .getOne();
   
       if (!hotel) {
-        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (hotel.member.id === loginMember.id) {
-        throw new BadRequestException('자기 자신은 빌리지에 추가할 수 없습니다.');
+        throw new BadRequestException('자기 자신은 빌리지에 추가할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
       }
 
       const village: Village = await this.villageRepository
@@ -41,7 +42,7 @@ export class VillageService {
         .getOne();
 
       if (village) {
-        throw new BadRequestException('이미 내 빌리지에 등록한 사용자입니다.');
+        throw new BadRequestException('이미 내 빌리지에 등록한 사용자입니다.', ErrorCode.AlreadyMyFriend);
       }
 
       await this.villageRepository.save(this.villageRepository.create({
@@ -72,11 +73,11 @@ export class VillageService {
         .getOne();
 
       if (!hotel) {
-        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.', ErrorCode.NotFoundResource);
       }
       
       if (hotel.member.id === loginMember.id) {
-        throw new BadRequestException('자기 자신을 빌리지에서 삭제할 수 없습니다.');
+        throw new BadRequestException('자기 자신을 빌리지에서 삭제할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
       }
       
       const village: Village = await this.villageRepository
@@ -85,7 +86,7 @@ export class VillageService {
         .getOne();
 
       if (!village) {
-        throw new BadRequestException('내 빌리지에 등록되어 있지 않은 사용자입니다.');
+        throw new BadRequestException('내 빌리지에 등록되어 있지 않은 사용자입니다.', ErrorCode.IsNotMyFriend);
       }
 
       await this.villageRepository.delete(village.id);

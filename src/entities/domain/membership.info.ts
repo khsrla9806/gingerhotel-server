@@ -1,5 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import { MembershipType } from "./membership.type";
+import { ErrorCode } from "src/common/filter/code/error-code.enum";
 
 /*
   hasLetterLimite: 편지 제한
@@ -66,6 +67,6 @@ export class Membership {
       return this.SUITE
     }
 
-    throw new BadRequestException('잘못된 멤버쉽 정보입니다.');
+    throw new BadRequestException('잘못된 멤버쉽 정보입니다.', ErrorCode.NotFoundResource);
   }
 }

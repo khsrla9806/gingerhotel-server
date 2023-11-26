@@ -12,6 +12,7 @@ import { NotificationType } from 'src/entities/domain/notification.type';
 import { Device } from 'src/entities/device.entity';
 import { DeviceStatus } from 'src/entities/domain/device-status.type';
 import fetch from 'node-fetch';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
 export class FeekService {
@@ -35,7 +36,7 @@ export class FeekService {
 
     try {
       if (loginMember.feekCount <= 0) {
-        throw new BadRequestException(`사용할 수 있는 엿보기 개수가 없습니다. : ${loginMember.feekCount}개`)
+        throw new BadRequestException(`사용할 수 있는 엿보기 개수가 없습니다. : ${loginMember.feekCount}개`, ErrorCode.InsufficientFeekCount)
       }
 
       const letter: Letter = await this.letterRepository
@@ -51,11 +52,11 @@ export class FeekService {
         .getOne();
 
       if (!letter) {
-        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('자신이 받은 편지만 엿보기 요청이 가능합니다.');
+        throw new BadRequestException('자신이 받은 편지만 엿보기 요청이 가능합니다.', ErrorCode.AccessDenied);
       }
 
       // 엿보기를 이미 사용한 편지인지 확인
@@ -65,7 +66,7 @@ export class FeekService {
         .getCount();
       
       if (feekCount > 0) {
-        throw new BadRequestException('이미 엿보기 요청을 한 편지입니다. 엿보기는 하나의 편지에 한번만 가능합니다.');
+        throw new BadRequestException('이미 엿보기 요청을 한 편지입니다. 엿보기는 하나의 편지에 한번만 가능합니다.', ErrorCode.AlreadyRequestFeek);
       }
 
       // 엿보기 요청을 보내려는 사용자가 나를 차단한 경우
@@ -78,7 +79,7 @@ export class FeekService {
         .getOne();
       
       if (memberBlock) {
-        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
+        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.', ErrorCode.BlockedMemberFromHotelOwner);
       }
 
       const feek: Feek = await queryRunner.manager.save(this.feekRepository.create({
@@ -139,15 +140,15 @@ export class FeekService {
         .getOne();
         
       if (!feek) {
-        throw new BadRequestException('존재하지 않는 엿보기 요청 정보입니다.');
+        throw new BadRequestException('존재하지 않는 엿보기 요청 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (feek.feekStatus !== FeekStatus.REQUEST) {
-        throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.')
+        throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.', ErrorCode.NotFoundResource)
       }
       
       if (feek.letter.sender.id !== loginMember.id) {
-        throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.');
+        throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.', ErrorCode.AccessDenied);
       }
       
 
@@ -188,19 +189,15 @@ export class FeekService {
         .getOne();
 
       if (!feek) {
-        throw new BadRequestException('존재하지 않는 엿보기 요청 정보입니다.');
+        throw new BadRequestException('존재하지 않는 엿보기 요청 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (feek.feekStatus !== FeekStatus.REQUEST) {
-        throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.')
+        throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.', ErrorCode.AlreadyRequestFeek)
       }
       
       if (feek.letter.sender.id !== loginMember.id) {
-        throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.');
-      }
-
-      if (!dto.comment) {
-        throw new BadRequestException('엿보기 답장내용이 존재하지 않습니다.');
+        throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.', ErrorCode.AccessDenied);
       }
 
       feek.comment = dto.comment;
@@ -270,15 +267,15 @@ export class FeekService {
         .getOne();
 
       if (!feek) {
-        throw new BadRequestException('존재하지 않는 엿보기 요청 정보입니다.');
+        throw new BadRequestException('존재하지 않는 엿보기 요청 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (feek.feekStatus !== FeekStatus.REQUEST) {
-        throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.')
+        throw new BadRequestException('이미 수락/거절이 끝난 엿보기 요청 정보입니다.', ErrorCode.NotFoundResource)
       }
       
       if (feek.letter.sender.id !== loginMember.id) {
-        throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.');
+        throw new BadRequestException('내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.', ErrorCode.AccessDenied);
       }
 
       feek.feekStatus = FeekStatus.REJECT;

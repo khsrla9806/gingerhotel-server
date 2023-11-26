@@ -17,8 +17,9 @@ export function RequestFeekAPI() {
       description: '엿보기 요청 실패 시',
       schema: {
         example: {
-          success: false,
-          error: '엿보기를 사용할 수 없는 멤버쉽 사용자입니다. | 사용할 수 있는 엿보기 개수가 없습니다. | 자신이 받은 편지만 엿보기 요청이 가능합니다.'
+          "success": false,
+          "errorCode": '5002',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -50,8 +51,9 @@ export function GetFeekDetailAPI() {
       description: '답장 생성에 실패했을 때',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 엿보기 요청 정보입니다. | 이미 수락/거절이 끝난 엿보기 요청 정보입니다. | 내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.'
+          "success": false,
+          "errorCode": '3001',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -77,8 +79,9 @@ export function AcceptFeekAPI() {
       description: '수락 실패 시',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다. | 이미 수락/거절이 끝난 엿보기 요청 정보입니다. | 내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.'
+          "success": false,
+          "errorCode": '5002',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -102,8 +105,9 @@ export function RejectFeekAPI() {
       description: '거절 실패 시',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다. | 이미 수락/거절이 끝난 엿보기 요청 정보입니다. | 내가 보냈던 편지에 대한 엿보기만 조회가 가능합니다.'
+          "success": false,
+          "errorCode": '5002',
+          "errorMessage": '에러 메시지'
         }
       }
     }),

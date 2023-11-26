@@ -17,6 +17,7 @@ import { LetterLimit } from 'src/entities/domain/letter-limit.type';
 import { Device } from 'src/entities/device.entity';
 import { DeviceStatus } from 'src/entities/domain/device-status.type';
 import fetch from 'node-fetch';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
 export class RepliesService {
@@ -49,7 +50,7 @@ export class RepliesService {
     try {
       // 1. 광고 시청을 통해 답장 기능이 사용이 가능한지 확인 (TODO)
       if (false) {
-        throw new BadRequestException('답장 기능을 사용할 수 없습니다.');
+        throw new BadRequestException('답장 기능을 사용할 수 없습니다.', ErrorCode.NotUseReply);
       }
 
       // 2. 존재하는 편지인지 확인
@@ -68,23 +69,23 @@ export class RepliesService {
       
       // 3. 존재하는 편지인지 & 삭제된 편지인지 확인
       if (!letter) {
-        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (letter.isDeleted) {
-        throw new BadRequestException('삭제된 편지 정보입니다.');
+        throw new BadRequestException('삭제된 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       // 최초 편지를 보낸 사람 또는 최초 편지를 받은 사람이 맞는지 확인 (제3 자는 답장을 못보냄)
       if (letter.hotelWindow.hotel.member.id !== loginMember.id && letter.sender.id !== loginMember.id) {
-        throw new ForbiddenException('권한이 없습니다.');
+        throw new ForbiddenException('권한이 없습니다.', ErrorCode.AccessDenied);
       }
       
       // 4. 답장 수신자의 호텔 객체를 얻어옴
       let recipientsHotel: Hotel = await this.getRecipientsHotel(letter, loginMember);
 
       if (!recipientsHotel) {
-        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       // 내가 편지 보내려는 사용자가 나를 차단한 경우
@@ -97,12 +98,12 @@ export class RepliesService {
         .getOne();
       
       if (memberBlock) {
-        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
+        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.', ErrorCode.BlockedMemberFromHotelOwner);
       }
 
       // 5. 이미지 파일 존재 여부 확인 & 이미지 첨부 가능한지 여부 확인 -> 광고 시청 (TODO)
       if (image && false) {
-        throw new BadRequestException("이미지 첨부 기능을 사용할 수 없습니다.");
+        throw new BadRequestException("이미지 첨부 기능을 사용할 수 없습니다.", ErrorCode.NotUseUploadImage);
       }
 
       // 5. 오늘 날짜 확인 (yyyy-MM-dd) 후 오늘 날짜에 해당하는 호텔 창문이 존재하는지 쿼리
@@ -238,7 +239,7 @@ export class RepliesService {
 
     if (letter.sender.id === loginMember.id) { // 편지를 보낸 사람이 로그인한 사용자라면 답장 수신자는 편지의 주인
       if (!letter.hotelWindow.hotel.member.isActive) {
-        throw new BadRequestException('답장 수신자는 탈퇴한 사용자입니다.');
+        throw new BadRequestException('답장 수신자는 탈퇴한 사용자입니다.', ErrorCode.NotFoundResource);
       }
 
       return letter.hotelWindow.hotel;
@@ -268,7 +269,7 @@ export class RepliesService {
 
   private checkMaximumReceivedLetterCount(maxLetterCount: number, recievedLetterCount: number) {
     if (recievedLetterCount >= maxLetterCount) {
-      throw new BadRequestException(`수신자가 하루에 받을 수 있는 개수를 넘어섰습니다. : ${recievedLetterCount}`);
+      throw new BadRequestException(`수신자가 하루에 받을 수 있는 개수를 넘어섰습니다. : ${recievedLetterCount}`, ErrorCode.LetterReceivedLimitExceed);
     }
   }
 
@@ -309,12 +310,12 @@ export class RepliesService {
       .getOne();
 
       if (!reply) {
-        throw new BadRequestException(`존재하지 않는 답장 정보입니다. : ${replyId}`);
+        throw new BadRequestException(`존재하지 않는 답장 정보입니다. : ${replyId}`, ErrorCode.NotFoundResource);
       }
 
       // 2. 삭제하려는 사람이 받은 편지가 맞는지 확인
       if (reply.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('내가 받은 답장만 삭제할 수 있습니다.');
+        throw new BadRequestException('내가 받은 답장만 삭제할 수 있습니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 답장 삭제
@@ -354,12 +355,12 @@ export class RepliesService {
 
       // 2. 내가 받은 답장이 맞는지 확인
       if (reply.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('내가 받은 답장만 차단이 가능합니다.');
+        throw new BadRequestException('내가 받은 답장만 차단이 가능합니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 이미 차단된 답장인지 확인
       if (reply.isBlocked) {
-        throw new BadRequestException('이미 차단된 답장입니다.');
+        throw new BadRequestException('이미 차단된 답장입니다.', ErrorCode.AlreadyBlockedLetter);
       }
 
       // 4. 이 답장을 포함해서 관련된(reply.sender가 동일한) 다른 답장들의 isBlocked를 true로 변경
@@ -434,12 +435,12 @@ export class RepliesService {
 
       // 2. 내가 받은 답장이 맞는지 확인
       if (reply.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('내가 받은 답장만 차단 해제가 가능합니다.');
+        throw new BadRequestException('내가 받은 답장만 차단 해제가 가능합니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 차단된 답장인지 확인
       if (!reply.isBlocked) {
-        throw new BadRequestException('차단되어 있지 않은 답장입니다.');
+        throw new BadRequestException('차단되어 있지 않은 답장입니다.', ErrorCode.NoBlockedLetter);
       }
 
       // 4. 이 답장을 포함해서 관련된(reply.sender가 동일한) 다른 답장들의 isBlocked를 false로 변경

@@ -18,8 +18,9 @@ export function CreateLetterAPI() {
       description: '편지 생성에 실패했을 때',
       schema: {
         example: {
-          success: false,
-          error: '이미지 첨부를 할 수 없는 멤버쉽 정보입니다. | 자신의 호텔에는 편지를 쓸 수 없습니다. | 수신자가 하루에 받을 수 있는 개수를 넘어섰습니다.'
+          "success": false,
+          "errorCode": '3006',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -43,8 +44,9 @@ export function DeleteLetterAPI() {
       description: '편지 삭제 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다. | 자신이 받은 편지만 삭제할 수 있습니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -70,7 +72,8 @@ export function CheckBlockedAPI() {
       schema: {
         example: {
           "success": false,
-          "error": "존재하지 않는 편지 정보입니다."
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -102,8 +105,9 @@ export function BlockLetterAPI() {
       description: '편지 차단 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다. | 내가 받은 편지만 차단할 수 있습니다. | 이미 차단된 편지입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -126,8 +130,9 @@ export function UnblockLetterAPI() {
       description: '편지 차단 해제 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다. | 내가 받은 편지만 차단 해제할 수 있습니다. | 차단 되어 있지 않은 편지입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -251,8 +256,9 @@ export function GetLettersAPI() {
       description: '편지함 조회 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 호텔 정보입니다. | 내 호텔의 편지만 확인할 수 있습니다. | 2023-12-01에 받은 편지가 존재하지 않습니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -352,8 +358,9 @@ export function GetRepliesAPI() {
       description: '조회 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),

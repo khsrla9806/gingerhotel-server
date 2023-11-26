@@ -12,6 +12,7 @@ import { Village } from 'src/entities/village.entity';
 import { HotelUpdateRequest } from '../dto/hotel-update.dto';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { LetterLimit } from 'src/entities/domain/letter-limit.type';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
 export class HotelService {
@@ -45,7 +46,7 @@ export class HotelService {
         .getOne();
 
       if (!hotel) {
-        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       // 해당 호텔에 관련된 창문의 정보를 모두 가져옴
@@ -195,12 +196,12 @@ export class HotelService {
         .getOne();
 
       if (!hotel) {
-        throw new BadRequestException('존재하지 않는 호텔 정보입니다. 호텔 생성을 완료 후 이용해주세요.');
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다. 호텔 생성을 완료 후 이용해주세요.', ErrorCode.NotFoundResource);
       }
 
       // 2. 수정 요청된 호텔과 로그인한 사용자의 호텔이 동일한지 확인
       if (hotel.id !== hotelId) {
-        throw new BadRequestException('자신의 호텔 정보만 수정이 가능합니다.');
+        throw new BadRequestException('자신의 호텔 정보만 수정이 가능합니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 호텔 수정 (무조건 hotel에 대한 select 쿼리가 발생되고, 수정 사항이 없으면 update 쿼리는 안 나감)
@@ -234,21 +235,21 @@ export class HotelService {
         .getOne();
 
       if (!hotelWindow) {
-        throw new BadRequestException('존재하지 않는 창문입니다.');
+        throw new BadRequestException('존재하지 않는 창문입니다.', ErrorCode.NotFoundResource);
       }
 
       const hotelOwner: Member = hotelWindow.hotel.member;
 
       if (hotelOwner.id !== loginMember.id) {
-        throw new ForbiddenException('내 호텔의 창문만 열 수 있습니다.');
+        throw new ForbiddenException('내 호텔의 창문만 열 수 있습니다.', ErrorCode.AccessDenied);
       }
 
       if (hotelWindow.isOpen) {
-        throw new BadRequestException('이미 열려있는 창문입니다.');
+        throw new BadRequestException('이미 열려있는 창문입니다.', ErrorCode.AlreadyWindowOpened);
       }
 
       if (hotelOwner.keyCount <= 0) {
-        throw new BadRequestException('열쇠 개수가 부족합니다.');
+        throw new BadRequestException('열쇠 개수가 부족합니다.', ErrorCode.InsufficientKeyCount);
       }
 
       await queryRunner.manager.query(
@@ -288,17 +289,17 @@ export class HotelService {
         .getOne();
 
       if (!hotelWindow) {
-        throw new BadRequestException('존재하지 않는 창문입니다.');
+        throw new BadRequestException('존재하지 않는 창문입니다.', ErrorCode.NotFoundResource);
       }
 
       const hotelOwner: Member = hotelWindow.hotel.member;
 
       if (hotelOwner.id !== loginMember.id) {
-        throw new ForbiddenException('내 호텔의 창문이 아닙니다.');
+        throw new ForbiddenException('내 호텔의 창문이 아닙니다.', ErrorCode.AccessDenied);
       }
 
       if (!hotelWindow.hasLimit) {
-        throw new BadRequestException('오늘 편지 제한수를 이미 해제했습니다.');
+        throw new BadRequestException('오늘 편지 제한수를 이미 해제했습니다.', ErrorCode.AlreadyUnlimitLetterCount);
       }
 
       await this.hotelWindowRepository.manager.query(

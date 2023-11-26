@@ -18,8 +18,9 @@ export function CreateReplyAPI() {
       description: '답장 생성에 실패했을 때',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 편지 정보입니다. | 삭제된 편지 정보입니다. | 수신자가 하루에 받을 수 있는 개수를 넘어섰습니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -43,8 +44,9 @@ export function DeleteReplyAPI() {
       description: '답장 삭제 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 답장 정보입니다. | 자신이 받은 답장만 삭제할 수 있습니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -67,8 +69,9 @@ export function BlockReplyAPI() {
       description: '답장 차단 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 답장 정보입니다. | 내가 받은 답장만 차단할 수 있습니다. | 이미 차단된 답장입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -91,8 +94,9 @@ export function UnblockReplyAPI() {
       description: '답장 차단 해제 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 답장 정보입니다. | 내가 받은 답장만 차단 해제할 수 있습니다. | 차단 되어 있지 않은 답장입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
