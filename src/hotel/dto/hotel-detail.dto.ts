@@ -1,4 +1,5 @@
 import { CommonResponse } from "src/common/dto/output.dto";
+import { Background, BuildingDecorator, GardenDecorator, WindowDecorator } from "src/entities/domain/hotel-decorator.type";
 
 export class HotelDetailResponse extends CommonResponse {
   canReceiveLetterToday?: boolean;
@@ -18,6 +19,10 @@ export type HotelInfo = {
   description: string;
   structColor: string;
   bodyColor: string;
+  buildingDecorator: BuildingDecorator;
+  gardenDecorator: GardenDecorator;
+  windowDecorator: WindowDecorator;
+  background: Background;
 }
 
 export type HotelWindowInfo = {

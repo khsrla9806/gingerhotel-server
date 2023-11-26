@@ -109,7 +109,11 @@ export class HotelService {
           nickname: hotel.nickname,
           description: hotel.description,
           structColor: hotel.structColor,
-          bodyColor: hotel.bodyColor
+          bodyColor: hotel.bodyColor,
+          buildingDecorator: hotel.buildingDecorator,
+          gardenDecorator: hotel.gardenDecorator,
+          windowDecorator: hotel.windowDecorator,
+          background: hotel.background
         },
         hotelWindows: this.convertHotelWindowsToJSON(hotelWindows),
         isLoginMember: isLoginMember,
