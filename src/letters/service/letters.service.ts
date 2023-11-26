@@ -20,6 +20,7 @@ import { LetterLimit } from 'src/entities/domain/letter-limit.type';
 import { Device } from 'src/entities/device.entity';
 import { DeviceStatus } from 'src/entities/domain/device-status.type';
 import fetch from 'node-fetch';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
 export class LettersService {
@@ -60,7 +61,7 @@ export class LettersService {
         .getOne();
 
       if (!hotel) {
-        throw new BadRequestException(`존재하지 않는 호텔 정보입니다. : ${hotelId}`);
+        throw new BadRequestException(`존재하지 않는 호텔 정보입니다. : ${hotelId}`, ErrorCode.NotFoundResource);
       }
 
       // 내가 편지 보내려는 사용자가 나를 차단한 경우
@@ -73,17 +74,17 @@ export class LettersService {
         .getOne();
       
       if (memberBlock) {
-        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.');
+        throw new BadRequestException('호텔 주인에 의해 차단된 사용자입니다.', ErrorCode.BlockedMemberFromHotelOwner);
       }
 
       // 2. 자신의 호텔인지 확인 (자기 호텔에는 편지를 쓰지 못함)
       if (hotel.member.id === loginMember.id) {
-        throw new BadRequestException("자신의 호텔에는 편지를 쓸 수 없습니다.");
+        throw new BadRequestException("자신의 호텔에는 편지를 쓸 수 없습니다.", ErrorCode.NotRequestOnesOwnSelf);
       }
 
       // 3. 이미지 파일 존재 여부 확인 + 광고 봤는지 여부 (TODO)
       if (image && false) {
-        throw new BadRequestException("이미지 첨부기능을 사용할 수 없습니다.");
+        throw new BadRequestException("이미지 첨부기능을 사용할 수 없습니다.", ErrorCode.NotUseUploadImage);
       }
 
       // 4. 오늘 날짜 확인 (yyyy-MM-dd) 후 오늘 날짜에 해당하는 호텔 창문이 존재하는지 쿼리
@@ -227,7 +228,7 @@ export class LettersService {
 
   private checkMaximumReceivedLetterCount(maxLetterCount: number, recievedLetterCount: number) {
     if (recievedLetterCount >= maxLetterCount) {
-      throw new BadRequestException(`수신자가 하루에 받을 수 있는 개수를 넘어섰습니다. : ${recievedLetterCount}`);
+      throw new BadRequestException(`수신자가 하루에 받을 수 있는 개수를 넘어섰습니다. : ${recievedLetterCount}`, ErrorCode.LetterReceivedLimitExceed);
     }
   }
 
@@ -275,12 +276,12 @@ export class LettersService {
         .getOne();
 
       if (!letter) {
-        throw new BadRequestException(`존재하지 않는 편지 정보입니다. : ${letterId}`);
+        throw new BadRequestException(`존재하지 않는 편지 정보입니다. : ${letterId}`, ErrorCode.NotFoundResource);
       }
 
       // 2. 편지 받은 사람과 삭제 요청한 사람과 동일한지 확인
       if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('자신이 받은 편지만 삭제할 수 있습니다.');
+        throw new BadRequestException('자신이 받은 편지만 삭제할 수 있습니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 해당 편지와 관련된 답장들을 모두 삭제 처리
@@ -321,14 +322,14 @@ export class LettersService {
         .getOne();
 
       if (!letter) {
-        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       const letterSenderId: number = letter.sender.id;
       const letterRecipientId: number = letter.hotelWindow.hotel.member.id;
 
       if (letterRecipientId !== loginMember.id && letterSenderId !== loginMember.id) {
-        throw new ForbiddenException('접근 권한이 없습니다.');
+        throw new ForbiddenException('접근 권한이 없습니다.', ErrorCode.AccessDenied);
       }
 
       const fromMemberId: number = letterSenderId === loginMember.id ? letterRecipientId : letterSenderId;
@@ -382,17 +383,17 @@ export class LettersService {
         .getOne();
 
       if (!letter) {
-        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       // 2. 편지를 받은 사람과 로그인한 사용자와 같은지 확인 (자신이 받은 편지만 차단이 가능)
       if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('내가 받은 편지만 차단할 수 있습니다.');
+        throw new BadRequestException('내가 받은 편지만 차단할 수 있습니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 이미 차단 되어 있는 편지인지 확인
       if (letter.isBlocked) {
-        throw new BadRequestException('이미 차단된 편지입니다.')
+        throw new BadRequestException('이미 차단된 편지입니다.', ErrorCode.AlreadyBlockedLetter)
       }
 
       // 4. 관련된 답장들 중에서 sender가 letterSender와 같은  isBlocked를 모두 true로 변경
@@ -464,17 +465,17 @@ export class LettersService {
         .getOne();
 
       if (!letter) {
-        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       // 2. 편지를 받은 사람과 로그인한 사용자와 같은지 확인 (자신이 받은 편지만 차단 해제 가능)
       if (letter.hotelWindow.hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('내가 받은 편지만 차단 해제할 수 있습니다.');
+        throw new BadRequestException('내가 받은 편지만 차단 해제할 수 있습니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 차단 되어 있지 않는 편지인지 확인
       if (!letter.isBlocked) {
-        throw new BadRequestException('차단 되어 있지 않은 편지입니다.')
+        throw new BadRequestException('차단 되어 있지 않은 편지입니다.', ErrorCode.NoBlockedLetter)
       }
 
       // 4. 관련된 답장들 중에서 sender가 letterSender와 같은  isBlocked를 모두 false로 변경
@@ -540,11 +541,11 @@ export class LettersService {
       
 
       if (!hotel) {
-        throw new BadRequestException('존재하지 않는 호텔 정보입니다.');
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (hotel.member.id !== loginMember.id) {
-        throw new BadRequestException('내 호텔의 편지만 확인할 수 있습니다.');
+        throw new BadRequestException('내 호텔의 편지만 확인할 수 있습니다.', ErrorCode.AccessDenied);
       }
 
       // 2. 오늘 날짜에 해당하는 창문을 탐색
@@ -557,11 +558,11 @@ export class LettersService {
         .getOne();
 
       if (!hotelWindow) {
-        throw new BadRequestException(`${date}에 받은 편지가 존재하지 않습니다.`);
+        throw new BadRequestException(`${date}에 받은 편지가 존재하지 않습니다.`, ErrorCode.EmptyWindow);
       }
 
       if (!hotelWindow.isOpen) {
-        throw new BadRequestException(`${date} 창문이 닫혀있습니다.`);
+        throw new BadRequestException(`${date} 창문이 닫혀있습니다.`, ErrorCode.WindowClosed);
       }
 
       // 3. 오늘 날짜에 해당하는 편지를 내림차순으로 정렬
@@ -632,14 +633,14 @@ export class LettersService {
         .getOne();
 
       if (!letter) {
-        throw new BadRequestException('존재하지 않는 편지 정보입니다.');
+        throw new BadRequestException('존재하지 않는 편지 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       // 2. 답장 모아보기 조회 권한을 확인
       const letterOwnerId = letter.hotelWindow.hotel.member.id;
 
       if (loginMember.id !== letter.sender.id && loginMember.id !== letterOwnerId) {
-        throw new ForbiddenException('편지 주인과 편지를 보낸 사람만 조회가 가능합니다.');
+        throw new ForbiddenException('편지 주인과 편지를 보낸 사람만 조회가 가능합니다.', ErrorCode.AccessDenied);
       }
 
       // 3. 해당 편지와 연관된 답장 목록을 가져옴 (쿼리 빌더 생성)

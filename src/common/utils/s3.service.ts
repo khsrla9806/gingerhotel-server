@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import * as AWS from "aws-sdk";
 import { PromiseResult } from 'aws-sdk/lib/request';
 import * as path from "path";
+import { ErrorCode } from "../filter/code/error-code.enum";
 
 @Injectable()
 export class S3Service {
@@ -22,10 +23,10 @@ export class S3Service {
   async uploadToS3(file: Express.Multer.File): Promise<S3UploadResponse> {
     try {
       if (!this.ACCEPTABLE_MIME_TYPES.includes(file.mimetype)) {
-        throw new BadRequestException('이미지 파일 확장자는 jpg, png, jpeg만 가능합니다.');
+        throw new BadRequestException('이미지 파일 확장자는 jpg, png, jpeg만 가능합니다.', ErrorCode.InvalidImageExtension);
       }
       if (file.size > this.MAXIMUM_IMAGE_SIZE) {
-        throw new BadRequestException('업로드 가능한 이미지 최대 용량은 3MB입니다.');
+        throw new BadRequestException('업로드 가능한 이미지 최대 용량은 3MB입니다.', ErrorCode.ImageSizeLimitExceed);
       }
 
       const key = `images/${Date.now()}_${path.basename(file.originalname,)}`.replace(/ /g, '');

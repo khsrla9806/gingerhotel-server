@@ -3,6 +3,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import { Response } from "express";
 import * as winston from 'winston';
+import { ErrorCode } from "./code/error-code.enum";
 
 const { simple } = winston.format;
 
@@ -40,16 +41,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       let status: number = exception.getStatus();
+      let errorCode: ErrorCode = exception.getResponse()['error'];
 
       if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+        errorCode = ErrorCode.InternalServerError;
         this.apiLogger.error(`[${LocalDateTime.now()}][${requestUrl}] ${exception}`);
+      }
+
+      if (status === HttpStatus.UNAUTHORIZED) {
+        errorCode = ErrorCode.NotAuthenticated;
       }
 
       response
         .status(status)
         .json({
           success: false,
-          error: exception.getResponse()['message']
+          errorCode: errorCode,
+          errorMessage: exception.getResponse()['message']
         });
       
       return;
@@ -61,7 +69,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        error: exception.message
+        errorCode: ErrorCode.InternalServerError,
+        errorMessage: exception.message
       });
   }
 }

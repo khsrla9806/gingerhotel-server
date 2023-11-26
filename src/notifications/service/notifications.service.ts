@@ -11,6 +11,7 @@ import { CursorPageDTO } from 'src/common/dto/cursor-page.dto';
 import { CreateDeviceRequestDTO } from '../dto/create-device.dto';
 import { Device } from 'src/entities/device.entity';
 import { CommonResponse } from 'src/common/dto/output.dto';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
 export class NotificationsService {
@@ -83,11 +84,11 @@ export class NotificationsService {
         .getOne();
 
       if (!notification) {
-        throw new BadRequestException('존재하지 않는 알림 정보입니다.');
+        throw new BadRequestException('존재하지 않는 알림 정보입니다.', ErrorCode.NotFoundResource);
       }
 
       if (notification.member.id !== loginMember.id) {
-        throw new BadRequestException('내 알림만 삭제가 가능합니다.');
+        throw new BadRequestException('내 알림만 삭제가 가능합니다.', ErrorCode.AccessDenied);
       }
 
       await this.notificationHistoryRepository.delete(notification.id);
@@ -113,7 +114,7 @@ export class NotificationsService {
         .getExists();
 
       if (isExistDevice) {
-        throw new BadRequestException('The device token is already registered as login user.');
+        throw new BadRequestException('이미 등록된 디바이스 정보입니다.', ErrorCode.AlreadyRegisterDevice);
       }
 
       const device: Device = this.deviceRepository.create({

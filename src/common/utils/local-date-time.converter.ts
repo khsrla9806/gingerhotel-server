@@ -1,5 +1,6 @@
 import { LocalDateTime, nativeJs } from "@js-joda/core";
 import { InternalServerErrorException } from "@nestjs/common";
+import { ErrorCode } from "../filter/code/error-code.enum";
 
 export class LocalDateTimeConverter {
   public static convertCreatedAtToLocalDateTimeInList(list: any[]) {
@@ -10,7 +11,7 @@ export class LocalDateTimeConverter {
     try {
       return nativeJs(date).toLocalDateTime();
     } catch (error) {
-      throw new InternalServerErrorException('[convertDateToLocalDateTime] 잘못된 Date 형태입니다.');
+      throw new InternalServerErrorException('[convertDateToLocalDateTime] 잘못된 Date 형태입니다.', ErrorCode.ValidationFailed);
     }
   }
 }

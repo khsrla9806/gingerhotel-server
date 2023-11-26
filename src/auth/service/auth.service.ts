@@ -10,6 +10,7 @@ import { Response } from 'express';
 import { CreateHotelRequest, CreateHotelResponse } from '../dto/create-hotel.dto';
 import { Hotel } from 'src/entities/hotel.entity';
 import * as winston from 'winston';
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
 export class AuthService {
@@ -47,7 +48,7 @@ export class AuthService {
         
         if (existingMember) {
           if (!existingMember.isActive) {
-            throw new BadRequestException('탈퇴한 사용자입니다.');
+            throw new BadRequestException('탈퇴한 사용자입니다.', ErrorCode.NotAuthenticated);
           }
 
           const tokenPayload = { memberId: existingMember.id };
@@ -141,7 +142,7 @@ export class AuthService {
 
     try {
       if (member.hasHotel) {
-        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${member.id}`);
+        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${member.id}`, ErrorCode.AlreadyHasHotel);
       }
       member.hasHotel = true;
 
@@ -155,7 +156,7 @@ export class AuthService {
 
       if (dto.code) {
         if (member.code === dto.code) {
-          throw new BadRequestException('자기 자신은 추천할 수 없습니다.');
+          throw new BadRequestException('자기 자신은 추천할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
         }
 
         const recommendedMember: Member = await this.memberRepository
@@ -165,7 +166,7 @@ export class AuthService {
           .getOne();
 
         if (!recommendedMember) {
-          throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`);
+          throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`, ErrorCode.NotFoundResource);
         }
 
         member.keyCount++;
@@ -204,7 +205,7 @@ export class AuthService {
   async checkMemeberByCode(loginMember: Member, code: string) {
     try {
       if (loginMember.code === code) {
-        throw new BadRequestException('자신의 코드는 입력할 수 없습니다.');
+        throw new BadRequestException('자신의 코드는 입력할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
       }
 
       const member: Member = await this.memberRepository
@@ -214,7 +215,7 @@ export class AuthService {
         .getOne();
 
       if (!member) {
-        throw new BadRequestException('잘못된 친구 코드입니다.');
+        throw new BadRequestException('잘못된 친구 코드입니다.', ErrorCode.InvalidFriendCode);
       }
 
       return {

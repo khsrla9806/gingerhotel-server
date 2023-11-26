@@ -16,6 +16,7 @@ import { MemberCodeValidationPipe } from '../pipes/member-code.validation.pipe';
 
 import * as jwt from "jsonwebtoken";
 import verifyAppleToken from "verify-apple-id-token";
+import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -96,7 +97,7 @@ export class AuthController {
     } else if (vendor === 'KAKAO') {
       socialVendor = Vendor.KAKAO;
     } else {
-      throw new BadRequestException('vendor는 GOOGLE, APPLE, NAVER, KAKAO 중에서 한 개를 입력해야 합니다.');
+      throw new BadRequestException('vendor는 GOOGLE, APPLE, NAVER, KAKAO 중에서 한 개를 입력해야 합니다.', ErrorCode.ValidationFailed);
     }
 
     response.json(await this.authService.socialLogin(null, socialId, socialVendor, response));
