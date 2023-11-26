@@ -1,8 +1,8 @@
-name: GINGER SERVER DEPLOY
+name: GINGER PRODUCTION SERVER DEPLOY
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
 
 jobs:
   deploy:
