@@ -144,8 +144,9 @@ export function DeleteNotificationAPI() {
       description: '삭제 실패',
       schema: {
         example: {
-          success: false,
-          error: "존재하지 않는 알림 정보입니다. | 내 알림만 삭제가 가능합니다."
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -173,7 +174,8 @@ export function CreateDeviceAPI() {
       schema: {
         example: {
           "success": false,
-          "error": "The device token is already registered as login user."
+          "errorCode": '1004',
+          "errorMessage": '에러 메시지'
         }
       }
     }),

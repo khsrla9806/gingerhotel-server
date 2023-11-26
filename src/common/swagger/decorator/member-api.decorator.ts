@@ -33,8 +33,9 @@ export function GetMemberInfoAPI() {
       description: '마이페이지 조회에 실패했을 때',
       schema: {
         example: {
-          success: false,
-          error: '자신의 정보만 요청이 가능합니다. | 사용자의 호텔이 존재하지 않습니다. 호텔 생성을 완료 후 이용해주세요.'
+          "success": false,
+          "errorCode": '1001',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -59,8 +60,9 @@ export function UpdateMemberInfoAPI() {
       description: '정보 수정에 실패했을 때',
       schema: {
         example: {
-          success: false,
-          error: '내 정보만 수정이 가능합니다. | 성별은 한번 설정하면 변경이 불가능합니다. | 생년월일은 한번 설정하면 변경이 불가능합니다.'
+          "success": false,
+          "errorCode": '1001',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -83,8 +85,9 @@ export function DeleteMemberAPI() {
       description: '회원 탈퇴에 실패했을 때',
       schema: {
         example: {
-          success: false,
-          error: '자신의 계정만 탈퇴가 가능합니다.'
+          "success": false,
+          "errorCode": '1001',
+          "errorMessage": '에러 메시지'
         }
       }
     }),

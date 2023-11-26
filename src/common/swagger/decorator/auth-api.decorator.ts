@@ -66,7 +66,8 @@ export function CheckMemberByCodeAPI() {
       schema: {
         example: {
           "success": false,
-          "message": '잘못된 친구 코드입니다. | 자신의 코드는 입력할 수 없습니다.'
+          "errorCode": '1002',
+          "errorMessage": '에러 메시지'
         }
       }
     }),

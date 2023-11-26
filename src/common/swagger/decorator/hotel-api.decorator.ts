@@ -43,8 +43,9 @@ export function GetHotelAPI() {
       description: '응답 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 호텔 정보입니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -69,8 +70,9 @@ export function UpdateHotelAPI() {
       description: '호텔 수정 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 호텔 정보입니다. 호텔 생성을 완료 후 이용해주세요. | 자신의 호텔 정보만 수정이 가능합니다.'
+          "success": false,
+          "errorCode": '1001',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -99,8 +101,9 @@ export function OpenWindowAPI() {
       description: '창문 개방 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 창문입니다. | 이미 열려있는 창문입니다. | 열쇠 개수가 부족합니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
@@ -138,8 +141,9 @@ export function UnlimitWindowAPI() {
       description: '편지 제한수 해제 실패',
       schema: {
         example: {
-          success: false,
-          error: '존재하지 않는 창문입니다. | 오늘 편지 제한수를 이미 해제했습니다.'
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
         }
       }
     }),
