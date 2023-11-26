@@ -15,10 +15,14 @@ export function GetHotelAPI() {
           feekCount: 18,
           keyCount: 0,
           hotel: {
-              nickname: "헤르미온느",
-              description: "제 호텔에 오신것을 환영합니다.",
-              structColor: "#fffff",
-              bodyColor: "#fffff"
+              "nickname": "헤르미온느",
+              "description": "제 호텔에 오신것을 환영합니다.",
+              "structColor": "#fffff",
+              "bodyColor": "#fffff",
+              "buildingDecorator": "buildingDeco01",
+              "gardenDecorator": "gardenDeco01",
+              "windowDecorator": "windowDeco01",
+              "background": "background01"
           },
           hotelWindows: {
               "2023-12-01": {
