@@ -1,6 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiQuery } from "@nestjs/swagger";
-import { CursorPageOptionDTO } from "src/common/dto/cursor-page-option.dto";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
 import { CreateDeviceRequestDTO } from "src/notifications/dto/create-device.dto";
 
 export function GetNotificationsAPI() {

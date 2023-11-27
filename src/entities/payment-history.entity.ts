@@ -14,7 +14,7 @@ export class PaymentHistory {
   member: Member;
 
   @Column()
-  paymenyType: string;
+  paymentType: string;
 
   @Column()
   paymentContent: string;

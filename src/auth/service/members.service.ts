@@ -58,12 +58,12 @@ export class MemberService {
   async updateMemberInfo(dto: UpdateMemberRequest, loginMember: Member) {
     try {
       // 1. 성별 정보가 이미 있는 경우
-      if (dto.getGener() && loginMember.gender) {
+      if (dto.getGender() && loginMember.gender) {
         throw new BadRequestException('성별은 한번 설정하면 변경이 불가능합니다.', ErrorCode.GenderChangedOnce);
       }
 
       // 2. 생년월일 정보가 이미 있는 경우
-      if (dto.getBirthDaate() && loginMember.birthDate) {
+      if (dto.getBirthDate() && loginMember.birthDate) {
         throw new BadRequestException('생년월일은 한번 설정하면 변경이 불가능합니다.', ErrorCode.BirthDateChangedOnce);
       }
       
@@ -108,8 +108,9 @@ export class MemberService {
       );
 
       // 3. 사용자 탈퇴 처리
-      loginMember.isActive = false;
-      await queryRunner.manager.save(loginMember);
+      await queryRunner.manager.query(
+        `UPDATE member SET is_active = false WHERE id = ${loginMember.id}`
+      );
 
       await queryRunner.commitTransaction();
 

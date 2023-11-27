@@ -20,5 +20,5 @@ export class Device extends CoreEntity {
         default: DeviceStatus.undetermined,
         nullable: false
     })
-    status: string;
+    status: DeviceStatus;
 }
