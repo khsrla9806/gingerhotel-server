@@ -52,8 +52,6 @@ export class AuthService {
           }
 
           const tokenPayload = { memberId: existingMember.id };
-
-          // TEMP: Move to Sign up Page
           
           if (!existingMember.hasHotel) {
             response.status(HttpStatus.OK);
@@ -65,7 +63,6 @@ export class AuthService {
             };
           }
           
-
           return {
             success: true,
             accessToken: this.jwtService.sign(tokenPayload),
@@ -134,28 +131,28 @@ export class AuthService {
   /**
    * 호텔을 생성하는 메서드
    */
-  async createHotel(member: Member, dto: CreateHotelRequest): Promise<CreateHotelResponse> {
+  async createHotel(loginMember: Member, dto: CreateHotelRequest): Promise<CreateHotelResponse> {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      if (member.hasHotel) {
-        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${member.id}`, ErrorCode.AlreadyHasHotel);
+      if (loginMember.hasHotel) {
+        throw new BadRequestException(`이미 호텔을 소유하고 있는 사용자입니다. ${loginMember.id}`, ErrorCode.AlreadyHasHotel);
       }
-      member.hasHotel = true;
+      loginMember.hasHotel = true;
 
       if (dto.birthDate) {
-        member.birthDate = dto.birthDate;
+        loginMember.birthDate = dto.birthDate;
       }
 
       if (dto.gender) {
-        member.gender = dto.gender;
+        loginMember.gender = dto.gender;
       }
 
       if (dto.code) {
-        if (member.code === dto.code) {
+        if (loginMember.code === dto.code) {
           throw new BadRequestException('자기 자신은 추천할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
         }
 
@@ -169,18 +166,22 @@ export class AuthService {
           throw new BadRequestException(`존재하지 않는 사용자 코드입니다. (입력한 코드: ${dto.code})`, ErrorCode.NotFoundResource);
         }
 
-        member.keyCount++;
+        loginMember.keyCount++;
         await queryRunner.manager.query(
           `UPDATE member SET key_count = ${recommendedMember.keyCount + 1} WHERE id = ${recommendedMember.id}`
         );
       }
 
-      const savedMember = await queryRunner.manager.save(member);
+      const savedMember = await queryRunner.manager.save(loginMember);
       const hotel = await queryRunner.manager.save(this.hotelRepository.create({
         nickname: dto.nickname,
         description: dto.description,
         structColor: dto.structColor,
         bodyColor: dto.bodyColor,
+        buildingDecorator: dto.buildingDecorator,
+        gardenDecorator: dto.gardenDecorator,
+        windowDecorator: dto.windowDecorator,
+        background: dto.background,
         member: savedMember
       }));
 
@@ -202,7 +203,7 @@ export class AuthService {
   /**
    * 사용자 코드로 존재하는 유저인지 확인하는 코드
    */
-  async checkMemeberByCode(loginMember: Member, code: string) {
+  async checkMemberByCode(loginMember: Member, code: string) {
     try {
       if (loginMember.code === code) {
         throw new BadRequestException('자신의 코드는 입력할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);

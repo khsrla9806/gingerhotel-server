@@ -106,14 +106,14 @@ export class RepliesService {
         throw new BadRequestException("이미지 첨부 기능을 사용할 수 없습니다.", ErrorCode.NotUseUploadImage);
       }
 
-      // 5. 오늘 날짜 확인 (yyyy-MM-dd) 후 오늘 날짜에 해당하는 호텔 창문이 존재하는지 쿼리
+      // 6. 오늘 날짜 확인 (yyyy-MM-dd) 후 오늘 날짜에 해당하는 호텔 창문이 존재하는지 쿼리
       const today: LocalDate = LocalDate.now();
       let hotelWindow: HotelWindow = await this.hotelWindowRepository
         .createQueryBuilder('hotelWindow')
         .where('hotelWindow.date = :today and hotelWindow.hotel.id = :hotelId', { today: today, hotelId: recipientsHotel.id })
         .getOne();
 
-      // 6. 창문이 존재하지 않는다면 창문을 생성
+      // 7. 창문이 존재하지 않는다면 창문을 생성
       if (!hotelWindow) {
         hotelWindow = await queryRunner.manager.save(this.hotelWindowRepository.create({
           hotel: recipientsHotel,
@@ -123,7 +123,7 @@ export class RepliesService {
         }));
       }
 
-      // 7. 답장 수신자의 편지 개수 제한을 확인
+      // 8. 답장 수신자의 편지 개수 제한을 확인
       const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
       const recipient: Member = recipientsHotel.member;
 
@@ -136,7 +136,7 @@ export class RepliesService {
         this.checkMaximumReceivedLetterCount(maxLetterCount, recievedLetterCount);
       }
 
-      // 8. 이미지와 편지 저장
+      // 9. 이미지와 편지 저장
       const imageURL: string = await this.saveImage(image);
 
       await queryRunner.manager.save(this.replyRepository.create({
@@ -149,13 +149,13 @@ export class RepliesService {
         imageUrl: imageURL
       }));
 
-      // 9. 답장 알림 Object 생성
+      // 10. 답장 알림 Object 생성
       const replyTypeDataObject = {
         letterId: letter.id
       };
       let notificationMessage: string;
 
-      // 10. 답장을 받아 창문이 열리는 경우에는 창문 열림 알림을 보냄, 그 외에는 답장 알림을 보냄
+      // 11. 답장을 받아 창문이 열리는 경우에는 창문 열림 알림을 보냄, 그 외에는 답장 알림을 보냄
       if (this.checkHotelWindowOpenCondition(recievedLetterCount + 1, hotelWindow)) {
         await queryRunner.manager.save(hotelWindow); // Update 반영
 

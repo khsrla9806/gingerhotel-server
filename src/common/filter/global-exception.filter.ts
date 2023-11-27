@@ -9,8 +9,8 @@ const { simple } = winston.format;
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  private readonly apiLogger;
-  private readonly basicLogger;
+  private readonly apiLogger: winston.Logger;
+  private readonly basicLogger: winston.Logger;
 
   constructor() {
     this.apiLogger = winston.createLogger({
@@ -46,9 +46,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
         errorCode = ErrorCode.InternalServerError;
         this.apiLogger.error(`[${LocalDateTime.now()}][${requestUrl}] ${exception}`);
-      }
-
-      if (status === HttpStatus.UNAUTHORIZED) {
+      } else if (status === HttpStatus.UNAUTHORIZED) {
         errorCode = ErrorCode.NotAuthenticated;
       }
 

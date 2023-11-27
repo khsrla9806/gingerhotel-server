@@ -3,7 +3,7 @@ import { MembershipType } from "./membership.type";
 import { ErrorCode } from "src/common/filter/code/error-code.enum";
 
 /*
-  hasLetterLimite: 편지 제한
+  hasLetterLimit: 편지 제한
   isPossibleAttachImage: 이미지 첨부 가능 여부
   isPossibleReply: 답장 사용 가능 여부
   isPossiblePeek: 엿보기 사용 가능 여부

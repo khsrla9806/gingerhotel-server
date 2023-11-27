@@ -15,11 +15,11 @@ export class UpdateMemberRequest {
     this.birthDate = birthDate;
   }
 
-  getGener(): Gender {
+  getGender(): Gender {
     return this.gender;
   }
 
-  getBirthDaate(): LocalDate {
+  getBirthDate(): LocalDate {
     return this.birthDate;
   }
 

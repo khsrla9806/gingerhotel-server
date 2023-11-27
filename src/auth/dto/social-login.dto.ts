@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsNotEmpty } from "class-validator";
 import { CommonResponse } from "src/common/dto/output.dto";
 
 export class SocialLoginResponse extends CommonResponse {
@@ -8,6 +9,7 @@ export class SocialLoginResponse extends CommonResponse {
 
 export class KakaoSocialRequest {
     @ApiProperty({ description: '[필수 O] kakao 로그인 사용자의 식별값', required: true })
+    @IsNotEmpty({ message: 'social id is required.' })
     id: string;
 
     @ApiPropertyOptional()
@@ -47,6 +49,7 @@ export class GoogleSocialRequest {
     aud?: string;
     
     @ApiProperty({ description: '[필수 O] google 로그인 사용자의 식별값', required: true })
+    @IsNotEmpty({ message: 'social sub is required.' })
     sub: string;
     
     @ApiPropertyOptional()
@@ -101,6 +104,7 @@ export class NaverSocialRequest {
     gender?: string;
     
     @ApiProperty({ description: '[필수 O] naver 로그인 사용자의 식별값', required: true })
+    @IsNotEmpty({ message: 'social id is required.' })
     id: string;
     
     @ApiPropertyOptional()
@@ -131,6 +135,7 @@ export class AppleSocialRequest {
     iat?: number;
     
     @ApiProperty({ description: '[필수 O] apple 로그인 사용자의 식별값', required: true })
+    @IsNotEmpty({ message: 'social sub is required.' })
     sub: string;
     
     @ApiPropertyOptional()

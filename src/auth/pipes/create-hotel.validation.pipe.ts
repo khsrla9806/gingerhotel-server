@@ -40,8 +40,8 @@ export class CreateHotelValidationPipe implements PipeTransform {
         }
         value.nickname = value.nickname.trim();
 
-        if (value.nickname.length > 7 || value.nickname.length < 1) {
-          throw new Error('닉네임은 최대 7글자입니다.');
+        if (value.nickname.length > 8 || value.nickname.length < 1) {
+          throw new Error('닉네임은 최대 8글자입니다.');
         }
 
         if (!value.description) {
@@ -52,7 +52,7 @@ export class CreateHotelValidationPipe implements PipeTransform {
         }
         value.description = value.description.trim();
 
-        if (value.description.length > 25) {
+        if (value.description.length > 25 || value.description.length < 1) {
           throw new Error('호텔 설명은 최대 25글자입니다.');
         }
 
