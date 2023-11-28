@@ -10,7 +10,7 @@ import { Response } from 'express';
 import { CreateHotelRequest } from '../dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from '../pipes/create-hotel.validation.pipe';
-import { CheckMemberByCodeAPI, CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
+import { CheckAuthAPI, CheckMemberByCodeAPI, CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
 import { MemberCodeValidationPipe } from '../pipes/member-code.validation.pipe';
 
 import * as jwt from "jsonwebtoken";
@@ -23,6 +23,15 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService
   ) {}
+
+  @Get()
+  @UseGuards(AuthGuard())
+  @CheckAuthAPI()
+  checkAuth() {
+    return {
+      success: true
+    };
+  }
 
   @Post('/kakao')
   @SocialLoginAPI(Vendor.KAKAO, KakaoSocialRequest)

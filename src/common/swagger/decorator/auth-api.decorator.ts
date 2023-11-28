@@ -1,7 +1,36 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { CreateHotelRequest } from "src/auth/dto/create-hotel.dto";
 import { Vendor } from "src/entities/domain/vendor.type";
+
+/**
+ * 토큰으로 유효한 사용자인지 확인하는 API
+ */
+export function CheckAuthAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '토큰으로 유효한 사용자인지 확인하는 API', description: 'AccessToken으로 유효한 사용자인지 확인' }),
+    ApiOkResponse({
+      description: '인증 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiUnauthorizedResponse({
+      description: '인증 실패',
+      schema: {
+        example: {
+          success: false,
+          errorCode: "1002",
+          errorMessage: "Unauthorized"
+      }
+      }
+    }),
+    ApiBearerAuth()
+  );
+}
+
 
 /**
  * 소셜 로그인 API DOCS 데코레이터
