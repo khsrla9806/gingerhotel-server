@@ -62,7 +62,7 @@ export class RepliesService {
         .innerJoin('hotel.member', 'member')
         .select([
           'letter', 'sender.id', 'hotelWindow.id', 'hotel.id', 'hotel.nickname', 
-          'member.id', 'member.isActive', 'member.membership'
+          'member.id', 'member.isActive', 'member.membership', 'member.feekCount'
         ])
         .where('letter.id = :letterId', { letterId: letterId })
         .getOne();
@@ -172,6 +172,13 @@ export class RepliesService {
           message: notificationMessage,
           isChecked: false
         }));
+
+        // 호텔 주인의 엿보기 개수를 5개 증가시키는 로직 (창문이 열리면 엿보기 5개를 제공함)
+        await queryRunner.manager.query(
+          'UPDATE member SET feek_count = $1 WHERE id = $2',
+          [recipient.feekCount + 5, recipient.id]
+        );
+        
       } else {
         notificationMessage = '편지함에 답장이 도착했어요!';
         const notification: NotificationHistory = queryRunner.manager
@@ -250,7 +257,7 @@ export class RepliesService {
     return await this.hotelRepository
       .createQueryBuilder('hotel')
       .innerJoin('hotel.member', 'member')
-      .select(['hotel', 'member.id', 'member.isActive', 'member.membership'])
+      .select(['hotel', 'member.id', 'member.isActive', 'member.membership', 'member.feekCount'])
       .where('member.id = :memberId and member.isActive = true', { memberId: letter.sender.id })
       .getOne();
   }
