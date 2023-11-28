@@ -5,7 +5,7 @@ export class CreateLetterRequest {
   @ApiProperty({ description: '편지 작성자가 입력한 닉네임', example: '헤르미온느' })
   @IsNotEmpty({ message: '작성자 닉네임은 필수 값입니다.' })
   @MinLength(1, { message: '작성자 닉네임은 최소 1글자이상 작성해야 합니다.' })
-  @MaxLength(8, { message: '작성자 닉네임은 최대 8자입니다.' })
+  @MaxLength(15, { message: '작성자 닉네임은 최대 15자입니다.' })
   senderNickname: string;
 
   @ApiProperty({ description: '편지 작성자가 입력한 편지 내용', example: '포터야 이번주에 영화보러 갈래?' })
