@@ -34,6 +34,30 @@ export class AuthService {
   }
 
   /**
+   * 인증된 사용자 확인
+   */
+  async checkAuth(loginMember: Member) {
+    try {
+
+      // 해당 멤버의 호텔 정보를 가져온다.
+      const hotel: Hotel = await this.hotelRepository
+        .createQueryBuilder('hotel')
+        .select(['hotel.id'])
+        .where('hotel.member.id = :memberId', { memberId: loginMember.id })
+        .getOne();
+      
+      return {
+        success: hotel ? true : false,
+        hotelId: hotel ? hotel.id : 0
+      }
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  /**
    * 소셜 로그인
    */
   async socialLogin(email: string, socialId: string, vendor: Vendor, response: Response): Promise<SocialLoginResponse> {

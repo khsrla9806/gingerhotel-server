@@ -27,10 +27,10 @@ export class AuthController {
   @Get()
   @UseGuards(AuthGuard())
   @CheckAuthAPI()
-  checkAuth() {
-    return {
-      success: true
-    };
+  async checkAuth(
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.authService.checkAuth(loginMember);
   }
 
   @Post('/kakao')
