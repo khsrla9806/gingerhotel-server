@@ -144,6 +144,7 @@ export class RepliesService {
         sender: loginMember,
         letter: letter,
         content: dto.content,
+        ip: dto.ip,
         isDeleted: false,
         isBlocked: false,
         imageUrl: imageURL

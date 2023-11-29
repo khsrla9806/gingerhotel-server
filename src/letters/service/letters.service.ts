@@ -125,6 +125,7 @@ export class LettersService {
         sender: loginMember,
         senderNickname: dto.senderNickname,
         content: dto.content,
+        ip: dto.ip,
         imageUrl: imageURL,
         isDeleted: false,
         isBlocked: false
