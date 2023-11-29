@@ -1,6 +1,7 @@
 import { LocalDate } from "@js-joda/core";
 import { ArgumentMetadata, BadRequestException, PipeTransform } from "@nestjs/common";
 import { ErrorCode } from "src/common/filter/code/error-code.enum";
+import { Gender } from "src/entities/domain/gender.type";
 import { Background, BuildingDecorator, GardenDecorator, WindowDecorator } from "src/entities/domain/hotel-decorator.type";
 
 export class CreateHotelValidationPipe implements PipeTransform {
@@ -19,6 +20,10 @@ export class CreateHotelValidationPipe implements PipeTransform {
 
         if (!pattern.test(value.structColor) || !pattern.test(value.bodyColor)) {
           throw new Error('잘못된 색상 코드 형태입니다.');
+        }
+
+        if (value.gender && !Gender[value.gender]) {
+          throw new Error('잘못된 성별 데이터입니다. MAN | WOMAN');
         }
 
         if (value.birthDate) {
