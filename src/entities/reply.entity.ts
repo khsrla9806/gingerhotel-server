@@ -32,4 +32,7 @@ export class Reply extends CoreEntity {
 
   @Column({ nullable: true, length: 1000 })
   imageUrl: string;
+
+  @Column({ nullable: false, default: '0.0.0.0' })
+  ip: string;
 }

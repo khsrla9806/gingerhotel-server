@@ -8,6 +8,10 @@ export class CreateReplyRequest {
   @MaxLength(300, { message: '편지 내용은 최대 300자입니다.' })
   content: string;
 
+  @ApiProperty({ description: '편지 작성자의 ip 정보', example: '127.0.0.1' })
+  @IsNotEmpty({ message: 'ip 정보는 필수 입니다.' })
+  ip: string;
+
   @ApiPropertyOptional({ description: '답장 작성자 첨부한 이미지', type: 'string', format: 'binary' })
   image?: Express.Multer.File;
 }
