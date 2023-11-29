@@ -8,11 +8,6 @@ export class UpdateMemberValidationPipe implements PipeTransform {
 
   transform(value: any, metadata: ArgumentMetadata) {
       try {
-
-        if (!value.gender && !value.birthDate) {
-          throw new Error('성별 또는 생년월일 중 최소 1개의 데이터는 존재해야 합니다.');
-        }
-        
         let convertedGender = null;
         let convertedBirthDate: LocalDate = null;
 

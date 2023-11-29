@@ -57,17 +57,7 @@ export class MemberService {
    */
   async updateMemberInfo(dto: UpdateMemberRequest, loginMember: Member) {
     try {
-      // 1. 성별 정보가 이미 있는 경우
-      if (dto.getGender() && loginMember.gender) {
-        throw new BadRequestException('성별은 한번 설정하면 변경이 불가능합니다.', ErrorCode.GenderChangedOnce);
-      }
-
-      // 2. 생년월일 정보가 이미 있는 경우
-      if (dto.getBirthDate() && loginMember.birthDate) {
-        throw new BadRequestException('생년월일은 한번 설정하면 변경이 불가능합니다.', ErrorCode.BirthDateChangedOnce);
-      }
-      
-      // 3. 사용자의 성별, 생년월일을 수정 (존재한다면)
+      // 사용자의 성별, 생년월일을 수정 (존재한다면)
       const updatedMember: Member = await this.memberRepository.save(dto.getUpdatedMember(loginMember));
 
       return {
