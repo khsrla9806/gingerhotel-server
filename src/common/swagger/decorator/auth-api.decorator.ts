@@ -10,15 +10,16 @@ export function CheckAuthAPI() {
   return applyDecorators(
     ApiOperation({ summary: '토큰으로 유효한 사용자인지 확인하는 API', description: 'AccessToken으로 유효한 사용자인지 확인' }),
     ApiOkResponse({
-      description: '인증 성공',
+      description: '토큰 인증 성공',
       schema: {
         example: {
-          success: true
+          success: true,
+          hotelId: 12
         }
       }
     }),
     ApiUnauthorizedResponse({
-      description: '인증 실패',
+      description: '토큰 인증 실패',
       schema: {
         example: {
           success: false,
