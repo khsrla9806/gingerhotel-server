@@ -17,9 +17,6 @@ import { NotificationType } from 'src/entities/domain/notification.type';
 import { Feek } from 'src/entities/feek.entity';
 import { S3Service, S3UploadResponse } from 'src/common/utils/s3.service';
 import { LetterLimit } from 'src/entities/domain/letter-limit.type';
-import { Device } from 'src/entities/device.entity';
-import { DeviceStatus } from 'src/entities/domain/device-status.type';
-import fetch from 'node-fetch';
 import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 
 @Injectable()
@@ -594,30 +591,64 @@ export class LettersService {
       LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(letters);
 
       // 4. 오늘 날짜에 해당하는 답장을 내림차순으로 정렬
-      const replies: Reply[] = await this.replyRepository
-        .createQueryBuilder('reply')
-        .innerJoin('reply.letter', 'letter')
-        .select('reply.id', 'id')
-        .addSelect('letter.id', 'letterId')
-        .addSelect('letter.senderNickname', 'senderNickname')
-        .addSelect('reply.content', 'content')
-        .addSelect('reply.imageUrl', 'imageUrl')
-        .addSelect('reply.isBlocked', 'isBlocked')
-        .addSelect('reply.createdAt', 'createdAt')
-        .where('reply.hotelWindow.id = :hotelWindowId and reply.isDeleted = false', { hotelWindowId: hotelWindow.id })
-        .orderBy('reply.createdAt', 'DESC')
-        .getRawMany();
+      const replies: ReplyProjectionForGetLetters[] = await this.dataSource.manager
+        .query(`
+          SELECT
+            reply.id AS id,
+            reply.created_at AS "createdAt",
+            reply.content AS "content",
+            reply.is_blocked AS "isBlocked",
+            reply.image_url AS "imageUrl",
+            letter.id AS "letterId",
+            letter.sender_id AS "letterSenderId",
+            letter.sender_nickname AS "letterSenderNickname",
+            sender.id AS "replySenderId",
+            hotel.nickname AS "replySenderRealNickname"
+          FROM
+            reply reply
+            INNER JOIN letter letter ON letter.id = reply.letter_id 
+            INNER JOIN member sender ON sender.id = reply.sender_id 
+            INNER JOIN hotel hotel ON hotel.member_id = sender.id 
+          WHERE 
+            reply.hotel_window_id = $1 AND reply.is_deleted = false 
+          ORDER BY
+            reply.id DESC;
+          `, 
+          [hotelWindow.id]
+        );
 
-      LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(replies);
+      const filteredReplies: ReplyForGetLetters[] = this.getFilteredReplies(loginMember.id, replies);
+
+      LocalDateTimeConverter.convertCreatedAtToLocalDateTimeInList(filteredReplies);
 
       return {
         success: true,
         letters: letters,
-        replies: replies
+        replies: filteredReplies
       }
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * reply 프로젝션 데이터를 받아서 senderNickname을 확인하는 메서드
+   */
+  private getFilteredReplies(requestorId: number, replyProjectionData: ReplyProjectionForGetLetters[]): ReplyForGetLetters[] {
+    return replyProjectionData.map((data): ReplyForGetLetters => {
+      return {
+        id: data.id,
+        createdAt: data.createdAt,
+        content: data.content,
+        isBlocked: data.isBlocked,
+        imageUrl: data.imageUrl,
+        letterId: data.letterId,
+        /*
+         * 요창한 사람이랑 최초 편지 보낸 사람이 같은 사람이면 답장 상대를 알고 있기 때문에 상대방의 진짜 닉네임을, 다른 사람이면 모르기 때문에 편지에 작성한 닉네임을 반환
+         */
+        senderNickname: data.letterSenderId === requestorId ? data.replySenderRealNickname : data.letterSenderNickname
+      }
+    })
   }
 
   /**
@@ -697,4 +728,27 @@ export class LettersService {
 
     return queryBuilder;
   }
+}
+
+type ReplyProjectionForGetLetters = {
+  id: number,
+  createdAt: Date,
+  content: string,
+  isBlocked: boolean,
+  imageUrl: string,
+  letterId: number,
+  letterSenderId: number,
+  letterSenderNickname: string,
+  replySenderId: number,
+  replySenderRealNickname: string
+}
+
+type ReplyForGetLetters = {
+  id: number,
+  createdAt: Date,
+  content: string,
+  isBlocked: boolean,
+  imageUrl: string,
+  letterId: number,
+  senderNickname: string
 }
