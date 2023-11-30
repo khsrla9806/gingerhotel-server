@@ -19,7 +19,12 @@ async function bootstrap() {
   }));
   /* cors setting start */
   app.enableCors({
-    origin: ['https://www.ginger-hotel.site', 'https://www.gingerhotel.site', 'http://localhost:8081'],
+    origin: [
+      'https://www.ginger-hotel.site', 
+      'https://www.gingerhotel.site', 
+      'http://localhost:8081',
+      'https://release.d144dxif1q3m24.amplifyapp.com' // 개발 호스팅 도메인
+    ],
     credentials: true,
     exposedHeaders: ['Authorization']
   });
