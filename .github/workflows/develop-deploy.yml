@@ -40,7 +40,7 @@ jobs:
         with:
           host: ${{ secrets.DEVELOP_HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.DEVELOP_KEY }}
           port: ${{ secrets.PORT }}
           timeout: 40s
 
