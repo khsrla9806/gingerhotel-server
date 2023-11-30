@@ -1,0 +1,47 @@
+name: GINGER DEVELOP SERVER DEPLOY
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Nodejs 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.20.2
+          cache: 'npm'
+
+      - name: Setting Production Env
+        run: echo "${{ secrets.DEVELOP_ENV }}" >> .env.prod
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_REPO }}/ginger-hotel:develop
+
+      - name: SSH Remote Command
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.DEVELOP_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.DEVELOP_KEY }}
+          port: ${{ secrets.PORT }}
+          timeout: 40s
+
+          script: ./start-docker.sh
