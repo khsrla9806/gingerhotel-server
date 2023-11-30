@@ -8,12 +8,13 @@ import { Reply } from "src/entities/reply.entity";
 
 export class GetRepliesResponse {
   private success: boolean;
-  private letter: LetterDTO;
+  private letter: LetterDTO[];
   private replies: ReplyDTO[];
 
   constructor(letter: Letter, feek: Feek, replies: Reply[], loginMember: Member) {
     this.success = true;
-    this.letter = LetterDTO.from(letter, feek, loginMember);
+    const letterObject: LetterDTO[] = [LetterDTO.from(letter, feek, loginMember)];
+    this.letter = letterObject;
     this.replies = replies.map((reply: Reply): ReplyDTO => ReplyDTO.from(reply, letter, loginMember));;
   }
 }
@@ -21,7 +22,7 @@ export class GetRepliesResponse {
 export class LetterDTO {
   private constructor(
     private id: number,
-    private nickname: string,
+    private senderNickname: string,
     private content: string,
     private date: LocalDate,
     private isOpen: boolean,
@@ -60,7 +61,7 @@ export class LetterDTO {
 export class ReplyDTO {
   constructor(
     private id: number,
-    private nickname: string,
+    private senderNickname: string,
     private content: string,
     private date: LocalDate,
     private isOpen: boolean,
