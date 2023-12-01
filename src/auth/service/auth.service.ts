@@ -11,6 +11,7 @@ import { CreateHotelRequest, CreateHotelResponse } from '../dto/create-hotel.dto
 import { Hotel } from 'src/entities/hotel.entity';
 import * as winston from 'winston';
 import { ErrorCode } from 'src/common/filter/code/error-code.enum';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -70,28 +71,28 @@ export class AuthService {
         )
         .getOne();
         
-        if (existingMember) {
-          if (!existingMember.isActive) {
-            throw new BadRequestException('탈퇴한 사용자입니다.', ErrorCode.NotAuthenticated);
-          }
+      if (existingMember) {
+        if (!existingMember.isActive) {
+          throw new BadRequestException('탈퇴한 사용자입니다.', ErrorCode.NotAuthenticated);
+        }
 
-          const tokenPayload = { memberId: existingMember.id };
-          
-          if (!existingMember.hasHotel) {
-            response.status(HttpStatus.OK);
-            
-            return {
-              success: false,
-              error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingMember.id}`,
-              accessToken: this.jwtService.sign(tokenPayload)
-            };
-          }
+        const tokenPayload = { memberId: existingMember.id };
+        
+        if (!existingMember.hasHotel) {
+          response.status(HttpStatus.OK);
           
           return {
-            success: true,
-            accessToken: this.jwtService.sign(tokenPayload),
-          }
+            success: false,
+            error: `유저의 호텔이 존재하지 않습니다. 호텔 생성을 완료해주세요. : ${existingMember.id}`,
+            accessToken: this.jwtService.sign(tokenPayload)
+          };
         }
+        
+        return {
+          success: true,
+          accessToken: this.jwtService.sign(tokenPayload),
+        }
+      }
       
       const code: string = await this.generateMemberCode(7);
 
@@ -106,6 +107,21 @@ export class AuthService {
         feekCount: 0,
         keyCount: 0
       }));
+
+      // 새로운 사용자가 가입하면 웹 훅 알림을 보냄
+      const webHookURL = process.env.DISCORD_WEB_HOOK_URL;
+      const axios = require('axios');
+
+      if (webHookURL) {
+        try {
+          axios.post(webHookURL, {
+            'content': `😙  💌 ${member.id}번님이 진저호텔에 새롭게 가입했습니다. 💌`
+          });
+        } catch (error) {
+          // 웹 훅은 중요한 요소가 아니기 때문에 에러가 생기면 그냥 버린다.
+        }
+      }
+
 
       if (!code) {
         this.logger.error(`[memberId: ${member.id}] code is null`);
