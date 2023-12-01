@@ -108,14 +108,14 @@ export class AuthService {
         keyCount: 0
       }));
 
-      // 새로운 사용자가 가입하면 웹 훅 알림을 보냄
+      // 새로운 사용자가 가입하면 웹 훅 알림을 보냄 (100명 단위로 보냄)
       const webHookURL = process.env.DISCORD_WEB_HOOK_URL;
       const axios = require('axios');
 
-      if (webHookURL) {
+      if (webHookURL && (member.id % 100 === 0)) {
         try {
           axios.post(webHookURL, {
-            'content': `😙  💌 ${member.id}번님이 진저호텔에 새롭게 가입했습니다. 💌`
+            'content': `😙  💌 ${member.id}번째 사용자가 진저호텔에 새롭게 가입했습니다. 💌`
           });
         } catch (error) {
           // 웹 훅은 중요한 요소가 아니기 때문에 에러가 생기면 그냥 버린다.
