@@ -36,6 +36,15 @@ export class VillageService {
         throw new BadRequestException('자기 자신은 빌리지에 추가할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
       }
 
+      const villageCount: number = await this.villageRepository
+        .createQueryBuilder('village')
+        .where('village.fromMember.id = :fromMemberId', { fromMemberId: loginMember.id })
+        .getCount();
+
+      if (villageCount >= 10) {
+        throw new BadRequestException('빌리지는 10명까지만 추가 가능합니다.', ErrorCode.VillageLimitExceed);
+      }
+
       const village: Village = await this.villageRepository
         .createQueryBuilder('village')
         .where('village.fromMember.id = :fromMemberId and village.toHotel.id = :toHotelId', { fromMemberId: loginMember.id, toHotelId: hotel.id })

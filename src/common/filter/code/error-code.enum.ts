@@ -33,6 +33,7 @@ export enum ErrorCode {
     // Village Error (4XXX)
     IsNotMyFriend = '4001', // 내 빌리지에 존재하지 않는 사용자입니다. 빌리지에서 해제할 수 없습니다.
     AlreadyMyFriend = '4002', // 이미 내 빌리지에 추가된 사용자입니다. 빌리지에 등록할 수 없습니다.
+    VillageLimitExceed = '4003', // 빌리지는 10명까지 등록이 가능합니다.
 
     // Feek Error (5XXX)
     InsufficientFeekCount = '5001', // 엿보기 개수가 부족합니다.
