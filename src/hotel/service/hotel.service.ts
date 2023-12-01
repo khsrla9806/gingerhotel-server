@@ -68,7 +68,9 @@ export class HotelService {
       let isBlocked: boolean = false;
 
       if (loginMember) {
-        isLoginMember = true;
+        if (loginMember.hasHotel) {
+          isLoginMember = true; // AccessToken이 있는데, 호텔이 없으면 로그인하지 않은 사용자로 판단
+        }
 
         if (hotel.member.id === loginMember.id) {
           isOwner = true;
