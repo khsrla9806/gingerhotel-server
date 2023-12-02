@@ -112,7 +112,7 @@ export class AuthService {
       const webHookURL = process.env.DISCORD_WEB_HOOK_URL;
       const axios = require('axios');
 
-      if (webHookURL && (member.id % 100 === 0)) {
+      if (webHookURL && (member.id % 50 === 0)) {
         try {
           axios.post(webHookURL, {
             'content': `😙  💌 ${member.id}번째 사용자가 진저호텔에 새롭게 가입했습니다. 💌`
