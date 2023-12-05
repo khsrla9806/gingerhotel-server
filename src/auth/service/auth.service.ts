@@ -108,11 +108,12 @@ export class AuthService {
         keyCount: 0
       }));
 
-      // 새로운 사용자가 가입하면 웹 훅 알림을 보냄 (100명 단위로 보냄)
+      // 새로운 사용자가 가입하면 웹 훅 알림을 보냄 (perUnit명 단위로 보냄)
       const webHookURL = process.env.DISCORD_WEB_HOOK_URL;
+      const perUnit: number = 1;
       const axios = require('axios');
 
-      if (webHookURL && (member.id % 50 === 0)) {
+      if (webHookURL && (member.id % perUnit === 0)) {
         try {
           axios.post(webHookURL, {
             'content': `😙  💌 ${member.id}번째 사용자가 진저호텔에 새롭게 가입했습니다. 💌`
