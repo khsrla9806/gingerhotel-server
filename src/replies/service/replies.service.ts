@@ -127,14 +127,13 @@ export class RepliesService {
       const recievedLetterCount: number = await this.getRecievedLetterCount(hotelWindow);
       const recipient: Member = recipientsHotel.member;
 
-      if (recipient.getMembershipInfo().hasLetterLimit) {
-        let maxLetterCount: number = LetterLimit.limitCount;
+      let maxLetterCount: number = LetterLimit.limitCount;
         // 광고로 편지 제한을 풀어서 hotelWindow의 hasLimit가 false인 경우에는 maxLetterCount가 100으로 설정
-        if (!hotelWindow.hasLimit) {
+        // hotel 주인의 MemberShip 정보의 hasLetterLimit가 false인 경우에도 maxLetterCount를 100으로 설정
+        if (!hotelWindow.hasLimit || !recipient.getMembershipInfo().hasLetterLimit) {
           maxLetterCount = LetterLimit.unlimitCount;
         }
         this.checkMaximumReceivedLetterCount(maxLetterCount, recievedLetterCount);
-      }
 
       // 9. 이미지와 편지 저장
       const imageURL: string = await this.saveImage(image);
