@@ -223,7 +223,7 @@ export class FeekService {
           });
         await queryRunner.manager.save(notification);
 
-        // await this.pushNotification(queryRunner, feek.requestor.id, notificationMessage, feekAcceptTypeDataObject);
+        await this.pushNotification(queryRunner, feek.requestor.id, notificationMessage, feekAcceptTypeDataObject);
       }
 
       await queryRunner.commitTransaction();
@@ -300,7 +300,7 @@ export class FeekService {
           });
         await queryRunner.manager.save(notification);
 
-        // await this.pushNotification(queryRunner, feek.requestor.id, notificationMessage, feekRejectTypeDataObject);
+        await this.pushNotification(queryRunner, feek.requestor.id, notificationMessage, feekRejectTypeDataObject);
       }
       await queryRunner.commitTransaction();
 
@@ -344,7 +344,7 @@ export class FeekService {
               body: '',
               data: typeDataObject
             }
-            fetch("https://exp.host/--/api/v2/push/send", {
+            await fetch("https://exp.host/--/api/v2/push/send", {
               method: "POST",
               headers: {
                 Accept: "application/json",
