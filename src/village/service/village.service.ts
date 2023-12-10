@@ -13,7 +13,9 @@ export class VillageService {
     @InjectRepository(Village)
     private readonly villageRepository: Repository<Village>,
     @InjectRepository(Hotel)
-    private readonly hotelRepository: Repository<Hotel>
+    private readonly hotelRepository: Repository<Hotel>,
+    @InjectRepository(Member)
+    private readonly memberRepository: Repository<Member>
   ) {}
 
   /**
@@ -131,6 +133,73 @@ export class VillageService {
       return {
         success: true,
         villages: villages
+      }
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 사용자 코드로 빌리지 추가하기
+   */
+  async createVillageByCode(code: string, loginMember: Member) {
+    try {
+      // 존재하는 사용자 코드인지 확인
+      const member: Member = await this.memberRepository
+        .createQueryBuilder('member')
+        .where('member.code = :code and member.isActive = true', { code: code })
+        .getOne();
+
+      if (!member) {
+        throw new BadRequestException('잘못된 친구 코드입니다.', ErrorCode.InvalidFriendCode);
+      }
+
+      // 자기 자신인지 확인
+      if (member.id === loginMember.id) {
+        throw new BadRequestException('자기 자신은 빌리지에 추가할 수 없습니다.', ErrorCode.NotRequestOnesOwnSelf);
+      }
+
+      // 빌리지 추가 가능 여부 확인
+      const villageCount: number = await this.villageRepository
+        .createQueryBuilder('village')
+        .where('village.fromMember.id = :fromMemberId', { fromMemberId: loginMember.id })
+        .getCount();
+
+      if (villageCount >= 10) {
+        throw new BadRequestException('빌리지는 10명까지만 추가 가능합니다.', ErrorCode.VillageLimitExceed);
+      }
+      
+      // 사용자의 호텔을 확인
+      const hotel: Hotel = await this.hotelRepository
+        .createQueryBuilder('hotel')
+        .where('hotel.member.id = :memberId', { memberId: member.id })
+        .getOne();
+
+      if (!hotel) {
+        throw new BadRequestException('존재하지 않는 호텔 정보입니다.', ErrorCode.NotFoundResource);
+      }
+
+      // 빌리지에 존재하는지 여부 확인
+      if (villageCount > 0) {
+        const village: Village = await this.villageRepository
+          .createQueryBuilder('village')
+          .where('village.fromMember.id = :fromMemberId and village.toHotel.id = :toHotelId', { fromMemberId: loginMember.id, toHotelId: hotel.id })
+          .getOne();
+
+        if (village) {
+          throw new BadRequestException('이미 내 빌리지에 등록한 사용자입니다.', ErrorCode.AlreadyMyFriend);
+        }
+      }
+
+      await this.villageRepository.save(this.villageRepository.create({
+        fromMember: loginMember,
+        toHotel: hotel,
+        isBookmark: false
+      }));
+
+      return {
+        success: true
       }
 
     } catch (error) {

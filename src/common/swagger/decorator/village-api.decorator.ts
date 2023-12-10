@@ -124,3 +124,28 @@ export function GetVillagesAPI() {
     ApiBearerAuth('Authorization')
   );
 }
+
+export function CreateVillageByCodeAPI() {
+  return applyDecorators(
+    ApiOperation({ summary: '코드 이용하여 빌리지에 사용자 등록', description: '사용자의 코드를 이용하여 빌리지에 추가합니다.' }),
+    ApiCreatedResponse({
+      description: '빌리지 등록 성공',
+      schema: {
+        example: {
+          success: true
+        }
+      }
+    }),
+    ApiBadRequestResponse({
+      description: '빌리지 등록 실패',
+      schema: {
+        example: {
+          "success": false,
+          "errorCode": '1003',
+          "errorMessage": '에러 메시지'
+        }
+      }
+    }),
+    ApiBearerAuth('Authorization')
+  );
+}

@@ -3,8 +3,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { LoginMember } from 'src/auth/decorator/login-member.decorator';
 import { Member } from 'src/entities/member.entity';
 import { VillageService } from '../service/village.service';
-import { CreateVillageAPI, DeleteVillageAPI, GetVillagesAPI } from 'src/common/swagger/decorator/village-api.decorator';
+import { CreateVillageAPI, CreateVillageByCodeAPI, DeleteVillageAPI, GetVillagesAPI } from 'src/common/swagger/decorator/village-api.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { MemberCodeValidationPipe } from 'src/common/pipes/member-code.validation.pipe';
 
 
 @Controller('villages')
@@ -39,5 +40,15 @@ export class VillageController {
   @GetVillagesAPI()
   async getVillages(@LoginMember() loginMember: Member) {
     return await this.villageService.getVillages(loginMember);
+  }
+
+  @Post('/member/:code')
+  @UseGuards(AuthGuard())
+  @CreateVillageByCodeAPI()
+  async createVillageByCode(
+    @Param('code', MemberCodeValidationPipe) code: string,
+    @LoginMember() loginMember: Member
+  ) {
+    return await this.villageService.createVillageByCode(code, loginMember);
   }
 }
