@@ -11,7 +11,7 @@ import { CreateHotelRequest } from '../dto/create-hotel.dto';
 import { CommonResponse } from 'src/common/dto/output.dto';
 import { CreateHotelValidationPipe } from '../pipes/create-hotel.validation.pipe';
 import { CheckAuthAPI, CheckMemberByCodeAPI, CreateHotelAPI, SocialLoginAPI } from 'src/common/swagger/decorator/auth-api.decorator';
-import { MemberCodeValidationPipe } from '../pipes/member-code.validation.pipe';
+import { MemberCodeValidationPipe } from '../../common/pipes/member-code.validation.pipe';
 
 import * as jwt from "jsonwebtoken";
 import { ErrorCode } from 'src/common/filter/code/error-code.enum';
