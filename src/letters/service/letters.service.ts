@@ -20,6 +20,7 @@ import { LetterLimit } from 'src/entities/domain/letter-limit.type';
 import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 import { Device } from 'src/entities/device.entity';
 import { DeviceStatus } from 'src/entities/domain/device-status.type';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class LettersService {
@@ -184,15 +185,15 @@ export class LettersService {
             if (device.status === DeviceStatus.granted) {
               const message = {
                 to: device.token,
-                sound: 'default',
+                sound: "default",
                 title: notificationMessage,
-                body: '',
+                body: "",
                 data: letterTypeDataObject
               }
               await fetch("https://exp.host/--/api/v2/push/send", {
                 method: "POST",
                 headers: {
-                  Accept: "application/json",
+                  "Accept": "application/json",
                   "Accept-encoding": "gzip, deflate",
                   "Content-Type": "application/json",
                 },
