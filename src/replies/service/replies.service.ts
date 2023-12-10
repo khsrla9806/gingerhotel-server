@@ -193,7 +193,6 @@ export class RepliesService {
         await queryRunner.manager.save(notification);
       }
 
-      /* TEMP: 푸시 알림 기능 주석 처리
       // 12. 디바이스가 존재한다면 푸시 알림을 보냄
       const devices: Device[] = await queryRunner.manager.getRepository(Device)
         .createQueryBuilder('device')
@@ -214,7 +213,7 @@ export class RepliesService {
                 body: '',
                 data: replyTypeDataObject
               }
-              fetch("https://exp.host/--/api/v2/push/send", {
+              await fetch("https://exp.host/--/api/v2/push/send", {
                 method: "POST",
                 headers: {
                   Accept: "application/json",
@@ -227,7 +226,6 @@ export class RepliesService {
           }
         }
       } catch (error) {}
-      */
       
       await queryRunner.commitTransaction();
 
