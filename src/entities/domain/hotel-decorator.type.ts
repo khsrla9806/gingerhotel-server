@@ -10,7 +10,10 @@ export enum BuildingDecorator {
 export enum GardenDecorator {
     gardenDeco01 = 'gardenDeco01',
     gardenDeco02 = 'gardenDeco02',
-    gardenDeco03 = 'gardenDeco03'
+    gardenDeco03 = 'gardenDeco03',
+    gardenDeco04 = 'gardenDeco04',
+    gardenDeco05 = 'gardenDeco05',
+    gardenDeco06 = 'gardenDeco06'
 }
 
 // 창문 장식 (2개)

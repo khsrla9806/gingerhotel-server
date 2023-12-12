@@ -23,7 +23,8 @@ async function bootstrap() {
       'https://www.ginger-hotel.site', 
       'https://www.gingerhotel.site', 
       'http://localhost:8081',
-      'https://release.d144dxif1q3m24.amplifyapp.com' // 개발 호스팅 도메인
+      'https://release.d144dxif1q3m24.amplifyapp.com', // 개발 호스팅 도메인
+      'https://dev.d144dxif1q3m24.amplifyapp.com'
     ],
     credentials: true,
     exposedHeaders: ['Authorization']
