@@ -21,6 +21,7 @@ import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 import { Device } from 'src/entities/device.entity';
 import { DeviceStatus } from 'src/entities/domain/device-status.type';
 import fetch from 'node-fetch';
+import { localDateTimeUtils } from 'src/common/utils/local-date-time.utils';
 
 @Injectable()
 export class LettersService {
@@ -568,7 +569,8 @@ export class LettersService {
         throw new BadRequestException(`${date}에 받은 편지가 존재하지 않습니다.`, ErrorCode.EmptyWindow);
       }
 
-      if (!hotelWindow.isOpen) {
+      // 크리스마스(2023년 12월 25일) 전까지만 창문의 개폐를 확인하고, 그 이후부터는 확인 X
+      if (!localDateTimeUtils.isTargetDate() && !hotelWindow.isOpen) {
         throw new BadRequestException(`${date} 창문이 닫혀있습니다.`, ErrorCode.WindowClosed);
       }
 

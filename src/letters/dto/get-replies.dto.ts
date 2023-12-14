@@ -1,5 +1,6 @@
 import { LocalDate, LocalDateTime } from "@js-joda/core";
 import { LocalDateTimeConverter } from "src/common/utils/local-date-time.converter";
+import { localDateTimeUtils } from "src/common/utils/local-date-time.utils";
 import { FeekStatus } from "src/entities/domain/feek-status.type";
 import { Feek } from "src/entities/feek.entity";
 import { Letter } from "src/entities/letter.entity";
@@ -47,7 +48,7 @@ export class LetterDTO {
       letter.senderNickname,
       letter.content,
       letter.hotelWindow.date,
-      letter.hotelWindow.isOpen,
+      localDateTimeUtils.isTargetDate() ? true : letter.hotelWindow.isOpen, // 크리스마스 이후면 무조건 true
       letter.isBlocked,
       isMe,
       LocalDateTimeConverter.convertDateToLocalDateTime(letter.createdAt),
@@ -90,7 +91,7 @@ export class ReplyDTO {
       nickname,
       reply.content,
       reply.hotelWindow.date,
-      reply.hotelWindow.isOpen,
+      localDateTimeUtils.isTargetDate() ? true : reply.hotelWindow.isOpen, // 크리스마스 이후면 무조건 true
       reply.isBlocked,
       isMe,
       LocalDateTimeConverter.convertDateToLocalDateTime(reply.createdAt)
