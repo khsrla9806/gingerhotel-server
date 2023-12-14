@@ -13,7 +13,7 @@ import { HotelUpdateRequest } from '../dto/hotel-update.dto';
 import { MemberBlockHistory } from 'src/entities/member-block-history.entity';
 import { LetterLimit } from 'src/entities/domain/letter-limit.type';
 import { ErrorCode } from 'src/common/filter/code/error-code.enum';
-import { localDateTimeUtils } from 'src/common/utils/local-date-time.utils';
+import { LocalDateTimeUtils } from 'src/common/utils/local-date-time.utils';
 
 @Injectable()
 export class HotelService {
@@ -57,7 +57,7 @@ export class HotelService {
         .innerJoin('hotelWindow.hotel', 'hotel', 'hotel.id = :hotelId', { hotelId: hotel.id })
         .getMany();
 
-      if (localDateTimeUtils.isTargetDate()) {
+      if (LocalDateTimeUtils.isTargetDate()) {
         hotelWindows.map(window => window.isOpen = true);
       }
       
@@ -255,7 +255,7 @@ export class HotelService {
         throw new ForbiddenException('내 호텔의 창문만 열 수 있습니다.', ErrorCode.AccessDenied);
       }
 
-      if (hotelWindow.isOpen) {
+      if (LocalDateTimeUtils.isTargetDate() || hotelWindow.isOpen) {
         throw new BadRequestException('이미 열려있는 창문입니다.', ErrorCode.AlreadyWindowOpened);
       }
 
