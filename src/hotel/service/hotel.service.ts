@@ -186,7 +186,7 @@ export class HotelService {
       const hotelWindowInfo: HotelWindowInfo = {
         id: hotelWindow.id,
         isOpen: hotelWindow.isOpen,
-        hasCookie: hotelWindow.hasCookie
+        hasCookie: hotelWindow.date.equals(LocalDate.of(2023, 12, 25)) ? true : hotelWindow.hasCookie // 25일 쿠키는 모두에게 보여야 한다.
       }
       jsonObject[hotelWindow.date.toString()] = hotelWindowInfo;
     });
