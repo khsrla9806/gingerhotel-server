@@ -54,16 +54,7 @@ export class AuthController {
   @Post('/apple')
   @SocialLoginAPI(Vendor.APPLE, AppleSocialRequest)
   async appleSocialLogin(@Body('token') token, @Res() response: Response) {
-    // Todo: Need to validation apple auth.
     const appleData = jwt.decode(token);
-    /* Need to find out how to handle the client ID.
-    // client id 
-    const jwtClaims = await verifyAppleToken({ 
-      idToken: token,
-      clientId: "com.teamginger.gingerhoteltest", // or ["app1ClientId", "app2ClientId"]
-      nonce: "nonce", // optional
-    });*/
-    
     response.json(await this.authService.socialLogin(appleData["email"], appleData["sub"].toString(), Vendor.APPLE, response));
   }
 

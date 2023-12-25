@@ -7,6 +7,7 @@ export enum ErrorCode {
     InternalServerError = '1005', // 서버 에러가 발생했습니다.
     NotRequestOnesOwnSelf = '1006', // 자기자신에게는 요청을 할 수 없습니다.
     ValidationFailed = '1007', // 유효성 검사에 실패했습니다.
+    TerminatedService = '1008', // 진저호텔 서비스 종료
     
     // Hotel Error (2XXX)
     WindowClosed = '2001', // 해당 날짜의 창문이 닫혀있습니다.
