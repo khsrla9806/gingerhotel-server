@@ -48,6 +48,11 @@ export class LettersService {
     hotelId: number, loginMember: Member, image: Express.Multer.File, dto: CreateLetterRequest
   ): Promise<CommonResponse> {
 
+    // 기존 회원이 아닌 사람들은 2023-12-26 00:00:00 부터 가입 불가능
+    if (LocalDateTimeUtils.isAfterTargetDate()) {
+      throw new BadRequestException('진저호텔 서비스가 종료되었습니다.', ErrorCode.TerminatedService);
+    }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

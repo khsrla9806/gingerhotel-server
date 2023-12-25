@@ -12,6 +12,7 @@ import { Hotel } from 'src/entities/hotel.entity';
 import * as winston from 'winston';
 import { ErrorCode } from 'src/common/filter/code/error-code.enum';
 import axios from 'axios';
+import { LocalDateTimeUtils } from 'src/common/utils/local-date-time.utils';
 
 @Injectable()
 export class AuthService {
@@ -92,6 +93,11 @@ export class AuthService {
           success: true,
           accessToken: this.jwtService.sign(tokenPayload),
         }
+      }
+
+      // 기존 회원이 아닌 사람들은 2023-12-26 00:00:00 부터 가입 불가능
+      if (LocalDateTimeUtils.isAfterTargetDate()) {
+        throw new BadRequestException('진저호텔 서비스가 종료되었습니다.', ErrorCode.TerminatedService);
       }
       
       const code: string = await this.generateMemberCode(7);
