@@ -20,29 +20,14 @@ async function bootstrap() {
   /* cors setting start */
   app.enableCors({
     origin: [
-      'https://www.ginger-hotel.site', 
-      'https://www.gingerhotel.site', 
-      'http://localhost:8081',
-      'https://release.d144dxif1q3m24.amplifyapp.com', // 개발 호스팅 도메인
-      'https://dev.d144dxif1q3m24.amplifyapp.com'
+      'https://www.ginger-hotel.site',
+      'https://ginger-hotel.site'
     ],
     credentials: true,
     exposedHeaders: ['Authorization']
   });
   /* cors setting end */
-
-  /* swagger security start */
-  app.use(
-    ['/api-docs', ],
-    expressBasicAuth({
-      challenge: true,
-      users: {
-        [process.env.SWAGGER_USER]: process.env.SWAGGER_PASSWORD,
-      },
-    }),
-  );
-  /* swagger security end */
-
+  
   setupSwagger(app);
 
   const port: number = +process.env.SERVER_PORT;
