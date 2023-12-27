@@ -1,4 +1,4 @@
-<img width="736" alt="image" src="https://github.com/khsrla9806/gingerhotel-server/assets/70641477/6a3769ef-d580-4c2d-a510-40689b4229fe">
+<img width="100%" alt="image" src="https://github.com/khsrla9806/gingerhotel-server/assets/70641477/6a3769ef-d580-4c2d-a510-40689b4229fe">
 
 # 🎄 Welcome To Ginger Hotel - 진저 호텔 <img src="https://github.com/khsrla9806/gingerhotel-server/assets/70641477/7f2b0f94-c871-4571-ac2a-b9c35bcdb6e1" align="left" width="100">
 
